@@ -1,39 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\lenovo\\capstoneProject\\backend\\backend\\WebApi.csproj": {}
+    "/home/maya/Documents/projects/capstone/capstoneProject/backend/webApi/WebApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\lenovo\\capstoneProject\\backend\\Application\\Application.csproj": {
+    "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\lenovo\\capstoneProject\\backend\\Application\\Application.csproj",
+        "projectUniqueName": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj",
         "projectName": "Application",
-        "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Application\\Application.csproj",
-        "packagesPath": "C:\\Users\\lenovo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Application\\obj\\",
+        "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj",
+        "packagesPath": "/home/maya/.nuget/packages/",
+        "outputPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/home/maya/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj": {
-                "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj"
+              "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj": {
+                "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj"
               }
             }
           }
@@ -42,13 +36,7 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.100"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -69,49 +57,90 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.112/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\lenovo\\capstoneProject\\backend\\backend\\WebApi.csproj": {
+    "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\lenovo\\capstoneProject\\backend\\backend\\WebApi.csproj",
-        "projectName": "WebApi",
-        "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\backend\\WebApi.csproj",
-        "packagesPath": "C:\\Users\\lenovo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\backend\\obj\\",
+        "projectUniqueName": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj",
+        "projectName": "Domain",
+        "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj",
+        "packagesPath": "/home/maya/.nuget/packages/",
+        "outputPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/home/maya/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.112/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/maya/Documents/projects/capstone/capstoneProject/backend/Infrastructure/Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Infrastructure/Infrastructure.csproj",
+        "projectName": "Infrastructure",
+        "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Infrastructure/Infrastructure.csproj",
+        "packagesPath": "/home/maya/.nuget/packages/",
+        "outputPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Infrastructure/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/maya/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\lenovo\\capstoneProject\\backend\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Application\\Application.csproj"
+              "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj": {
+                "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj"
               },
-              "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj": {
-                "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj"
-              },
-              "C:\\Users\\lenovo\\capstoneProject\\backend\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Infrastructure\\Infrastructure.csproj"
-              },
-              "C:\\Users\\lenovo\\capstoneProject\\backend\\Persistence\\Persistence.csproj": {
-                "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Persistence\\Persistence.csproj"
+              "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj": {
+                "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj"
               }
             }
           }
@@ -120,13 +149,143 @@
           "warnAsError": [
             "NU1605"
           ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.112/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/maya/Documents/projects/capstone/capstoneProject/backend/Persistence/Persistence.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Persistence/Persistence.csproj",
+        "projectName": "Persistence",
+        "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Persistence/Persistence.csproj",
+        "packagesPath": "/home/maya/.nuget/packages/",
+        "outputPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Persistence/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/maya/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
         },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj": {
+                "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj"
+              },
+              "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj": {
+                "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj"
+              }
+            }
+          }
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.Options.ConfigurationExtensions": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.1.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.112/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/maya/Documents/projects/capstone/capstoneProject/backend/webApi/WebApi.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/maya/Documents/projects/capstone/capstoneProject/backend/webApi/WebApi.csproj",
+        "projectName": "WebApi",
+        "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/webApi/WebApi.csproj",
+        "packagesPath": "/home/maya/.nuget/packages/",
+        "outputPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/webApi/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/maya/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj": {
+                "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj"
+              },
+              "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj": {
+                "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domian/Domain.csproj"
+              },
+              "/home/maya/Documents/projects/capstone/capstoneProject/backend/Infrastructure/Infrastructure.csproj": {
+                "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Infrastructure/Infrastructure.csproj"
+              },
+              "/home/maya/Documents/projects/capstone/capstoneProject/backend/Persistence/Persistence.csproj": {
+                "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Persistence/Persistence.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -164,216 +323,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj",
-        "projectName": "Domain",
-        "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj",
-        "packagesPath": "C:\\Users\\lenovo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\obj\\",
-        "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
-        "configFilePaths": [
-          "C:\\Users\\lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
-        ],
-        "originalTargetFrameworks": [
-          "net8.0"
-        ],
-        "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
-            "projectReferences": {}
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.100"
-      },
-      "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\lenovo\\capstoneProject\\backend\\Infrastructure\\Infrastructure.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\lenovo\\capstoneProject\\backend\\Infrastructure\\Infrastructure.csproj",
-        "projectName": "Infrastructure",
-        "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Infrastructure\\Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\lenovo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Infrastructure\\obj\\",
-        "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
-        "configFilePaths": [
-          "C:\\Users\\lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
-        ],
-        "originalTargetFrameworks": [
-          "net8.0"
-        ],
-        "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
-            "projectReferences": {
-              "C:\\Users\\lenovo\\capstoneProject\\backend\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Application\\Application.csproj"
-              },
-              "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj": {
-                "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj"
-              }
-            }
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.100"
-      },
-      "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\lenovo\\capstoneProject\\backend\\Persistence\\Persistence.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\lenovo\\capstoneProject\\backend\\Persistence\\Persistence.csproj",
-        "projectName": "Persistence",
-        "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Persistence\\Persistence.csproj",
-        "packagesPath": "C:\\Users\\lenovo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Persistence\\obj\\",
-        "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
-        "configFilePaths": [
-          "C:\\Users\\lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
-        ],
-        "originalTargetFrameworks": [
-          "net8.0"
-        ],
-        "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
-            "projectReferences": {
-              "C:\\Users\\lenovo\\capstoneProject\\backend\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Application\\Application.csproj"
-              },
-              "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj": {
-                "projectPath": "C:\\Users\\lenovo\\capstoneProject\\backend\\Domian\\Domain.csproj"
-              }
-            }
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.100"
-      },
-      "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.112/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
