@@ -10,7 +10,7 @@ namespace backend.Persistence.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
-        private readonly IMongoCollection<T> _collection;
+        protected IMongoCollection<T> _collection;
 
         public GenericRepository(MongoDbContext context)
         {
