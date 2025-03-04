@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace backend.Persistence.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+    public class GenericRepository<T> : IGenericRepository<T> where T : User
     {
         protected IMongoCollection<T> _collection;
 
