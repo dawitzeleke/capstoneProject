@@ -3,6 +3,8 @@ import { Stack, SplashScreen } from "expo-router";
 import { useFonts } from "expo-font";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { View, ActivityIndicator } from "react-native";
+import { Provider } from "react-redux";
+import store from "@/redux/store";
 import "../global.css";
 
 // Prevent splash screen from hiding automatically
@@ -46,23 +48,25 @@ const RootLayout = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack
-        screenOptions={{
-          animation: "slide_from_right",
-          animationDuration: 300, // Smoother transition
-          headerShown:false,
-          presentation: "transparentModal", // Keep previous screen visible
-          freezeOnBlur: true, // Prevent blank screen when navigating back
-        }}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-        name="TeacherVerification"
-        options={{ headerShown: false }} // Hides the header
-      />
-        {/* <Stack.Screen name="/search/[query]" options={{ headerShown: false }} /> */}
-      </Stack>
+      <Provider store={store}>
+        <Stack
+          screenOptions={{
+            animation: "slide_from_right",
+            animationDuration: 300, // Smoother transition
+            headerShown: false,
+            presentation: "transparentModal", // Keep previous screen visible
+            freezeOnBlur: true, // Prevent blank screen when navigating back
+          }}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="TeacherVerification"
+            options={{ headerShown: false }} // Hides the header
+          />
+          {/* <Stack.Screen name="/search/[query]" options={{ headerShown: false }} /> */}
+        </Stack>
+      </Provider>
     </GestureHandlerRootView>
   );
 };

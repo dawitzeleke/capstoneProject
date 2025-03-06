@@ -49,7 +49,7 @@ const SignUp = () => {
                 userType === "Student" ? "bg-white" : "bg-transparent"
               }`}
               textStyles={
-                userType === "Student" ? "text-gray-800" : "text-gray-300"
+                userType === "Student" ? "text-gray-800" : "text-white"
               }
             />
 
@@ -60,7 +60,7 @@ const SignUp = () => {
                 userType === "Teacher" ? "bg-white" : "bg-transparent"
               }`}
               textStyles={
-                userType === "Teacher" ? "text-gray-800" : "text-gray-300"
+                userType === "Teacher" ? "text-gray-800" : "text-white"
               }
             />
           </View>

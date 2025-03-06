@@ -9,6 +9,10 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      opacity: {
+        50: "0.5",
+        100: "1",
+      },
       colors: {
         primary: "#161622",
         secondary: {
@@ -16,6 +20,11 @@ module.exports = {
           100: "#FF9001",
           200: "#FF8E01",
         },
+        card: "#131314",
+        correct: "rgba(34, 197, 94, 0.3)",
+        border1:
+          "linear-gradient(45deg, rgba(0, 255, 255, 0.7), rgba(0, 255, 255, 0.2))", // Custom aqua gradient
+        wrong: "rgba(239, 68, 68, 0.3)",
         black: {
           DEFAULT: "#000",
           100: "#1E1E2D",
