@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Qwy91RGxNhuUd2vBIp+fXDuD5V4nBrmKpmp8np1Sa8zJzsI7R6MOKZDVPXlqpNKVeukdTWa/xYyJi4Kh89shUA==",
+  "dgSpecHash": "kBlwxgO7jpeDBxJmSq81+7JmzK1ndd2Y8EkkV2G/mxprRCyfp8zErOEIiPyKs32dvp586YldOFgB+y/CTlQNlw==",
   "success": true,
   "projectFilePath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,7 @@
     "/home/maya/.nuget/packages/automapper.extensions.microsoft.dependencyinjection/12.0.1/automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
     "/home/maya/.nuget/packages/mediatr/12.4.1/mediatr.12.4.1.nupkg.sha512",
     "/home/maya/.nuget/packages/mediatr.contracts/2.0.1/mediatr.contracts.2.0.1.nupkg.sha512",
+    "/home/maya/.nuget/packages/mediatr.extensions.microsoft.dependencyinjection/11.1.0/mediatr.extensions.microsoft.dependencyinjection.11.1.0.nupkg.sha512",
     "/home/maya/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.0/microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
     "/home/maya/.nuget/packages/microsoft.extensions.options/8.0.0/microsoft.extensions.options.8.0.0.nupkg.sha512",
     "/home/maya/.nuget/packages/microsoft.extensions.primitives/8.0.0/microsoft.extensions.primitives.8.0.0.nupkg.sha512"
@@ -19,6 +20,16 @@
       "warningLevel": 1,
       "message": "Detected package version outside of dependency constraint: AutoMapper.Extensions.Microsoft.DependencyInjection 12.0.1 requires AutoMapper (= 12.0.1) but version AutoMapper 14.0.0 was resolved.",
       "libraryId": "AutoMapper",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1608",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Detected package version outside of dependency constraint: MediatR.Extensions.Microsoft.DependencyInjection 11.1.0 requires MediatR (>= 11.0.0 && < 12.0.0) but version MediatR 12.4.1 was resolved.",
+      "libraryId": "MediatR",
       "targetGraphs": [
         "net8.0"
       ]

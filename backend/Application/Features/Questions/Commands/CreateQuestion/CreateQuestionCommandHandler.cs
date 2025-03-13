@@ -1,5 +1,4 @@
 using MediatR;
-using AutoMapper;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,12 +10,10 @@ namespace backend.Application.Features.Questions.Commands.CreateQuestion;
 public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand, bool>
 {
     private readonly IQuestionRepository _questionRepository;
-    private readonly IMapper _mapper;
 
-    public CreateQuestionCommandHandler(IQuestionRepository questionRepository, IMapper mapper)
+    public CreateQuestionCommandHandler(IQuestionRepository questionRepository)
     {
         _questionRepository = questionRepository;
-        _mapper = mapper;
     }
 
     public async Task<bool> Handle(CreateQuestionCommand request, CancellationToken cancellationToken)
@@ -28,14 +25,15 @@ public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand
             CorrectOption = request.CorrectOption,
             CreatedAt = DateTime.Now,
             Grade = request.Grade,
-            CorrectAnswers=0,
+            totalCorrectAnswers=0,
             CourseName = request.CourseName,
-            Points = request.Points,
+            Point = request.Point,
             Difficulty = request.Difficulty,
             Feedbacks = [],
             QuestionType = request.QuestionType,
             CreatedBy = request.CreatedBy,
         };
+        // System.Console.WriteLine(question);
         await _questionRepository.CreateAsync(question);
         return true;
     }
