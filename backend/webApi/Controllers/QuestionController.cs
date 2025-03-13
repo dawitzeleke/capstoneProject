@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using backend.Application.Contracts.Persistence;
-using backend.Domain.Entities;
 using System.Threading.Tasks;
+using MediatR;
+using backend.Application.Contracts.Persistence;
+using backend.Application.Features.Questions.Commands.CreateQuestion;
+using backend.Application.Features.Questions.Queries.GetQuestionDetail;
+using backend.Application.Features.Questions.Queries.GetQuestionList;
 
 namespace backend.webApi.Controllers;
 
@@ -10,45 +13,47 @@ namespace backend.webApi.Controllers;
 
 public class QuestionsController : ControllerBase
 {
-    private readonly IQuestionRepository _questionRepository;
+    private readonly IMediator _mediator;
 
-    public QuestionsController(IQuestionRepository questionRepository)
+    public QuestionsController(IMediator mediator)
     {
-        _questionRepository = questionRepository;
+        _mediator = mediator;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> GetAllQuestions()
     {
-        var questions = await _questionRepository.GetAllAsync();
+        var questions = await _mediator.Send(new GetQuestionListQuery(){});
         return Ok(questions);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id)
+    public async Task<IActionResult> GetQuestionById(int id)
     {
-        var question = await _questionRepository.GetByIdAsync(id);
+        var question = await _mediator.Send(new GetQuestionDetailQuery{ Id = id });
         return Ok(question);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Post(Question question)
+    public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionCommand question)
     {
-        await _questionRepository.CreateAsync(question);
-        return Ok(question);
+        System.Console.WriteLine("input data",question);
+        Console.WriteLine($"Received Question: {System.Text.Json.JsonSerializer.Serialize(question)}");
+        var response= await _mediator.Send(question);
+        return Ok(response);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Put(Question question)
-    {
-        await _questionRepository.UpdateAsync(question);
-        return Ok(question);
-    }
+    // [HttpPut]
+    // public async Task<IActionResult> Put(Question question)
+    // {
+    //     await _mediator.Send(question);
+    //     return Ok(question);
+    // }
 
-    [HttpDelete]
-    public async Task<IActionResult> Delete(Question question)
-    {
-        await _questionRepository.DeleteAsync(question);
-        return Ok(question);
-    }
+    // [HttpDelete]
+    // public async Task<IActionResult> Delete(Question question)
+    // {
+    //     await _mediator.Send(question);
+    //     return Ok(question);
+    // }
 }
