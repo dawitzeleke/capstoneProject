@@ -1,33 +1,39 @@
 {
   "format": 1,
   "restore": {
-    "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj": {}
+    "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Application\\Application.csproj": {}
   },
   "projects": {
-    "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj": {
+    "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Application\\Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj",
+        "projectUniqueName": "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Application\\Application.csproj",
         "projectName": "Application",
-        "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/Application.csproj",
-        "packagesPath": "/home/maya/.nuget/packages/",
-        "outputPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Application/obj/",
+        "projectPath": "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Application\\Application.csproj",
+        "packagesPath": "C:\\Users\\lenovo\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Application\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/maya/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domain/Domain.csproj": {
-                "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domain/Domain.csproj"
+              "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Domain\\Domain.csproj"
               }
             }
           }
@@ -36,7 +42,13 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -50,6 +62,10 @@
               "target": "Package",
               "version": "[12.0.1, )"
             },
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
             "MediatR": {
               "target": "Package",
               "version": "[12.4.1, )"
@@ -57,6 +73,10 @@
             "MediatR.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
               "version": "[11.1.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.6.1, )"
             }
           },
           "imports": [
@@ -75,26 +95,32 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.112/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domain/Domain.csproj": {
+    "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domain/Domain.csproj",
+        "projectUniqueName": "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Domain\\Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domain/Domain.csproj",
-        "packagesPath": "/home/maya/.nuget/packages/",
-        "outputPath": "/home/maya/Documents/projects/capstone/capstoneProject/backend/Domain/obj/",
+        "projectPath": "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Domain\\Domain.csproj",
+        "packagesPath": "C:\\Users\\lenovo\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lenovo\\Documents\\capstoneProject\\backend\\Domain\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/maya/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -107,11 +133,27 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.13, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.2.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -128,7 +170,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.112/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

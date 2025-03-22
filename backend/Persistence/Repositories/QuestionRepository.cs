@@ -13,7 +13,7 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         _questions= context.GetCollection<Question>(typeof(Question).Name);
     }
 
-    public async Task<int> GetQuestionFeedbacks(int id)
+    public async Task<int> GetQuestionFeedbacks(string id)
     {
         var question = await _questions.Find(x => x.Id == id).FirstOrDefaultAsync();
         return 0;

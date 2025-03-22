@@ -5,7 +5,6 @@ namespace backend.Domain.Entities;
 
 public class Question : ContentEntity
 {
-    int Id { get; set; }
     public string QuestionText { get; set; }
     public string CourseName { get; set; }
     public string Description { get; set; }
