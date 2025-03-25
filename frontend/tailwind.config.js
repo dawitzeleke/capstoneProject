@@ -15,6 +15,7 @@ module.exports = {
       },
       colors: {
         primary: "#161622",
+        stats:"#1E1E29",
         secondary: {
           DEFAULT: "#FF9C01",
           100: "#FF9001",

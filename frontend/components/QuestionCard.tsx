@@ -62,7 +62,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
   };
 
   return (
-    <View style={{ height: height * 0.9 }} className="bg-card justify-center shadow-lg mb-2 mt-2 p-5 w-full relative">
+    <View style={{ height: height * 0.9 }} className="bg-card justify-center shadow-lg mb-2 mt-4 p-5 w-full relative">
       {/* User Info & Follow */}
       <View className="absolute top-2 w-full h-[60px] left-0 flex flex-row justify-between items-center px-6">
         <View className="flex flex-row items-center">

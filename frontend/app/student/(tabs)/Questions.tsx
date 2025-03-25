@@ -47,7 +47,7 @@ const Questions = () => {
       {displayReport && (
         <Pressable
           onPress={() => dispatch(closeOption())}
-          className="absolute top-0 left-0 w-full flex items-center justify-center z-10"
+          className="absolute top-0 left-0 w-full flex items-center justify-center z-10 "
           style={{ height: height, backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
           <ReportOption />
         </Pressable>

@@ -1,62 +1,65 @@
-  import React from "react";
-  import { View, Image, ImageSourcePropType, Text } from "react-native";
-  import { Tabs } from "expo-router";
-  import icons from "../../../constants/icons"
+import React from "react";
+import { View, Image, ImageSourcePropType, Text } from "react-native";
+import { Tabs } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import icons from "../../../constants/icons";
 
-  interface TabIconProps {
-    icon?: ImageSourcePropType;
-    color: string;
-    focused: boolean;
-    name: string;
-    size?: object;
-    isProfile?: boolean;
-    profileImage?: ImageSourcePropType;
-  }
+interface TabIconProps {
+  icon?: ImageSourcePropType;
+  color: string;
+  focused: boolean;
+  name: string;
+  size?: object;
+  isProfile?: boolean;
+  profileImage?: ImageSourcePropType;
+}
 
-  const TabIcon: React.FC<TabIconProps> = ({
-    name,
-    icon,
-    color,
-    size,
-    focused,
-    isProfile = false,
-    profileImage,
-  }) => {
-    return (
-      <View className="items-center justify-center gap-1">
-        {isProfile && profileImage ? (
-          <View
-            className={`w-9 h-9 rounded-full items-center justify-center overflow-hidden 
+const TabIcon: React.FC<TabIconProps> = ({
+  name,
+  icon,
+  color,
+  size,
+  focused,
+  isProfile = false,
+  profileImage,
+}) => {
+  return (
+    <View className="items-center justify-center gap-1">
+      {isProfile && profileImage ? (
+        <View
+          className={`w-9 h-9 rounded-full items-center justify-center overflow-hidden 
             ${focused ? "border-2" : "border-0"} `}
-            style={{ borderColor: focused ? color : "transparent" }}>
-            <Image
-              source={profileImage}
-              style={{ width: "100%", height: "100%", borderRadius: 18 }}
-            />
-          </View>
-        ) : (
+          style={{ borderColor: focused ? color : "transparent" }}>
           <Image
-            source={icon}
-            resizeMode="contain"
-            tintColor={color}
-            style={size}
+            source={profileImage}
+            style={{ width: "100%", height: "100%", borderRadius: 18 }}
           />
-        )}
-        <Text
-          className={`${focused ? "font-psemibold" : "font-pregular"} text-xs`}
-          style={{ color: color }}>
-          {name}
-        </Text>
-      </View>
-    );
-  };
+        </View>
+      ) : (
+        <Image
+          source={icon}
+          resizeMode="contain"
+          tintColor={color}
+          style={size}
+        />
+      )}
+      <Text
+        className={`${focused ? "font-psemibold" : "font-pregular"} text-xs`}
+        style={{ color: color }}>
+        {name}
+      </Text>
+    </View>
+  );
+};
 
-  const TabsLayout: React.FC = () => {
-    return (
+const TabsLayout: React.FC = () => {
+  return (
+    <>
+      <StatusBar backgroundColor="#161622" style="light" />
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,
-          headerShown: false, 
+          headerShown: false,
           tabBarActiveTintColor: "#FFA001",
           tabBarInactiveBackgroundColor: "CDCDE0",
           tabBarStyle: {
@@ -68,8 +71,8 @@
             justifyContent: "center",
           },
           tabBarItemStyle: {
-            marginTop:20,
-            display:"flex",
+            marginTop: 20,
+            display: "flex",
             alignItems: "center",
           },
         }}>
@@ -106,6 +109,30 @@
           }}
         />
         <Tabs.Screen
+          name="Leaderboard"
+          options={{
+            href: null, // This removes it from the tab bar
+          }}
+        />
+        <Tabs.Screen
+          name="Progress"
+          options={{
+            href: null, // This removes it from the tab bar
+          }}
+        />
+        <Tabs.Screen
+          name="SearchScreen"
+          options={{
+            href: null, // This removes it from the tab bar
+          }}
+        />
+        <Tabs.Screen
+          name="TeacherDetail"
+          options={{
+            href: null, // This removes it from the tab bar
+          }}
+        />
+        <Tabs.Screen
           name="Notification"
           options={{
             title: "Notifications",
@@ -138,7 +165,8 @@
           }}
         />
       </Tabs>
-    );
-  };
+    </>
+  );
+};
 
-  export default TabsLayout;
+export default TabsLayout;
