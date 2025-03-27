@@ -111,25 +111,31 @@ const TabsLayout: React.FC = () => {
         <Tabs.Screen
           name="Leaderboard"
           options={{
-            href: null, // This removes it from the tab bar
+            href: null, 
           }}
         />
         <Tabs.Screen
           name="Progress"
           options={{
-            href: null, // This removes it from the tab bar
+            href: null, 
           }}
         />
         <Tabs.Screen
           name="SearchScreen"
           options={{
-            href: null, // This removes it from the tab bar
+            href: null, 
           }}
         />
         <Tabs.Screen
           name="TeacherDetail"
           options={{
-            href: null, // This removes it from the tab bar
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="Activity"
+          options={{
+            href: null, 
           }}
         />
         <Tabs.Screen

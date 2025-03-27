@@ -43,7 +43,6 @@ export default function Dashboard() {
         </View>
       </View>
 
-      {/* 📊 Dashboard Section */}
       <View className="p-6">
         <Text className="text-gray-400 text-xl mx-1 text-center font-bold mb-4">
           Dashboard

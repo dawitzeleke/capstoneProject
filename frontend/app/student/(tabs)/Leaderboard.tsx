@@ -81,7 +81,7 @@ const Leaderboard = () => {
 
       {/* 🔹 Top 3 Users */}
       <View className="flex-row justify-center items-end mb-6">
-        {/* 🥈 Second Place */}
+        {/* Second Place */}
         <View className="items-center mx-4">
           <Image
             source={{ uri: "https://randomuser.me/api/portraits/men/9.jpg" }}
@@ -91,7 +91,7 @@ const Leaderboard = () => {
           <Text className="text-blue-400 font-psemibold">1847</Text>
         </View>
 
-        {/* 🏆 First Place */}
+        {/* First Place */}
         <View className="items-center mx-4 relative">
           {/* Crown Icon */}
           <Image
@@ -117,7 +117,7 @@ const Leaderboard = () => {
           <Text className="text-yellow-400 font-psemibold text-lg">2430</Text>
         </View>
 
-        {/* 🥉 Third Place */}
+        {/* Third Place */}
         <View className="items-center mx-4">
           <Image
             source={{ uri: "https://randomuser.me/api/portraits/women/7.jpg" }}
@@ -128,7 +128,7 @@ const Leaderboard = () => {
         </View>
       </View>
 
-      {/* 🔹 Leaderboard List */}
+      {/* Leaderboard List */}
       <FlatList
         data={leaderboardData}
         keyExtractor={(item) => item.id}
