@@ -93,7 +93,7 @@ const NotificationScreen = () => {
   };
 
   const renderItem = ({ item }: { item: Notification }) => (
-    <View className={`rounded-lg p-4 my-2 mx-4 bg-stats`}>
+    <View className={`rounded-lg p-4 my-2 mx-4 bg-card`}>
       <View className="flex-row items-center space-x-3">
         <Image
           source={{ uri: item.avatar }}

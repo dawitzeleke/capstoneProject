@@ -15,7 +15,7 @@ const SettingsScreen = () => {
       <View className="flex-row items-center mb-6">
         <Link
           href="/student/(tabs)/Profile"
-          className="text-lg font- font-pregularpregular text-blue-500 font-pregular">
+          className="text-lg text-blue-500 font-pregular">
           <Ionicons name="chevron-back" size={20} color="gray" />
         </Link>
       </View>

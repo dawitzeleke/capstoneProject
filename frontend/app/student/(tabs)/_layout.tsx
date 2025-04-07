@@ -27,7 +27,7 @@ const TabIcon: React.FC<TabIconProps> = ({
     <View className="items-center justify-center gap-1">
       {isProfile && profileImage ? (
         <View
-          className={`w-9 h-9 rounded-full items-center justify-center overflow-hidden 
+          className={`w-6 h-6 rounded-full items-center justify-center overflow-hidden 
             ${focused ? "border-2" : "border-0"} `}
           style={{ borderColor: focused ? color : "transparent" }}>
           <Image
@@ -44,7 +44,7 @@ const TabIcon: React.FC<TabIconProps> = ({
         />
       )}
       <Text
-        className={`${focused ? "font-psemibold" : "font-pregular"} text-xs`}
+        className={`font-psemibold text-xs w-20 text-center`}
         style={{ color: color }}>
         {name}
       </Text>
@@ -60,19 +60,20 @@ const TabsLayout: React.FC = () => {
         screenOptions={{
           tabBarShowLabel: false,
           headerShown: false,
-          tabBarActiveTintColor: "#FFA001",
+          tabBarActiveTintColor: "cyan",
           tabBarInactiveBackgroundColor: "CDCDE0",
           tabBarStyle: {
             backgroundColor: "#161622",
-            borderTopWidth: 1,
+            borderTopWidth: 0,
             borderTopColor: "#232533",
-            height: 84,
+            height: 64,
             display: "flex",
             justifyContent: "center",
           },
           tabBarItemStyle: {
-            marginTop: 20,
+            marginTop: 15,
             display: "flex",
+            width:30,
             alignItems: "center",
           },
         }}>
@@ -85,7 +86,7 @@ const TabsLayout: React.FC = () => {
               <TabIcon
                 icon={icons.home}
                 color={color}
-                size={{ width: 28, height: 28 }}
+                size={{ width: 18, height: 18 }}
                 name="Home"
                 focused={focused}
               />
@@ -95,14 +96,14 @@ const TabsLayout: React.FC = () => {
         <Tabs.Screen
           name="Questions"
           options={{
-            title: "Questions",
+            title: "Question",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.pencil}
                 color={color}
-                size={{ width: 28, height: 28 }}
-                name="Questions"
+                size={{ width: 18, height: 18 }}
+                name="Question"
                 focused={focused}
               />
             ),
@@ -141,14 +142,14 @@ const TabsLayout: React.FC = () => {
         <Tabs.Screen
           name="Notification"
           options={{
-            title: "Notifications",
+            title: "Notification",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.notification}
                 color={color}
-                size={{ width: 28, height: 28 }}
-                name="Notifications"
+                size={{ width: 18, height: 18 }}
+                name="Notification"
                 focused={focused}
               />
             ),

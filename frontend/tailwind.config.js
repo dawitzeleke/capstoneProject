@@ -14,14 +14,14 @@ module.exports = {
         100: "1",
       },
       colors: {
-        primary: "#161622",
+        primary: "#101624",
         stats:"#1E1E29",
         secondary: {
           DEFAULT: "#FF9C01",
           100: "#FF9001",
           200: "#FF8E01",
         },
-        card: "#131314",
+        card: "#1A233A",
         correct: "rgba(34, 197, 94, 0.3)",
         border1:
           "linear-gradient(45deg, rgba(0, 255, 255, 0.7), rgba(0, 255, 255, 0.2))", // Custom aqua gradient

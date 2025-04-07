@@ -45,7 +45,7 @@ const Home: React.FC = () => {
   return (
     <View className="flex-1 bg-primary">
       {/* Search Bar */}
-      <View className="flex-row items-center justify-end p-1 rounded-full mx-4 mt-4">
+      <View className="flex-row items-center justify-end p-1 rounded-full mx-4 mt-6">
         <TouchableOpacity
           className="p-4 bg-gray-700 rounded-full"
           onPress={() => router.push("/student/(tabs)/SearchScreen")}>

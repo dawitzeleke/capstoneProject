@@ -49,7 +49,7 @@ const Leaderboard = () => {
     <View className="flex-1 bg-[#101624] px-4 py-6 mt-4">
       <Link
         href="/student/(tabs)/Profile"
-        className="text-lg font- font-pregularpregular text-blue-500 font-pregular">
+        className="text-lg text-blue-500 font-pregular">
         <Ionicons name="chevron-back" size={20} color="gray" />
       </Link>
       {/* 🔹 Header Section */}
