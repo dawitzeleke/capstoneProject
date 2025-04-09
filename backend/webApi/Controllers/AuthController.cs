@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.AuthDtos;
-// using Application.Handlers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,26 +15,27 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost("signup/student")]
+        [HttpPost("student/signup")]
         public async Task<IActionResult> SignUpStudent([FromForm] SignUpStudentCommand query)
         {
             var result = await _mediator.Send(query);
             return Ok(result);
         }
 
-        // [HttpPost("signup/teacher")]
-        // public async Task<IActionResult> SignUpTeacher([FromForm] SignUpTeacherDto request)
-        // {
-        //     var token = await _authService.SignUpTeacher(request, "Teacher");
-        //     return Ok(new { Token = token });
-        // }
+        [HttpPost("teacher/signup")]
+        public async Task<IActionResult> SignUpTeacher([FromForm] SignUpTeacherCommand query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
 
-        // [HttpPost("signup/admin")]
-        // public async Task<IActionResult> SignUpAdmin([FromForm] AuthRequestDto request)
-        // {
-        //     var token = await _authService.SignUp(request, "Admin");
-        //     return Ok(new { Token = token });
-        // }
+        [HttpPost("admin/signup")]
+        public async Task<IActionResult> SignUpAdmin([FromForm] SignUpAdminCommand query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+        
 
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn([FromForm] SignInQuery query)

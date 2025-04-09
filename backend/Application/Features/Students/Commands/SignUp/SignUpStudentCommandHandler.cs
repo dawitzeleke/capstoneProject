@@ -28,14 +28,14 @@ public class SignUpStudentCommandHandler : IRequestHandler<SignUpStudentCommand,
 
     public async Task<AuthResponseDto> Handle(SignUpStudentCommand request, CancellationToken cancellationToken)
     {
-        // Check if student already exists
+        
         var existingStudent = await _studentRepository.GetByEmailAsync(request.Email);
         if (existingStudent != null)
         {
             throw new Exception("Student with this email already exists");
         }
         
-        // Create new Student
+       
         var newStudent = new Student
         {
             Email = request.Email,
@@ -43,23 +43,23 @@ public class SignUpStudentCommandHandler : IRequestHandler<SignUpStudentCommand,
             LastName = request.LastName,
             PhoneNumber = request.PhoneNumber,
             Grade = request.Grade,
+            CreatedAt = DateTime.Now,
         };
         Console.WriteLine($"Student created:{request.Email}");
-        // Hash password using injected service
         newStudent.PasswordHash = _passwordHasher.HashPassword(newStudent, request.Password);
 
-        // Save Student to database
+      
         await _studentRepository.CreateAsync(newStudent);
         Console.WriteLine($"Student created:{newStudent.Id}");
         Console.WriteLine($"Student created:{newStudent.Email}");
 
-        // Generate JWT token
         var token = _jwtTokenGenerator.GenerateToken(newStudent.Id, newStudent.Email);
 
         return new AuthResponseDto
         {
             Token = token,
-            Email = newStudent.Email
+            Email = newStudent.Email,
+            Role = UserRole.Student
         };
     }
 }

@@ -17,3 +17,4 @@ public class GetQuestionDetailDto
         public int[] Feedbacks { get; set;}
         public string CreatedBy { get; set; }
     }
+    

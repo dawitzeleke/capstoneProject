@@ -10,6 +10,7 @@ using backend.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using backend.Domain.Common;
 using backend.Domain.Entities;
+using Domain.Entities;
 
 namespace backend.Persistence;
 
@@ -48,9 +49,12 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IQuestionRepository, QuestionRepository>();
         services.AddScoped<ITeacherRepository, TeacherRepository>();
         services.AddScoped<IStudentRepository, StudentRepository>();
+        services.AddScoped<IAdminRepository, AdminRepository>();
 
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPasswordHasher<Student>, PasswordHasher<Student>>();
+        services.AddScoped<IPasswordHasher<Teacher>, PasswordHasher<Teacher>>();
+        services.AddScoped<IPasswordHasher<Admin>, PasswordHasher<Admin>>();
         return services;
     }
 }

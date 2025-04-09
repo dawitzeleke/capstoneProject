@@ -12,4 +12,9 @@ public class TeacherRepository: GenericRepository<Teacher>, ITeacherRepository
     {
         _teachers = context.GetCollection<Teacher>(typeof(Teacher).Name);
     }
+
+    public async Task<Teacher> GetByEmailAsync(string email)
+    {
+        return await _teachers.Find(teacher => teacher.Email == email).FirstOrDefaultAsync();
+    }
 }
