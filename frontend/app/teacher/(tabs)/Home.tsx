@@ -87,7 +87,7 @@ const TeacherDashboard = () => {
 
       {/* Action Buttons - Updated Layout */}
       <View className="flex-row gap-2 mb-6">
-        <Link href="/teacher/(tabs)/contentList" asChild>
+        <Link href="/teacher/(tabs)/ContentList" asChild>
           <TouchableOpacity className="flex-1 bg-purple-600 p-3 rounded-2xl shadow-lg min-h-[90px]">
             <View className="flex-1 justify-between h-full">
               {/* Icon at top-right */}
@@ -116,7 +116,7 @@ const TeacherDashboard = () => {
           </TouchableOpacity>
         </Link>
 
-        <Link href="/teacher/(tabs)/insights" asChild>
+        <Link href="/teacher/(tabs)/Insights" asChild>
           <TouchableOpacity className="flex-1 bg-purple-50 p-3 rounded-2xl shadow-lg min-h-[90px]">
             <View className="flex-1 justify-between h-full">
               {/* Icon at top-right */}
