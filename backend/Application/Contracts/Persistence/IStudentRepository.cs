@@ -2,6 +2,8 @@ using backend.Domain.Entities;
 
 namespace backend.Application.Contracts.Persistence;
 
-public interface IStudentRepository:IGenericRepository<Student>{
-    Task<int> GetStudentGrade(int id);
+public interface IStudentRepository : IGenericRepository<Student>
+{
+    Task<Student> GetByEmailAsync(string email);
+
 }

@@ -28,7 +28,7 @@ public class QuestionsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetQuestionById(int id)
+    public async Task<IActionResult> GetQuestionById(string id)
     {
         var question = await _mediator.Send(new GetQuestionDetailQuery{ Id = id });
         return Ok(question);

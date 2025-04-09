@@ -3,7 +3,7 @@ namespace backend.Application.Dtos.QuestionDtos;
 
 public class GetQuestionDetailDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string QuestionText { get; set; }
         public string Description { get; set; }
         public string CourseName { get; set; }
@@ -17,3 +17,4 @@ public class GetQuestionDetailDto
         public int[] Feedbacks { get; set;}
         public string CreatedBy { get; set; }
     }
+    

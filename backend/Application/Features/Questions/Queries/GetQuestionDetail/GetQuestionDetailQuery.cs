@@ -5,5 +5,5 @@ namespace backend.Application.Features.Questions.Queries.GetQuestionDetail;
 
 public class GetQuestionDetailQuery : IRequest<GetQuestionDetailDto>
 {
-    public int Id { get; set; }
+    public string Id { get; set; }
 }

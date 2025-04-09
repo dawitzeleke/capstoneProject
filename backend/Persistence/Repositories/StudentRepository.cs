@@ -1,25 +1,20 @@
-namespace backend.Persistence.Repositories;
 using backend.Application.Contracts.Persistence;
 using backend.Domain.Entities;
 using backend.Persistence.DatabaseContext;
+using MongoDB.Bson;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+namespace backend.Persistence.Repositories;
 
 public class StudentRepository : GenericRepository<Student>, IStudentRepository
 {
-    private readonly IMongoCollection<Student> _users;
-
-    public StudentRepository(MongoDbContext context) : base(context)
+    private readonly IMongoCollection<Student> _students;
+    public StudentRepository(MongoDbContext dbContext) : base(dbContext)
     {
-        _users = context.GetCollection<Student>(typeof(Student).Name);
+        _students = dbContext.GetCollection<Student>(typeof(Student).Name);
     }
 
-    public async Task<int> GetStudentGrade(int id)
+    public async Task<Student> GetByEmailAsync(string email)
     {
-        var student = await _users.Find(x => x.Id == id).FirstOrDefaultAsync();
-        return student.Grade;
+        return await _students.Find(user => user.Email == email).FirstOrDefaultAsync();
     }
-
 }

@@ -22,14 +22,15 @@ namespace backend.Persistence.Repositories
             return await _collection.Find(_ => true).ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T> GetByIdAsync(string id)
         {
             return await _collection.Find(x => x.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task CreateAsync(T entity)
+        public async Task<T> CreateAsync(T entity)
         {
             await _collection.InsertOneAsync(entity);
+            return entity;
         }
 
         public async Task UpdateAsync(T entity)
