@@ -62,7 +62,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
   };
 
   return (
-    <View style={{ height: height * 0.9 }} className="bg-card justify-center shadow-lg mb-2 mt-2 p-5 w-full relative">
+    <View style={{ height: height * 0.94 }} className="bg-card justify-center shadow-lg mb-2 mt-4 p-5 w-full relative">
       {/* User Info & Follow */}
       <View className="absolute top-2 w-full h-[60px] left-0 flex flex-row justify-between items-center px-6">
         <View className="flex flex-row items-center">
@@ -114,7 +114,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
       </View>
 
       {/* Question Details */}
-      <View className="absolute bg-black p-2 rounded-lg bottom-0 left-0 right-0" style={{ backgroundColor: expanded ? "rgba(0, 0, 0, 0.7)" : "#131314", width: "100%" }}>
+      <View className="absolute  p-2  bottom-0 left-0 right-0" style={{ backgroundColor: expanded ? "#101624" : "#1A233A", width: "100%" }}>
         <Text className="color-slate-300 font-pmedium">
           <Text className="font-psemibold color-slate-300">{formatNumber(question.correctAttempts)}</Text>
           {"  "}<Text className="font-psemibold color-slate-300">Correct attempts</Text>
