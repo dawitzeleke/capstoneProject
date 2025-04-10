@@ -39,7 +39,7 @@ const AddQuestionScreen = () => {
       {/* Header Section */}
       <View style={styles.header}>
         <Pressable style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#6D28D9" />
+          <Ionicons name="arrow-back" size={24} color="#4F46E5" />
         </Pressable>
         <Text style={styles.title}>Upload Content</Text>
       </View>
@@ -92,7 +92,7 @@ const AddQuestionScreen = () => {
             <View key={`${tag}-${index}`} style={styles.tag}>
               <Text style={styles.tagText}>{tag}</Text>
               <Pressable onPress={() => removeTag(index)}>
-                <Ionicons name="close" size={16} color="#6D28D9" />
+                <Ionicons name="close" size={16} color="#4F46E5" />
               </Pressable>
             </View>
           ))}
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeSelector: {
-    backgroundColor: '#6D28D9',
+    backgroundColor: '#4F46E5',
     borderRadius: 8,
   },
   selectorText: {
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   optionLabel: {
     width: 24,
     fontSize: 14,
-    color: '#6D28D9',
+    color: '#4F46E5',
     fontWeight: '500',
   },
   optionInput: {
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   tagText: {
-    color: '#6D28D9',
+    color: '#4F46E5',
     fontSize: 12,
     fontWeight: '500',
   },
@@ -327,11 +327,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   draftButton: {
-    backgroundColor: '#e9d5ff',
+    backgroundColor: '#d6ddff',
     flex: 1.7,
   },
   postButton: {
-    backgroundColor: '#6D28D9',
+    backgroundColor: '#4F46E5',
     flex: 1,
   },
   cancelButton: {
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   buttonTextBase: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#6D28D9',
+    color: '#4F46E5',
     textAlign: 'center',
   },
   verySmallButtonText: {

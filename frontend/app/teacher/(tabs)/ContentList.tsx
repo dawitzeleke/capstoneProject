@@ -122,7 +122,7 @@ const ContentListScreen = () => {
           onPress={() => setShowSearch(!showSearch)}
           style={styles.searchIcon}
         >
-          <Ionicons name="search" size={24} color="#6D28D9" />
+          <Ionicons name="search" size={24} color="#4F46E5" />
         </Pressable>
       </View>
 
@@ -208,7 +208,7 @@ const ContentListScreen = () => {
               onPress={() => toggleSelection(item.id)}
             >
               {selectedIds.includes(item.id) ? (
-                <Ionicons name="checkmark-circle" size={24} color="#6D28D9" />
+                <Ionicons name="checkmark-circle" size={24} color="#4F46E5" />
               ) : (
                 <Ionicons name="ellipse-outline" size={24} color="#cbd5e1" />
               )}
@@ -233,7 +233,7 @@ const ContentListScreen = () => {
                 style={styles.actionButton}
                 onPress={() => handleEdit(item.id)}
               >
-                <Ionicons name="create-outline" size={20} color="#6D28D9" />
+                <Ionicons name="create-outline" size={20} color="#4F46E5" />
               </Pressable>
 
               <Pressable
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   activeNav: {
-    backgroundColor: "#6D28D9",
+    backgroundColor: "#4F46E5",
   },
   navText: {
     fontSize: 14,
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   selectedCard: {
-    borderColor: "#6D28D9",
+    borderColor: "#4F46E5",
     borderWidth: 2,
     backgroundColor: "#f5f3ff",
   },

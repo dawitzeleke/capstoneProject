@@ -28,7 +28,7 @@ const UploadOtherScreen = () => {
       {/* Header Section */}
       <View style={styles.header}>
         <Pressable style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#6D28D9" />
+          <Ionicons name="arrow-back" size={24} color="#4F46E5" />
         </Pressable>
         <Text style={styles.title}>Upload Content</Text>
       </View>
@@ -70,7 +70,7 @@ const UploadOtherScreen = () => {
       {/* Upload Area */}
       <View style={styles.sectionContainer}>
         <Pressable style={styles.uploadArea}>
-          <Ionicons name="cloud-upload" size={48} color="#6D28D9" style={styles.uploadIcon} />
+          <Ionicons name="cloud-upload" size={48} color="#4F46E5" style={styles.uploadIcon} />
           <Text style={styles.uploadTitle}>Upload new file or folder</Text>
           <Text style={styles.uploadSubtitle}>Drag and drop a file or browse files</Text>
         </Pressable>
@@ -84,7 +84,7 @@ const UploadOtherScreen = () => {
             <View key={`${tag}-${index}`} style={styles.tag}>
               <Text style={styles.tagText}>{tag}</Text>
               <Pressable onPress={() => removeTag(index)}>
-                <Ionicons name="close" size={16} color="#6D28D9" />
+                <Ionicons name="close" size={16} color="#4F46E5" />
               </Pressable>
             </View>
           ))}
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeSelector: {
-    backgroundColor: '#6D28D9',
+    backgroundColor: '#4F46E5',
     borderRadius: 8,
   },
   selectorText: {
@@ -198,8 +198,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8fafc',
   },
   selectedFileType: {
-    backgroundColor: '#6D28D9',
-    borderColor: '#6D28D9',
+    backgroundColor: '#4F46E5',
+    borderColor: '#4F46E5',
   },
   fileTypeText: {
     fontSize: 14,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   tagText: {
-    color: '#6D28D9',
+    color: '#4F46E5',
     fontSize: 12,
     fontWeight: '500',
   },
@@ -276,10 +276,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   draftButton: {
-    backgroundColor: '#e9d5ff',
+    backgroundColor: '#d6ddff',
   },
   postButton: {
-    backgroundColor: '#6D28D9',
+    backgroundColor: '#4F46E5',
   },
   postButtonText: {
     color: '#ffffff',
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#6D28D9',
+    color: '#4F46E5',
     textAlign: 'center',
   },
   cancelButtonText: {
