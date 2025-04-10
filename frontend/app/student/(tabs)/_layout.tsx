@@ -63,7 +63,7 @@ const TabsLayout: React.FC = () => {
           tabBarActiveTintColor: "cyan",
           tabBarInactiveBackgroundColor: "CDCDE0",
           tabBarStyle: {
-            backgroundColor: "#161622",
+            backgroundColor: "#101624",
             borderTopWidth: 0,
             borderTopColor: "#232533",
             height: 64,

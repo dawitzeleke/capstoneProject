@@ -1,6 +1,13 @@
 import React, { useRef, useState } from "react";
-import { View, FlatList, ActivityIndicator, useWindowDimensions, ViewToken } from "react-native";
+import {
+  View,
+  FlatList,
+  ActivityIndicator,
+  useWindowDimensions,
+  ViewToken,
+} from "react-native";
 import QuestionCard from "./QuestionCard"; // Ensure the correct import path
+import QuestionSkeleton from "./QuestionSkeleton";
 
 interface Question {
   id: string;
@@ -50,8 +57,7 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
           style={{
             height: adjustedHeight, // Consistent height per card
             width: "100%",
-          }}
-        >
+          }}>
           <QuestionCard question={item} />
         </View>
       )}
@@ -65,11 +71,7 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
       ListFooterComponent={
         isLoading ? (
           <View className="flex justify-center items-center">
-            <ActivityIndicator
-              style={{ height: adjustedHeight }}
-              className="text-blue-500"
-              size="large"
-            />
+            <QuestionSkeleton />
           </View>
         ) : null
       }

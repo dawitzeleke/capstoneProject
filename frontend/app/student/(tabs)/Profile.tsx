@@ -4,9 +4,9 @@ import { FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 export default function Dashboard() {
   return (
-    <View className="flex-1 bg-card">
+    <View className="flex-1 bg-primary">
       {/* 🔵 Top Section */}
-      <View className="bg-primary py-8 px-6 rounded-b-3xl mt-4">
+      <View className="bg-card py-8 px-6 rounded-b-3xl mt-4">
         <View className="flex-row items-center justify-between">
           {/* Profile Image */}
           <Image
@@ -53,7 +53,7 @@ export default function Dashboard() {
           {/* Card 1 */}
           <Link
             href="/student/(tabs)/Progress"
-            className="w-[48%] bg-stats p-5 rounded-2xl shadow-lg mb-4">
+            className="w-[48%] bg-card p-5 rounded-2xl shadow-lg mb-4">
             <View className="flex justify-center items-center">
               <View className="bg-green-500 p-2 rounded-full">
                 <MaterialIcons name="insights" size={28} color="white" />
@@ -70,7 +70,7 @@ export default function Dashboard() {
           {/* Card 2 */}
           <Link
             href="/student/(tabs)/Leaderboard"
-            className="w-[48%] bg-stats p-5 rounded-2xl shadow-lg  mb-4">
+            className="w-[48%] bg-card p-5 rounded-2xl shadow-lg  mb-4">
             <View className=" flex justify-center items-center">
               <View className="bg-blue-500 p-2 rounded-full">
                 <MaterialIcons name="leaderboard" size={28} color="white" />
@@ -87,7 +87,7 @@ export default function Dashboard() {
           {/* Card 3 */}
           <Link
             href="/student/(tabs)/Activity"
-            className="w-[48%] bg-stats p-5 rounded-2xl shadow-lg mb-4">
+            className="w-[48%] bg-card p-5 rounded-2xl shadow-lg mb-4">
             <View className="flex justify-center items-center">
               <View className="bg-yellow-500 p-2 rounded-full">
                 <FontAwesome5 name="running" size={28} color="white" />
@@ -104,7 +104,7 @@ export default function Dashboard() {
           {/* Card 4 */}
           <Link
             href="/student/(tabs)/QuestionsDone"
-            className="w-[48%] bg-stats p-5 rounded-2xl shadow-lg mb-4">
+            className="w-[48%] bg-card p-5 rounded-2xl shadow-lg mb-4">
             <View className="flex justify-center items-center">
               <View className="bg-red-500 p-2 rounded-full">
                 <FontAwesome5 name="tasks" size={28} color="white" />

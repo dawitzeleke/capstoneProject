@@ -114,7 +114,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
       </View>
 
       {/* Question Details */}
-      <View className="absolute  p-2  bottom-0 left-0 right-0" style={{ backgroundColor: expanded ? "rgba(0, 0, 0, 0.7)" : "#101624", width: "100%" }}>
+      <View className="absolute  p-2  bottom-0 left-0 right-0" style={{ backgroundColor: expanded ? "#101624" : "#1A233A", width: "100%" }}>
         <Text className="color-slate-300 font-pmedium">
           <Text className="font-psemibold color-slate-300">{formatNumber(question.correctAttempts)}</Text>
           {"  "}<Text className="font-psemibold color-slate-300">Correct attempts</Text>
