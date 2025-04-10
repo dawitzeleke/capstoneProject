@@ -18,7 +18,7 @@ interface QuestionItem {
   date: string;
 }
 
-export default function ContentListScreen() {
+const ContentListScreen = () => {
   const [activeTab, setActiveTab] = useState<"all" | "posted" | "draft">("all");
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -261,7 +261,7 @@ export default function ContentListScreen() {
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -345,7 +345,6 @@ const styles = StyleSheet.create({
   actionButton: {
     padding: 6,
   },
-
   searchIcon: {
     position: "absolute",
     right: 20,
@@ -417,3 +416,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f3ff",
   },
 });
+
+export default ContentListScreen;
