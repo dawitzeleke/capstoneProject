@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, StyleSheet, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function EngagementInsightsScreen() {
+const EngagementInsightsScreen = () => {
   const { width } = useWindowDimensions();
 
   return (
@@ -62,7 +62,7 @@ export default function EngagementInsightsScreen() {
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -195,3 +195,5 @@ const styles = StyleSheet.create({
     color: '#1E293B',
   },
 });
+
+export default EngagementInsightsScreen;
