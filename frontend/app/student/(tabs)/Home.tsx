@@ -48,7 +48,7 @@ const Home: React.FC = () => {
       <View className="flex-row items-center justify-end p-1 rounded-full mx-4 mt-6">
         <TouchableOpacity
           className="p-4 bg-gray-700 rounded-full"
-          onPress={() => router.push("/student/(tabs)/SearchScreen")}>
+          onPress={() => router.push("/student/SearchScreen")}>
           <AntDesign name="search1" size={20} color="gray" />
         </TouchableOpacity>
       </View>

@@ -128,6 +128,12 @@ const TabsLayout: React.FC = () => {
           }}
         />
         <Tabs.Screen
+          name="FollowingList"
+          options={{
+            href: null, 
+          }}
+        />
+        <Tabs.Screen
           name="TeacherDetail"
           options={{
             href: null,

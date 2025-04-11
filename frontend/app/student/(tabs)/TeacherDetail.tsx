@@ -1,8 +1,20 @@
+import React from "react";
+import { useSelector } from "react-redux";
 import { View, Text, Image, TouchableOpacity, FlatList } from "react-native";
 import { Link } from "expo-router";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { RootState } from "../../../redux/store";
 
 const TeacherProfile = () => {
+  const teacherData = useSelector(
+    (state: RootState) => state.teacher.teacherData
+  );
+  console.log(teacherData);
+
+  if (!teacherData) return null;
+
+  const { name, title, followers, questions, imageUrl } = teacherData;
+
   const suggestedTeachers = [
     {
       id: "1",
@@ -20,50 +32,53 @@ const TeacherProfile = () => {
 
   return (
     <View className="flex-1 bg-primary p-4">
-      {/* Profile Header */}
-      <View className="items-center justify-center relative">
-        <View className="flex-row items-center mb-6 absolute top-3 left-0 ">
-          <Link
-            href="/student/(tabs)/SearchScreen"
-            className="text-lg text-blue-500 font-pregular">
-            <Ionicons name="chevron-back" size={20} color="gray" />
-          </Link>
-        </View>
+      {/* Back button */}
+      <View className="absolute top-3 left-3 z-10">
+        <Link
+          href="/student/(tabs)/Home"
+          className="text-lg text-blue-500 font-pregular">
+          <Ionicons name="chevron-back" size={20} color="gray" />
+        </Link>
+      </View>
+
+      {/* Profile Info */}
+      <View className="items-center justify-center mt-10">
         <Image
-          source={{ uri: "https://randomuser.me/api/portraits/men/3.jpg" }}
+          source={{ uri: imageUrl }}
           className="w-24 h-24 rounded-full border-2 border-gray-400"
         />
-        <Text className="text-white text-lg font-psemibold mt-2">
-          Johnnie 21
-        </Text>
-        <Text className="text-gray-400 font-pregular">Teaches Biology</Text>
+        <Text className="text-white text-lg font-psemibold mt-2">{name}</Text>
+        <Text className="text-gray-400 font-pregular">{title}</Text>
       </View>
 
       {/* Stats */}
       <View className="flex-row justify-around mt-4">
-        <View className="items-center w-20">
+        <View className="items-center align-middle w-20">
           <AntDesign name="staro" size={24} color="white" />
-          <Text className="text-white text-lg font-pbold">4.2</Text>
-          <Text className="text-gray-400 font-pregular">Raiting</Text>
+          <Text className="text-white text-lg font-pbold text-center">
+            4.2 Rating
+          </Text>
         </View>
-        <View className="items-center w-20">
+        <View className="items-center flex-col align-middle w-20">
           <MaterialIcons name="group" size={24} color="white" />
-          <Text className="text-white text-lg font-pbold ">189</Text>
-          <Text className="text-gray-400 font-pregular">Followers</Text>
+          <Text className="text-white text-lg text-center font-pbold">
+            {followers}
+          </Text>
         </View>
         <View className="items-center w-20">
           <MaterialIcons name="edit-note" size={24} color="white" />
-          <Text className="text-white text-lg font-pbold">461</Text>
-          <Text className="text-gray-400 font-pregular">Questions</Text>
+          <Text className="text-white text-lg text-center font-pbold">
+            {questions}
+          </Text>
         </View>
       </View>
 
-      {/* Follow Button */}
+      {/* Follow button */}
       <TouchableOpacity className="p-2 border border-cyan-400 rounded-lg mt-4 items-center">
         <Text className="text-white font-psemibold">Follow</Text>
       </TouchableOpacity>
 
-      {/* Suggested Teachers */}
+      {/* Suggested */}
       <Text className="text-white font-pbold mt-6 mb-2">Suggested for you</Text>
       <FlatList
         horizontal
@@ -83,6 +98,7 @@ const TeacherProfile = () => {
             </Text>
           </View>
         )}
+        showsHorizontalScrollIndicator={false}
       />
     </View>
   );
