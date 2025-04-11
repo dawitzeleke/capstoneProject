@@ -2,6 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { View, Text, Image, TouchableOpacity, FlatList } from "react-native";
 import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { RootState } from "../../../redux/store";
 
@@ -9,7 +10,7 @@ const TeacherProfile = () => {
   const teacherData = useSelector(
     (state: RootState) => state.teacher.teacherData
   );
-  console.log(teacherData);
+  const router = useRouter();
 
   if (!teacherData) return null;
 
@@ -34,11 +35,9 @@ const TeacherProfile = () => {
     <View className="flex-1 bg-primary p-4">
       {/* Back button */}
       <View className="absolute top-3 left-3 z-10">
-        <Link
-          href="/student/(tabs)/Home"
-          className="text-lg text-blue-500 font-pregular">
+        <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={20} color="gray" />
-        </Link>
+        </TouchableOpacity>
       </View>
 
       {/* Profile Info */}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,53 +6,47 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import TeacherItem from "@/components/TeacherItem"; // Adjust path based on your folder structure
-
-const following = [
-  {
-    id: "1",
-    name: "Birhanu Temesgen",
-    title: "Teaches Biology at SOT",
-    followers: "2k Followers",
-    questions: "400 Questions",
-  },
-  {
-    id: "2",
-    name: "Sara Mekonnen",
-    title: "Teaches Chemistry at SOT",
-    followers: "1.5k Followers",
-    questions: "320 Questions",
-  },
-  {
-    id: "3",
-    name: "Dereje Alemu",
-    title: "Teaches Physics at SOT",
-    followers: "2.3k Followers",
-    questions: "500 Questions",
-  },
-];
+import { useSelector, useDispatch } from "react-redux";
+import { useRouter } from "expo-router";
+import TeacherItem from "@/components/TeacherItem";
+import { RootState, AppDispatch } from "../../redux/store";
+import { setTeacherData } from "../../redux/teacherReducer/teacherActions";
 
 const FollowingList = () => {
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const [query, setQuery] = useState("");
+
+  const followingTeachers = useSelector(
+    (state: RootState) => state.teacher.teachers
+  );
+
+  const filteredTeachers = followingTeachers.filter((teacher) =>
+    teacher.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const handlePress = (teacher: (typeof followingTeachers)[0]) => {
+    dispatch(setTeacherData(teacher));
+    router.push("/student/(tabs)/TeacherDetail");
+  };
+
   return (
     <View className="flex-1 bg-primary px-4 pt-6">
-      {/* Header */}
       <View className="flex-row justify-between items-center mb-4">
-        <Link
-          href="/student/(tabs)/Profile"
-          className="text-lg font- font-pregularpregular text-blue-500 font-pregular">
-          <Ionicons name="chevron-back" size={20} color="gray" />
-        </Link>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={24} color="gray" />
+        </TouchableOpacity>
         <Text className="text-white text-2xl font-pbold">Following</Text>
         <Ionicons name="people-circle" size={28} color="white" />
       </View>
 
-      {/* Search Bar */}
       <View className="flex-row items-center bg-gray-700 p-3 rounded-full mb-4">
         <TextInput
           placeholder="Search followed teachers"
           placeholderTextColor="#ccc"
+          value={query}
+          onChangeText={setQuery}
           className="flex-1 ml-2 text-white pl-4 font-pregular"
         />
         <TouchableOpacity className="p-2">
@@ -60,9 +54,8 @@ const FollowingList = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Followed Teachers List */}
       <FlatList
-        data={following}
+        data={filteredTeachers}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
@@ -71,12 +64,15 @@ const FollowingList = () => {
             title={item.title}
             followers={item.followers}
             questions={item.questions}
-            onPress={() => {
-              // Replace with your navigation logic
-              console.log(`Navigate to profile of ${item.name}`);
-            }}
+            imageUrl={item.imageUrl}
+            onPress={() => handlePress(item)}
           />
         )}
+        ListEmptyComponent={
+          <Text className="text-center text-gray-400 mt-10">
+            You are not following any teacher.
+          </Text>
+        }
       />
     </View>
   );
