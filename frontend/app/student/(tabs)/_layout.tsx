@@ -134,6 +134,12 @@ const TabsLayout: React.FC = () => {
           }}
         />
         <Tabs.Screen
+          name="SavedQuestions"
+          options={{
+            href: null, 
+          }}
+        />
+        <Tabs.Screen
           name="TeacherDetail"
           options={{
             href: null,
