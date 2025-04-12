@@ -37,6 +37,7 @@ const ContentListScreen = () => {
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showErrorToast, setShowErrorToast] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
 
   const [questions, setQuestions] = useState<QuestionItem[]>([
     {
@@ -120,43 +121,41 @@ const ContentListScreen = () => {
 
   // Bulk Delete
   const handleBulkDelete = () => {
-    Alert.alert(
-      "Delete Selected",
-      `Are you sure you want to delete ${selectedIds.length} items?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            setLoading(true);
-            (async () => {
-              try {
-                await new Promise((resolve, reject) => {
-                  if (Math.random() < 0.9) {
-                    setTimeout(resolve, 1000);
-                  } else {
-                    reject(new Error("Bulk delete failed. Please try again."));
-                  }
-                });
-                
-                setQuestions(prev => prev.filter(question => !selectedIds.includes(question.id)));
-                setSelectedIds([]);
-              } catch (error) {
-                setErrorMessage(error instanceof Error ? error.message : "Bulk delete failed");
-                setShowErrorToast(true);
-                setTimeout(() => {
-                  setShowErrorToast(false);
-                  setErrorMessage(null);
-                }, 2000);
-              } finally {
-                setLoading(false);
-              }
-            })();
-          }
+    setShowBulkDeleteModal(true);
+  };
+
+  // Bulk Delete confirmation handler
+  const handleConfirmBulkDelete = async () => {
+    setLoading(true);
+    try {
+      await new Promise((resolve, reject) => {
+        if (Math.random() < 0.9) {
+          setTimeout(resolve, 1000);
+        } else {
+          reject(new Error("Bulk delete failed. Please try again."));
         }
-      ]
-    );
+      });
+      
+      setQuestions(prev => prev.filter(question => !selectedIds.includes(question.id)));
+      setSelectedIds([]);
+      setShowSuccessToast(true);
+      setTimeout(() => setShowSuccessToast(false), 2000);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Bulk delete failed");
+      setShowErrorToast(true);
+      setTimeout(() => {
+        setShowErrorToast(false);
+        setErrorMessage(null);
+      }, 2000);
+    } finally {
+      setLoading(false);
+      setShowBulkDeleteModal(false);
+    }
+  };
+
+  // Clear selection handler
+  const handleClearSelection = () => {
+    setSelectedIds([]);
   };
 
   // Edit fun
@@ -257,21 +256,33 @@ const handleSaveEdit = async () => {
         </View>
       )}
 
-      {selectedIds.length > 0 && (
-         <Pressable 
-         style={styles.bulkDeleteButton} 
-         onPress={handleBulkDelete}
-         disabled={loading}
-       >
-         {loading ? (
-           <ActivityIndicator color="white" />
-         ) : (
-           <Text style={styles.bulkDeleteText}>
-             Delete Selected ({selectedIds.length})
-           </Text>
-         )}
-       </Pressable>
+{selectedIds.length > 0 && (
+  <View style={styles.bulkActionsContainer}>
+    <Pressable 
+      style={styles.bulkCancelButton}
+      onPress={handleClearSelection}
+      disabled={loading}
+    >
+      <Text style={styles.bulkCancelText}>
+        Clear Selection ({selectedIds.length})
+      </Text>
+    </Pressable>
+
+    <Pressable 
+      style={styles.bulkDeleteButton} 
+      onPress={handleBulkDelete}
+      disabled={loading}
+    >
+      {loading ? (
+        <ActivityIndicator color="white" />
+      ) : (
+        <Text style={styles.bulkDeleteText}>
+          Delete Selected ({selectedIds.length})
+        </Text>
       )}
+    </Pressable>
+  </View>
+)}
 
       {/* Navigation Tabs */}
       <View style={styles.navContainer}>
@@ -589,6 +600,44 @@ onRequestClose={() => setShowDiscardModal(false)}
 </View>
 </Modal>
 
+{/* Add Bulk Delete Modal component */}
+<Modal
+  visible={showBulkDeleteModal}
+  transparent={true}
+  animationType="fade"
+  onRequestClose={() => setShowBulkDeleteModal(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Delete Selected Items</Text>
+      <Text style={styles.deleteConfirmationText}>
+        Are you sure you want to delete {selectedIds.length} items? 
+        This action cannot be undone.
+      </Text>
+      
+      <View style={styles.modalButtons}>
+        <Pressable
+          style={[styles.modalButton, styles.cancelButton]}
+          onPress={() => setShowBulkDeleteModal(false)}
+        >
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.modalButton, styles.deleteConfirmButton]}
+          onPress={handleConfirmBulkDelete}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.deleteButtonText}>Confirm Delete</Text>
+          )}
+        </Pressable>
+      </View>
+    </View>
+  </View>
+</Modal>
+
 {/* Error Toast */}
 {showErrorToast && (
   <View style={styles.errorToastContainer}>
@@ -724,6 +773,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: 16,
     marginBottom: 12,
+    marginTop: 8, 
   },
   searchInput: {
     backgroundColor: "#fff",
@@ -735,14 +785,32 @@ const styles = StyleSheet.create({
     color: "#1f2937",
   },
   bulkDeleteButton: {
+    flex: 1,
     backgroundColor: "#dc2626",
     padding: 16,
-    marginHorizontal: 16,
     borderRadius: 8,
     alignItems: "center",
+  },
+  bulkActionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    gap: 8,
     marginBottom: 12,
+    marginTop: 8,
   },
   bulkDeleteText: {
+    color: "white",
+    fontWeight: "600",
+  },
+  bulkCancelButton: {
+    flex: 1,
+    backgroundColor: "#64748b",
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  bulkCancelText: {
     color: "white",
     fontWeight: "600",
   },
