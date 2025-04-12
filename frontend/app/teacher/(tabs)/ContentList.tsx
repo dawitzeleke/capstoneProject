@@ -8,6 +8,7 @@ import {
   TextInput,
   Alert,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -22,6 +23,7 @@ interface QuestionItem {
 
 const ContentListScreen = () => {
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "posted" | "draft">("all");
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,10 +31,10 @@ const ContentListScreen = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentEditItem, setCurrentEditItem] = useState<QuestionItem | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-const [itemToDelete, setItemToDelete] = useState<string | null>(null);
-const [showSuccessToast, setShowSuccessToast] = useState(false);
-const [originalEditItem, setOriginalEditItem] = useState<QuestionItem | null>(null);
-const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [originalEditItem, setOriginalEditItem] = useState<QuestionItem | null>(null);
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
 
   const [questions, setQuestions] = useState<QuestionItem[]>([
     {
@@ -83,13 +85,21 @@ const [showDiscardModal, setShowDiscardModal] = useState(false);
   };
 
   // Confirm delete handler
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (itemToDelete) {
-      setQuestions(prev => prev.filter(question => question.id !== itemToDelete));
-      setSelectedIds(prev => prev.filter(id => id !== itemToDelete));
-      setDeleteModalVisible(false);
-      setShowSuccessToast(true);
-      setTimeout(() => setShowSuccessToast(false), 2000); // Hide toast after 2 seconds
+      setLoading(true);
+      try {
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        setQuestions(prev => prev.filter(question => question.id !== itemToDelete));
+        setSelectedIds(prev => prev.filter(id => id !== itemToDelete));
+        setShowSuccessToast(true);
+        setTimeout(() => setShowSuccessToast(false), 2000);
+      } finally {
+        setLoading(false);
+        setDeleteModalVisible(false);
+      }
     }
   };
 
@@ -99,20 +109,21 @@ const [showDiscardModal, setShowDiscardModal] = useState(false);
       "Delete Selected",
       `Are you sure you want to delete ${selectedIds.length} items?`,
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => {
-            setQuestions((prev) =>
-              prev.filter((question) => !selectedIds.includes(question.id))
-            );
-            setSelectedIds([]);
-          },
-        },
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              setQuestions(prev => prev.filter(question => !selectedIds.includes(question.id)));
+              setSelectedIds([]);
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
       ]
     );
   };
@@ -127,18 +138,23 @@ const [showDiscardModal, setShowDiscardModal] = useState(false);
     }
   };
 // Save the edits
-const handleSaveEdit = () => {
+const handleSaveEdit = async () => {
   if (currentEditItem) {
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((q) =>
-        q.id === currentEditItem.id ? currentEditItem : q
-      )
-    );
-    setShowEditModal(false);
-    setCurrentEditItem(null);
-    setOriginalEditItem(null); // Clear original values
+    setLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setQuestions(prevQuestions => 
+        prevQuestions.map(q => q.id === currentEditItem.id ? currentEditItem : q)
+      );
+    } finally {
+      setLoading(false);
+      setShowEditModal(false);
+      setCurrentEditItem(null);
+      setOriginalEditItem(null);
+    }
   }
 };
+
 // Unsaved changes
   const hasUnsavedChanges = () => {
     if (!currentEditItem || !originalEditItem) return false;
@@ -197,11 +213,19 @@ const handleSaveEdit = () => {
       )}
 
       {selectedIds.length > 0 && (
-        <Pressable style={styles.bulkDeleteButton} onPress={handleBulkDelete}>
-          <Text style={styles.bulkDeleteText}>
-            Delete Selected ({selectedIds.length})
-          </Text>
-        </Pressable>
+         <Pressable 
+         style={styles.bulkDeleteButton} 
+         onPress={handleBulkDelete}
+         disabled={loading}
+       >
+         {loading ? (
+           <ActivityIndicator color="white" />
+         ) : (
+           <Text style={styles.bulkDeleteText}>
+             Delete Selected ({selectedIds.length})
+           </Text>
+         )}
+       </Pressable>
       )}
 
       {/* Navigation Tabs */}
@@ -290,16 +314,26 @@ const handleSaveEdit = () => {
                 style={styles.actionButton}
                 onPress={() => handleEdit(item.id)}
                 className="bg-[#d6ddff]"
+                disabled={loading}
               >
-                <Ionicons name="create-outline" size={20} color="#4F46E5" />
+                {loading ? (
+      <ActivityIndicator color="#4F46E5" />
+    ) : (
+      <Ionicons name="create-outline" size={20} color="#4F46E5" />
+    )}
               </Pressable>
 
               <Pressable
                 style={styles.actionButton}
                 onPress={() => handleDelete(item.id)}
                 className="bg-[#fdbab4]"
+                disabled={loading}
               >
-                <Ionicons name="trash-outline" size={20} color="#dc2626" />
+                {loading ? (
+      <ActivityIndicator color="#dc2626" />
+    ) : (
+      <Ionicons name="trash-outline" size={20} color="#dc2626" />
+    )}
               </Pressable>
             </View>
 
@@ -357,8 +391,13 @@ const handleSaveEdit = () => {
         <Pressable
           style={[styles.modalButton, styles.deleteConfirmButton]}
           onPress={handleConfirmDelete}
+          disabled={loading}
         >
-          <Text style={styles.deleteButtonText}>Confirm Delete</Text>
+          {loading ? (
+    <ActivityIndicator color="white" />
+  ) : (
+    <Text style={styles.deleteButtonText}>Confirm Delete</Text>
+  )}
         </Pressable>
       </View>
     </View>
@@ -610,7 +649,10 @@ const styles = StyleSheet.create({
   shadowOpacity: 0.1,
   shadowRadius: 2,
   elevation: 2,
-  }, 
+  },
+  disabledButton: {
+    opacity: 0.6,
+  },
   searchContainer: {
     paddingHorizontal: 16,
     marginBottom: 12,
