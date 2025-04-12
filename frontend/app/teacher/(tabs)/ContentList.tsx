@@ -6,7 +6,6 @@ import {
   Pressable,
   StyleSheet,
   TextInput,
-  Alert,
   Modal,
   ActivityIndicator,
 } from "react-native";
@@ -244,17 +243,27 @@ const handleSaveEdit = async () => {
   </View>
 </View>
 
-      {showSearch && (
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search questions, options or dates..."
-            placeholderTextColor="#94a3b8"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            autoFocus />
-        </View>
-      )}
+{showSearch && (
+  <View style={styles.searchContainer}>
+    <TextInput
+      style={styles.searchInput}
+      placeholder="Search questions, options or dates..."
+      placeholderTextColor="#94a3b8"
+      value={searchQuery}
+      onChangeText={setSearchQuery}
+      autoFocus
+    />
+    <Pressable
+      style={styles.searchCloseButton}
+      onPress={() => {
+        setShowSearch(false);
+        setSearchQuery("");
+      }}
+    >
+      <Ionicons name="close-circle" size={20} color="#94a3b8" />
+    </Pressable>
+  </View>
+)}
 
 {selectedIds.length > 0 && (
   <View style={styles.bulkActionsContainer}>
@@ -774,6 +783,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 12,
     marginTop: 8, 
+    position: 'relative'
   },
   searchInput: {
     backgroundColor: "#fff",
@@ -783,6 +793,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e2e8f0",
     color: "#1f2937",
+    paddingRight: 40,
+  },
+  searchCloseButton: {
+    position: 'absolute',
+    right: 28,
+    top: 10,
+    padding: 4,
   },
   bulkDeleteButton: {
     flex: 1,
