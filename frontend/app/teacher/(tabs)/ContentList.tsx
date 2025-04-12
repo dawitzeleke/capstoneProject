@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TextInput,
   Alert,
+  Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -23,6 +24,8 @@ const ContentListScreen = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [currentEditItem, setCurrentEditItem] = useState<QuestionItem | null>(null);
 
   const [questions, setQuestions] = useState<QuestionItem[]>([
     {
@@ -111,11 +114,29 @@ const ContentListScreen = () => {
   };
 
   const handleEdit = (id: string) => {
-    // Implement edit logic
+    const questionToEdit = questions.find((q) => q.id === id);
+    if (questionToEdit) {
+      setCurrentEditItem(questionToEdit);
+      setShowEditModal(true);
+    }
   };
 
+  const handleSaveEdit = () => {
+    if (currentEditItem) {
+      setQuestions((prevQuestions) =>
+        prevQuestions.map((q) =>
+          q.id === currentEditItem.id ? currentEditItem : q
+        )
+      );
+      setShowEditModal(false);
+      setCurrentEditItem(null);
+    }
+  };
+
+
+
   return (
-    <ScrollView style={styles.container}>
+    <><ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Content List</Text>
         <Pressable
@@ -134,8 +155,7 @@ const ContentListScreen = () => {
             placeholderTextColor="#94a3b8"
             value={searchQuery}
             onChangeText={setSearchQuery}
-            autoFocus
-          />
+            autoFocus />
         </View>
       )}
 
@@ -261,7 +281,92 @@ const ContentListScreen = () => {
           </Pressable>
         ))}
       </View>
-    </ScrollView>
+    </ScrollView><Modal
+      visible={showEditModal}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => setShowEditModal(false)}
+    >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Edit Question</Text>
+
+            <Text style={styles.inputLabel}>Question</Text>
+            <TextInput
+              style={styles.input}
+              value={currentEditItem?.question ?? ""}
+              onChangeText={(text) => setCurrentEditItem((prev) => prev ? { ...prev, question: text } : null
+              )} />
+
+            <Text style={styles.inputLabel}>Options</Text>
+            {currentEditItem?.options.map((option, index) => (
+              <TextInput
+                key={index}
+                style={styles.input}
+                value={option}
+                onChangeText={(text) => {
+                  const newOptions = [...currentEditItem.options];
+                  newOptions[index] = text;
+                  setCurrentEditItem((prev) => prev ? { ...prev, options: newOptions } : null
+                  );
+                } } />
+            ))}
+
+            <Text style={styles.inputLabel}>Status</Text>
+            <View style={styles.statusContainer}>
+              <Pressable
+                style={[
+                  styles.statusButton,
+                  currentEditItem?.status === "draft" && styles.activeStatusButton,
+                ]}
+                onPress={() => setCurrentEditItem((prev) => prev ? { ...prev, status: "draft" } : null
+                )}
+              >
+                <Text
+                  style={[
+                    styles.statusButtonText,
+                    currentEditItem?.status === "draft" && styles.activeStatusText,
+                  ]}
+                >
+                  Draft
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[
+                  styles.statusButton,
+                  currentEditItem?.status === "posted" && styles.activeStatusButton,
+                ]}
+                onPress={() => setCurrentEditItem((prev) => prev ? { ...prev, status: "posted" } : null
+                )}
+              >
+                <Text
+                  style={[
+                    styles.statusButtonText,
+                    currentEditItem?.status === "posted" && styles.activeStatusText,
+                  ]}
+                >
+                  Posted
+                </Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setShowEditModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.modalButton, styles.saveButton]}
+                onPress={handleSaveEdit}
+              >
+                <Text style={styles.saveButtonText}>Save Changes</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal></>
   );
 };
 
@@ -425,6 +530,82 @@ const styles = StyleSheet.create({
     borderColor: "#4F46E5",
     borderWidth: 2,
     backgroundColor: "#f5f3ff",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 20,
+    width: "90%",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 4,
+    padding: 8,
+    marginBottom: 12,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#1f2937",
+    marginBottom: 4,
+  },
+  statusContainer: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 16,
+  },
+  statusButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  activeStatusButton: {
+    backgroundColor: "#4F46E5",
+    borderColor: "#4F46E5",
+  },
+  statusButtonText: {
+    color: "#64748b",
+  },
+  activeStatusText: {
+    color: "white",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 16,
+    color: "#1f2937",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
+    marginTop: 16,
+  },
+  modalButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 4,
+  },
+  cancelButton: {
+    backgroundColor: "#f3f4f6",
+  },
+  cancelButtonText: {
+    color: "#64748b",
+  },
+  saveButton: {
+    backgroundColor: "#4F46E5",
+  },
+  saveButtonText: {
+    color: "white",
   },
 });
 
