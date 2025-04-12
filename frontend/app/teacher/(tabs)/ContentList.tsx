@@ -10,6 +10,7 @@ import {
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 interface QuestionItem {
   id: string;
@@ -20,6 +21,7 @@ interface QuestionItem {
 }
 
 const ContentListScreen = () => {
+  const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState<"all" | "posted" | "draft">("all");
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -165,14 +167,22 @@ const handleSaveEdit = () => {
       <>
       <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Content List</Text>
-        <Pressable
-          onPress={() => setShowSearch(!showSearch)}
-          style={styles.searchIcon}
-        >
-          <Ionicons name="search" size={24} color="#4F46E5" />
-        </Pressable>
-      </View>
+  <View style={styles.headerLeft}>
+    <Pressable onPress={() => navigation.goBack()}>
+      <Ionicons name="arrow-back" size={24} color="#4F46E5" />
+    </Pressable>
+  </View>
+
+  <View style={styles.headerCenter}>
+    <Text style={styles.title}>Content List</Text>
+  </View>
+
+  <View style={styles.headerRight}>
+    <Pressable onPress={() => setShowSearch(!showSearch)}>
+      <Ionicons name="search" size={24} color="#4F46E5" />
+    </Pressable>
+  </View>
+</View>
 
       {showSearch && (
         <View style={styles.searchContainer}>
@@ -490,16 +500,43 @@ const styles = StyleSheet.create({
     backgroundColor: "#f3f4f6",
   },
   header: {
-    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
   },
+  headerLeft: {
+    width: '20%',
+    alignItems: 'flex-start',
+  },
+  headerCenter: {
+    width: '60%',
+    alignItems: 'center',
+  },
+  headerRight: {
+    width: '20%',
+    alignItems: 'flex-end',
+  },
+  
   title: {
-    fontSize: 24,
+    flex: 1,
+    fontSize: 20,
     fontWeight: "600",
     color: "#1f2937",
+    textAlign: 'center',
+    marginHorizontal: 8,
   },
+  searchIcon: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+
   navContainer: {
     flexDirection: "row",
     margin: 16,
@@ -573,12 +610,7 @@ const styles = StyleSheet.create({
   shadowOpacity: 0.1,
   shadowRadius: 2,
   elevation: 2,
-  },
-  searchIcon: {
-    position: "absolute",
-    right: 20,
-    top: 20,
-  },
+  }, 
   searchContainer: {
     paddingHorizontal: 16,
     marginBottom: 12,
