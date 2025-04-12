@@ -26,6 +26,10 @@ const ContentListScreen = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentEditItem, setCurrentEditItem] = useState<QuestionItem | null>(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+const [showSuccessToast, setShowSuccessToast] = useState(false);
+
 
   const [questions, setQuestions] = useState<QuestionItem[]>([
     {
@@ -49,6 +53,7 @@ const ContentListScreen = () => {
     },
   ]);
 
+  // Filter
   const filteredQuestions = questions.filter((item) => {
     const matchesTab = activeTab === "all" ? true : item.status === activeTab;
     const matchesSearch =
@@ -61,35 +66,31 @@ const ContentListScreen = () => {
     return matchesTab && matchesSearch;
   });
 
+//  Select Question Cards
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
     );
   };
 
+  // Delete fun
   const handleDelete = (id: string) => {
-    Alert.alert(
-      "Delete Question",
-      "Are you sure you want to delete this question?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            setQuestions((prev) =>
-              prev.filter((question) => question.id !== id)
-            );
-            setSelectedIds((prev) => prev.filter((itemId) => itemId !== id));
-          },
-        },
-      ]
-    );
+    setItemToDelete(id);
+  setDeleteModalVisible(true);
   };
 
+  // Confirm delete handler
+  const handleConfirmDelete = () => {
+    if (itemToDelete) {
+      setQuestions(prev => prev.filter(question => question.id !== itemToDelete));
+      setSelectedIds(prev => prev.filter(id => id !== itemToDelete));
+      setDeleteModalVisible(false);
+      setShowSuccessToast(true);
+      setTimeout(() => setShowSuccessToast(false), 2000); // Hide toast after 2 seconds
+    }
+  };
+
+  // Bulk Delete
   const handleBulkDelete = () => {
     Alert.alert(
       "Delete Selected",
@@ -136,7 +137,9 @@ const ContentListScreen = () => {
 
 
   return (
-    <><ScrollView style={styles.container}>
+    
+      <>
+      <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Content List</Text>
         <Pressable
@@ -281,12 +284,57 @@ const ContentListScreen = () => {
           </Pressable>
         ))}
       </View>
-    </ScrollView><Modal
-      visible={showEditModal}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={() => setShowEditModal(false)}
-    >
+    </ScrollView>
+
+{/* success toast */}
+{showSuccessToast && (
+        <View style={styles.toastContainer}>
+          <Text style={styles.toastText}>Question deleted successfully</Text>
+        </View>
+      )}
+
+{/* Delete Modal */}
+<Modal
+  visible={deleteModalVisible}
+  transparent={true}
+  animationType="fade"
+  onRequestClose={() => setDeleteModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Delete Question</Text>
+      <Text style={styles.deleteConfirmationText}>
+        Are you sure you want to delete this question? This action cannot be undone.
+      </Text>
+      
+      <View style={styles.modalButtons}>
+        <Pressable
+          style={[styles.modalButton, styles.cancelButton]}
+          onPress={() => setDeleteModalVisible(false)}
+        >
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.modalButton, styles.deleteConfirmButton]}
+          onPress={handleConfirmDelete}
+        >
+          <Text style={styles.deleteButtonText}>Confirm Delete</Text>
+        </Pressable>
+      </View>
+    </View>
+  </View>
+</Modal>
+
+
+
+
+      {/* Edit Modal */}
+      <Modal
+        visible={showEditModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowEditModal(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Edit Question</Text>
@@ -606,6 +654,34 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: "white",
+  },
+  toastContainer: {
+    position: 'absolute',
+    bottom: 20,
+    alignSelf: 'center',
+    backgroundColor: '#10b981',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  toastText: {
+    color: 'white',
+    fontWeight: '500',
+  },
+  deleteConfirmationText: {
+    color: '#64748b',
+    marginBottom: 24,
+  },
+  deleteConfirmButton: {
+    backgroundColor: '#ef4444',
+  },
+  deleteButtonText: {
+    color: 'white',
   },
 });
 
