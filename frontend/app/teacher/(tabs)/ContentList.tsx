@@ -104,17 +104,19 @@ const ContentListScreen = () => {
   };
 
   // Bulk Delete
-  const handleBulkDelete = () => {
-    Alert.alert(
-      "Delete Selected",
-      `Are you sure you want to delete ${selectedIds.length} items?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            setLoading(true);
+const handleBulkDelete = () => {
+  Alert.alert(
+    "Delete Selected",
+    `Are you sure you want to delete ${selectedIds.length} items?`,
+    [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => {  // Remove async here
+          setLoading(true);
+          // Use async IIFE pattern
+          (async () => {
             try {
               await new Promise(resolve => setTimeout(resolve, 1000));
               setQuestions(prev => prev.filter(question => !selectedIds.includes(question.id)));
@@ -122,11 +124,12 @@ const ContentListScreen = () => {
             } finally {
               setLoading(false);
             }
-          }
+          })();
         }
-      ]
-    );
-  };
+      }
+    ]
+  );
+};
 
   // Edit fun
   const handleEdit = (id: string) => {
@@ -275,7 +278,23 @@ const handleSaveEdit = async () => {
 
       {/* Questions List */}
       <View style={styles.contentContainer}>
-        {filteredQuestions.map((item) => (
+  {filteredQuestions.length === 0 ? (
+    <View style={styles.emptyStateContainer}>
+      <Ionicons name="document-text-outline" size={64} color="#cbd5e1" />
+      <Text style={styles.emptyStateTitle}>No Items Found</Text>
+      <Text style={styles.emptyStateText}>
+        {searchQuery ? 'No results for your search' : 'Start by creating a new question'}
+      </Text>
+      <Pressable
+        style={styles.emptyStateButton}
+        onPress={() => navigation.navigate('AddQuestion')}
+      >
+        <Ionicons name="add-circle" size={20} color="white" />
+        <Text style={styles.emptyStateButtonText}>Add New Question</Text>
+      </Pressable>
+    </View>
+  ) : (
+    filteredQuestions.map((item) => (
           <Pressable
             key={item.id}
             style={[
@@ -349,7 +368,7 @@ const handleSaveEdit = async () => {
                 {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
               </Text>
             </View>
-          </Pressable>
+          </Pressable> )
         ))}
       </View>
     </ScrollView>
@@ -823,6 +842,40 @@ deleteConfirmButton: {
 deleteButtonText: {
   color: 'white',
   fontWeight: '500',
+},
+emptyStateContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 40,
+  minHeight: 300, // Prevents layout glitches
+},
+emptyStateTitle: {
+  fontSize: 20,
+  fontWeight: '600',
+  color: '#1e293b',
+  marginTop: 16,
+},
+emptyStateText: {
+  fontSize: 16,
+  color: '#64748b',
+  textAlign: 'center',
+  marginTop: 8,
+  marginBottom: 24,
+},
+emptyStateButton: {
+  flexDirection: 'row',
+  backgroundColor: '#4F46E5',
+  paddingVertical: 12,
+  paddingHorizontal: 24,
+  borderRadius: 8,
+  alignItems: 'center',
+  gap: 8,
+},
+emptyStateButtonText: {
+  color: 'white',
+  fontWeight: '500',
+  fontSize: 16,
 },
 });
 
