@@ -35,6 +35,8 @@ const ContentListScreen = () => {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [originalEditItem, setOriginalEditItem] = useState<QuestionItem | null>(null);
   const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showErrorToast, setShowErrorToast] = useState(false);
 
   const [questions, setQuestions] = useState<QuestionItem[]>([
     {
@@ -89,13 +91,26 @@ const ContentListScreen = () => {
     if (itemToDelete) {
       setLoading(true);
       try {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve, reject) => {
+          // Simulate potential failure
+          if (Math.random() < 0.9) { // 10% chance of failure
+            setTimeout(resolve, 1000);
+          } else {
+            setTimeout(() => reject(new Error("Delete failed. Please try again.")), 1000);
+          }
+        });
         
         setQuestions(prev => prev.filter(question => question.id !== itemToDelete));
         setSelectedIds(prev => prev.filter(id => id !== itemToDelete));
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 2000);
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : "Delete failed");
+        setShowErrorToast(true);
+        setTimeout(() => {
+          setShowErrorToast(false);
+          setErrorMessage(null);
+        }, 2000);
       } finally {
         setLoading(false);
         setDeleteModalVisible(false);
@@ -104,32 +119,45 @@ const ContentListScreen = () => {
   };
 
   // Bulk Delete
-const handleBulkDelete = () => {
-  Alert.alert(
-    "Delete Selected",
-    `Are you sure you want to delete ${selectedIds.length} items?`,
-    [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => {  // Remove async here
-          setLoading(true);
-          // Use async IIFE pattern
-          (async () => {
-            try {
-              await new Promise(resolve => setTimeout(resolve, 1000));
-              setQuestions(prev => prev.filter(question => !selectedIds.includes(question.id)));
-              setSelectedIds([]);
-            } finally {
-              setLoading(false);
-            }
-          })();
+  const handleBulkDelete = () => {
+    Alert.alert(
+      "Delete Selected",
+      `Are you sure you want to delete ${selectedIds.length} items?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            setLoading(true);
+            (async () => {
+              try {
+                await new Promise((resolve, reject) => {
+                  if (Math.random() < 0.9) {
+                    setTimeout(resolve, 1000);
+                  } else {
+                    reject(new Error("Bulk delete failed. Please try again."));
+                  }
+                });
+                
+                setQuestions(prev => prev.filter(question => !selectedIds.includes(question.id)));
+                setSelectedIds([]);
+              } catch (error) {
+                setErrorMessage(error instanceof Error ? error.message : "Bulk delete failed");
+                setShowErrorToast(true);
+                setTimeout(() => {
+                  setShowErrorToast(false);
+                  setErrorMessage(null);
+                }, 2000);
+              } finally {
+                setLoading(false);
+              }
+            })();
+          }
         }
-      }
-    ]
-  );
-};
+      ]
+    );
+  };
 
   // Edit fun
   const handleEdit = (id: string) => {
@@ -145,10 +173,24 @@ const handleSaveEdit = async () => {
   if (currentEditItem) {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve, reject) => {
+        if (Math.random() < 0.9) {
+          setTimeout(resolve, 1000);
+        } else {
+          reject(new Error("Save failed. Please try again."));
+        }
+      });
+      
       setQuestions(prevQuestions => 
         prevQuestions.map(q => q.id === currentEditItem.id ? currentEditItem : q)
       );
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Save failed");
+      setShowErrorToast(true);
+      setTimeout(() => {
+        setShowErrorToast(false);
+        setErrorMessage(null);
+      }, 2000);
     } finally {
       setLoading(false);
       setShowEditModal(false);
@@ -546,8 +588,15 @@ onRequestClose={() => setShowDiscardModal(false)}
   </View>
 </View>
 </Modal>
-      </>
 
+{/* Error Toast */}
+{showErrorToast && (
+  <View style={styles.errorToastContainer}>
+    <Ionicons name="warning" size={16} color="white" />
+    <Text style={styles.toastText}>{errorMessage ?? "Something went wrong"}</Text>
+  </View>
+)}
+      </>
 
   );
 };
@@ -876,6 +925,23 @@ emptyStateButtonText: {
   color: 'white',
   fontWeight: '500',
   fontSize: 16,
+},
+errorToastContainer: {
+  position: 'absolute',
+  bottom: 20,
+  alignSelf: 'center',
+  backgroundColor: '#dc2626',
+  paddingVertical: 12,
+  paddingHorizontal: 24,
+  borderRadius: 8,
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+  elevation: 3,
 },
 });
 
