@@ -232,6 +232,7 @@ const ContentListScreen = () => {
               <Pressable
                 style={styles.actionButton}
                 onPress={() => handleEdit(item.id)}
+                className="bg-[#d6ddff]"
               >
                 <Ionicons name="create-outline" size={20} color="#4F46E5" />
               </Pressable>
@@ -239,6 +240,7 @@ const ContentListScreen = () => {
               <Pressable
                 style={styles.actionButton}
                 onPress={() => handleDelete(item.id)}
+                className="bg-[#fdbab4]"
               >
                 <Ionicons name="trash-outline" size={20} color="#dc2626" />
               </Pressable>
@@ -339,11 +341,19 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 16,
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginTop: 8,
   },
   actionButton: {
-    padding: 6,
+  padding: 8,
+  borderRadius: 8,
+  // backgroundColor: "#f8fafc",
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.1,
+  shadowRadius: 2,
+  elevation: 2,
   },
   searchIcon: {
     position: "absolute",
@@ -379,6 +389,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#64748b",
     marginBottom: 4,
+    marginLeft: 20,
   },
   statusBadge: {
     position: "absolute",

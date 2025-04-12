@@ -50,15 +50,14 @@ const TeacherDashboard = () => {
             <View className="flex-1 justify-between h-full">
               {/* Icon at top-right */}
               <View className="items-end">
-                <Ionicons 
-                  name="folder-open" 
-                  size={isVerySmallScreen ? 18 : 20} 
-                  color="white" 
+                <Ionicons
+                  name="folder-open"
+                  size={isVerySmallScreen ? 18 : 20}
+                  color="white"
                 />
               </View>
-              
               {/* Text at bottom-left */}
-              <Text 
+              <Text
                 className="text-white font-psemibold"
                 style={{
                   fontSize: isVerySmallScreen ? 12 : 14,
@@ -79,15 +78,14 @@ const TeacherDashboard = () => {
             <View className="flex-1 justify-between h-full">
               {/* Icon at top-right */}
               <View className="items-end">
-                <Ionicons 
-                  name="stats-chart" 
+                <Ionicons
+                  name="stats-chart"
                   size={isVerySmallScreen ? 18 : 20} 
-                  color="#4F46E5" 
+                  color="#4F46E5"
                 />
               </View>
-              
               {/* Text at bottom-left */}
-              <Text 
+              <Text
                 className="text-gray-900 font-psemibold"
                 style={{
                   fontSize: isVerySmallScreen ? 12 : 14,
@@ -107,7 +105,6 @@ const TeacherDashboard = () => {
       {/* Summary Section */}
       <View className="bg-white p-4 rounded-3xl shadow-lg mb-6">
         <Text className="text-lg font-psemibold text-gray-900 mb-6">Summary</Text>
-        
         <View className={`${isSmallScreen ? 'flex-col' : 'flex-row'} items-center ${isSmallScreen ? 'space-y-6' : 'space-x-8'} justify-center mb-6`}>
           <CircularProgressChart />
           <View className={`${isSmallScreen ? 'items-center space-y-2' : ''}`}>
