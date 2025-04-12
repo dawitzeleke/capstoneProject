@@ -29,7 +29,8 @@ const ContentListScreen = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 const [showSuccessToast, setShowSuccessToast] = useState(false);
-
+const [originalEditItem, setOriginalEditItem] = useState<QuestionItem | null>(null);
+const [showDiscardModal, setShowDiscardModal] = useState(false);
 
   const [questions, setQuestions] = useState<QuestionItem[]>([
     {
@@ -114,26 +115,49 @@ const [showSuccessToast, setShowSuccessToast] = useState(false);
     );
   };
 
+  // Edit fun
   const handleEdit = (id: string) => {
     const questionToEdit = questions.find((q) => q.id === id);
-    if (questionToEdit) {
-      setCurrentEditItem(questionToEdit);
-      setShowEditModal(true);
+      if (questionToEdit) {
+        setCurrentEditItem(questionToEdit);
+        setOriginalEditItem(questionToEdit); // Store original values
+        setShowEditModal(true);
+    }
+  };
+// Save the edits
+const handleSaveEdit = () => {
+  if (currentEditItem) {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((q) =>
+        q.id === currentEditItem.id ? currentEditItem : q
+      )
+    );
+    setShowEditModal(false);
+    setCurrentEditItem(null);
+    setOriginalEditItem(null); // Clear original values
+  }
+};
+// Unsaved changes
+  const hasUnsavedChanges = () => {
+    if (!currentEditItem || !originalEditItem) return false;
+    return JSON.stringify(currentEditItem) !== JSON.stringify(originalEditItem);
+  };
+
+  // Cancel handler for Edit modal
+  const handleCancelEdit = () => {
+    if (hasUnsavedChanges()) {
+      setShowDiscardModal(true);
+    } else {
+      closeEditModal();
     }
   };
 
-  const handleSaveEdit = () => {
-    if (currentEditItem) {
-      setQuestions((prevQuestions) =>
-        prevQuestions.map((q) =>
-          q.id === currentEditItem.id ? currentEditItem : q
-        )
-      );
-      setShowEditModal(false);
-      setCurrentEditItem(null);
-    }
+  // Close Edit Modal
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setCurrentEditItem(null);
+    setOriginalEditItem(null);
   };
-
 
 
   return (
@@ -337,8 +361,7 @@ const [showSuccessToast, setShowSuccessToast] = useState(false);
         transparent={true}
         animationType="fade"
         onRequestClose={() => {
-          setShowEditModal(false);
-          setCurrentEditItem(null);
+          handleCancelEdit();
         }}
       >
         <View style={styles.modalOverlay}>
@@ -407,10 +430,7 @@ const [showSuccessToast, setShowSuccessToast] = useState(false);
             <View style={styles.modalButtons}>
               <Pressable
                 style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => {
-                  setShowEditModal(false);
-                  setCurrentEditItem(null);
-                }}
+                onPress={handleCancelEdit}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </Pressable>
@@ -423,7 +443,44 @@ const [showSuccessToast, setShowSuccessToast] = useState(false);
             </View>
           </View>
         </View>
-      </Modal></>
+      </Modal>
+
+
+      <Modal
+visible={showDiscardModal}
+transparent={true}
+animationType="fade"
+onRequestClose={() => setShowDiscardModal(false)}
+>
+<View style={styles.modalOverlay}>
+  <View style={styles.modalContent}>
+    <Text style={styles.modalTitle}>Unsaved Changes</Text>
+    <Text style={styles.deleteConfirmationText}>
+      You have unsaved changes. Are you sure you want to discard them?
+    </Text>
+    <View style={styles.modalButtons}>
+      <Pressable
+        style={[styles.modalButton, styles.cancelButton]}
+        onPress={() => setShowDiscardModal(false)}
+      >
+        <Text style={styles.cancelButtonText}>Keep Editing</Text>
+      </Pressable>
+      <Pressable
+        style={[styles.modalButton, styles.deleteConfirmButton]}
+        onPress={() => {
+          closeEditModal();
+          setShowDiscardModal(false);
+        }}
+      >
+        <Text style={styles.deleteButtonText}>Discard Changes</Text>
+      </Pressable>
+    </View>
+  </View>
+</View>
+</Modal>
+      </>
+
+
   );
 };
 
@@ -686,12 +743,13 @@ const styles = StyleSheet.create({
     color: '#64748b',
     marginBottom: 24,
   },
-  deleteConfirmButton: {
-    backgroundColor: '#ef4444',
-  },
-  deleteButtonText: {
-    color: 'white',
-  },
+deleteConfirmButton: {
+  backgroundColor: '#dc2626',
+},
+deleteButtonText: {
+  color: 'white',
+  fontWeight: '500',
+},
 });
 
 export default ContentListScreen;
