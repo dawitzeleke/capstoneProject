@@ -298,7 +298,10 @@ const [showSuccessToast, setShowSuccessToast] = useState(false);
   visible={deleteModalVisible}
   transparent={true}
   animationType="fade"
-  onRequestClose={() => setDeleteModalVisible(false)}
+  onRequestClose={() => {
+    setDeleteModalVisible(false);
+    setItemToDelete(null);
+  }}
 >
   <View style={styles.modalOverlay}>
     <View style={styles.modalContent}>
@@ -310,7 +313,10 @@ const [showSuccessToast, setShowSuccessToast] = useState(false);
       <View style={styles.modalButtons}>
         <Pressable
           style={[styles.modalButton, styles.cancelButton]}
-          onPress={() => setDeleteModalVisible(false)}
+          onPress={() => {
+            setDeleteModalVisible(false);
+            setItemToDelete(null);
+          }}
         >
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </Pressable>
@@ -325,15 +331,15 @@ const [showSuccessToast, setShowSuccessToast] = useState(false);
   </View>
 </Modal>
 
-
-
-
       {/* Edit Modal */}
       <Modal
         visible={showEditModal}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setShowEditModal(false)}
+        onRequestClose={() => {
+          setShowEditModal(false);
+          setCurrentEditItem(null);
+        }}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -401,7 +407,10 @@ const [showSuccessToast, setShowSuccessToast] = useState(false);
             <View style={styles.modalButtons}>
               <Pressable
                 style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowEditModal(false)}
+                onPress={() => {
+                  setShowEditModal(false);
+                  setCurrentEditItem(null);
+                }}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </Pressable>
