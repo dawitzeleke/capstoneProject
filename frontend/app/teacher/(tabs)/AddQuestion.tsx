@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, useWindowDimensions, } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+
+type RootStackParamList = {
+  ContentList: undefined;
+  AddQuestionScreen: undefined;
+};
+
 
 const AddQuestionScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { width } = useWindowDimensions();
   const isVerySmallScreen = width <= 320;
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState(['', '', '', '']);
   const [tagsInput, setTagsInput] = useState('');
   const [tags, setTags] = useState<string[]>([]);
+  const [hint, setHint] = useState('');
+  const [explanation, setExplanation] = useState('');
 
   const handleOptionChange = (text: string, index: number) => {
     const newOptions = [...options];
@@ -38,7 +50,8 @@ const AddQuestionScreen = () => {
     >
       {/* Header Section */}
       <View style={styles.header}>
-        <Pressable style={styles.backButton}>
+        <Pressable style={styles.backButton}
+        onPress={() => navigation.navigate('ContentList')}>
           <Ionicons name="arrow-back" size={24} color="#4F46E5" />
         </Pressable>
         <Text style={styles.title}>Upload Content</Text>
@@ -83,6 +96,34 @@ const AddQuestionScreen = () => {
           </View>
         ))}
       </View>
+
+      {/* Hint Section */}
+      <View style={styles.sectionContainer}>
+        <View style={styles.sectionHeader}>
+          <Ionicons name="bulb-outline" size={20} color="#f59e0b" style={styles.bulbIcon} />
+          <Text style={styles.sectionLabel}>Hint</Text>
+        </View>
+        <TextInput
+          style={styles.hintInput}
+          placeholder="Add a hint to help users answer..."
+          placeholderTextColor="#94a3b8"
+          value={hint}
+          onChangeText={setHint}
+        />
+      </View>
+
+{/* Explanation Section */}
+      <View style={styles.sectionContainer}>
+  <Text style={styles.sectionLabel}>Explanation</Text>
+  <TextInput
+    style={styles.explanationInput}
+    multiline
+    placeholder="Add detailed explanation for the correct answer..."
+    placeholderTextColor="#94a3b8"
+    value={explanation}
+    onChangeText={setExplanation}
+  />
+</View>
 
       {/* Tags Input Section */}
       <View style={styles.sectionContainer}>
@@ -273,6 +314,28 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  bulbIcon: {
+    marginRight: 8,
+  },
+  hintInput: {
+    fontSize: 14,
+    color: '#334155',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  explanationInput: {
+    minHeight: 100,
+    fontSize: 14,
+    color: '#334155',
+    textAlignVertical: 'top',
+    lineHeight: 20,
+  },
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -299,6 +362,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#334155',
   },
+  
   buttonContainer: {
     flexDirection: 'row',
     gap: 8,
