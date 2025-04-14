@@ -22,6 +22,7 @@ const AddQuestionScreen = () => {
   const [hint, setHint] = useState('');
   const [explanation, setExplanation] = useState('');
 
+
   const handleOptionChange = (text: string, index: number) => {
     const newOptions = [...options];
     newOptions[index] = text;
@@ -41,6 +42,37 @@ const AddQuestionScreen = () => {
     const newTags = tags.filter((_, i) => i !== index);
     setTags(newTags);
   };
+
+
+  const [errors, setErrors] = useState({
+    question: false,
+    options: [false, false, false, false],
+    explanation: false,
+    tags: false,
+  });
+
+  const validateForm = () => {
+    const newErrors = {
+      question: question.trim() === '',
+      options: options.map(opt => opt.trim() === ''),
+      explanation: explanation.trim() === '',
+      tags: tags.length === 0,
+    };
+    
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(error => 
+      Array.isArray(error) ? error.some(e => e) : error
+    );
+  };
+
+  // Post
+  const handlePost = () => {
+    if (!validateForm()) {
+      alert('Please fill all required fields');
+    }
+    // Proceed with posting logic
+  };
+
 
   return (
     <ScrollView 
@@ -69,7 +101,9 @@ const AddQuestionScreen = () => {
 
       {/* Question Input Section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionLabel}>Question</Text>
+      <Text style={styles.sectionLabel}>
+    Question<Text style={styles.requiredIndicator}>*</Text>
+  </Text>
         <TextInput
           style={styles.questionInput}
           multiline
@@ -82,12 +116,17 @@ const AddQuestionScreen = () => {
 
       {/* Options Input Section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionLabel}>Options</Text>
+      <Text style={styles.sectionLabel}>
+    Options<Text style={styles.requiredIndicator}>*</Text>
+  </Text>
         {options.map((option, index) => (
           <View key={`option-${index}`} style={styles.optionContainer}>
             <Text style={styles.optionLabel}>{String.fromCharCode(65 + index)}.</Text>
             <TextInput
-              style={styles.optionInput}
+             style={[
+              styles.optionInput,
+              errors.options[index] && styles.errorInput
+            ]}
               placeholder={`Start writing choice ${String.fromCharCode(65 + index)}...`}
               placeholderTextColor="#94a3b8"
               value={option}
@@ -114,9 +153,14 @@ const AddQuestionScreen = () => {
 
 {/* Explanation Section */}
       <View style={styles.sectionContainer}>
-  <Text style={styles.sectionLabel}>Explanation</Text>
+      <Text style={styles.sectionLabel}>
+      Explanation<Text style={styles.requiredIndicator}>*</Text>
+      </Text>
   <TextInput
-    style={styles.explanationInput}
+     style={[
+      styles.explanationInput,
+      errors.explanation && styles.errorInput
+    ]}
     multiline
     placeholder="Add detailed explanation for the correct answer..."
     placeholderTextColor="#94a3b8"
@@ -127,8 +171,13 @@ const AddQuestionScreen = () => {
 
       {/* Tags Input Section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionLabel}>Tags</Text>
-        <View style={styles.tagsContainer}>
+  <Text style={styles.sectionLabel}>
+    Tags<Text style={styles.requiredIndicator}>*</Text>
+  </Text>
+        <View  style={[
+    styles.tagsContainer,
+    errors.tags && styles.errorInput
+  ]}>
           {tags.map((tag, index) => (
             <View key={`${tag}-${index}`} style={styles.tag}>
               <Text style={styles.tagText}>{tag}</Text>
@@ -362,7 +411,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#334155',
   },
-  
+  requiredIndicator: {
+    color: '#ef4444',
+    marginLeft: 4,
+  },
+  errorInput: {
+    borderColor: '#ef4444',
+    backgroundColor: '#fee2e2',
+    borderWidth: 1,
+    borderRadius: 4,
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 12,
+    marginTop: 4,
+  },
   buttonContainer: {
     flexDirection: 'row',
     gap: 8,
