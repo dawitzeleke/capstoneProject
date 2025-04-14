@@ -1,62 +1,29 @@
-//using System.Collections.Generic;
-//using System.Threading.Tasks;
-//using backend.Application.Contracts.Persistence;
-//using backend.Domain.Entities;
-//using Microsoft.AspNetCore.Mvc;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
+[ApiController]
+[Route("api/students")]
+public class StudentsController : ControllerBase
+{
+    private readonly IMediator _mediator;
 
-//namespace backend.webApi.Controllers;
-//[ApiController]
-//[Route("api/[controller]")]
-//public class StudentController : ControllerBase
-//{
-//    private readonly IStudentRepository _studentRepository;
+    public StudentsController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
 
-//    public StudentController(IStudentRepository studentRepository)
-//    {
-//        _studentRepository = studentRepository;
-//    }
+    [HttpGet("settings")]
+    public async Task<IActionResult> GetSettings([FromQuery] string email)
+    {
+        var query = new GetStudentSettingsQuery { Email = email };
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
 
-//    [HttpGet]
-//    public async Task<IActionResult> Get()
-//    {
-//        var students = await _studentRepository.GetAllAsync();
-//        // return Ok(students);
-//        return Ok("it works");
-//    }
-
-//    [HttpGet("{id}")]
-//    public async Task<IActionResult> Get(int id)
-//    {
-//        var student = await _studentRepository.GetByIdAsync(id);
-//        return Ok(student);
-//    }
-
-//    [HttpPost]
-//    public async Task<IActionResult> Post(Student student)
-//    {
-//        await _studentRepository.CreateAsync(student);
-//        return Ok(student);
-//    }
-
-//    [HttpPut]
-//    public async Task<IActionResult> Put(Student student)
-//    {
-//        await _studentRepository.UpdateAsync(student);
-//        return Ok(student);
-//    }
-
-//    [HttpDelete]
-//    public async Task<IActionResult> Delete(Student student)
-//    {
-//        await _studentRepository.DeleteAsync(student);
-//        return Ok(student);
-//    }
-
-//    [HttpGet("{id}/grade")]
-//    public async Task<IActionResult> GetStudentGrade(int id)
-//    {
-//        var grade = await _studentRepository.GetStudentGrade(id);
-//        return Ok(grade);
-//    }
-//}
+    // [HttpPut("settings")]
+    // public async Task<IActionResult> UpdateSettings([FromBody] UpdateStudentSettingsCommand command)
+    // {
+    //     var result = await _mediator.Send(command);
+    //     return result ? Ok() : BadRequest("Update failed");
+    // }
+}

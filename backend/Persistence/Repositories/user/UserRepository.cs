@@ -23,8 +23,5 @@ public class UserRepository : GenericRepository<User>, IUserRepository
 			return await _users.Find(user => user.Id == id).FirstOrDefaultAsync();
 		}
 
-		// public async Task CreateAsync(User user)
-		// {
-		// 	await _users.InsertOneAsync(user);
-		// }
+		
     }
