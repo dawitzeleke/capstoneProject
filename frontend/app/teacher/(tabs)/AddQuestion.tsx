@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, useWindowDimensions, } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, useWindowDimensions, Modal, } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -21,6 +21,7 @@ const AddQuestionScreen = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [hint, setHint] = useState('');
   const [explanation, setExplanation] = useState('');
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
 
   const handleOptionChange = (text: string, index: number) => {
@@ -75,7 +76,8 @@ const AddQuestionScreen = () => {
 
 
   return (
-    <ScrollView 
+    <View style={{ flex: 1 }}>
+      <ScrollView 
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
@@ -249,6 +251,7 @@ const AddQuestionScreen = () => {
             styles.cancelButton,
             isVerySmallScreen && styles.verySmallCancelButton
           ]}
+          onPress={() => setShowCancelModal(true)}
           android_ripple={{ color: '#e2e8f0' }}
         >
           <Text 
@@ -262,7 +265,54 @@ const AddQuestionScreen = () => {
           </Text>
         </Pressable>
       </View>
-    </ScrollView>
+      </ScrollView>
+    
+      <Modal
+        visible={showCancelModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowCancelModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Discard Changes?</Text>
+      <Text style={styles.modalText}>Are you sure you want to discard this question?</Text>
+      
+      <View style={styles.modalButtonContainer}>
+        <Pressable 
+          style={[styles.modalButton, styles.cancelModalButton]}
+          onPress={() => setShowCancelModal(false)}
+        >
+          <Text style={styles.cancelModalButtonText}>Continue Editing</Text>
+        </Pressable>
+        
+        <Pressable 
+          style={[styles.modalButton, styles.confirmCancelButton]}
+          onPress={() => {
+            // Clear all fields
+            setQuestion('');
+            setOptions(['', '', '', '']);
+            setTagsInput('');
+            setTags([]);
+            setHint('');
+            setExplanation('');
+            setErrors({
+              question: false,
+              options: [false, false, false, false],
+              explanation: false,
+              tags: false,
+            });
+            setShowCancelModal(false);
+            navigation.navigate('ContentList');
+          }}
+        >
+          <Text style={styles.confirmCancelButtonText}>Discard</Text>
+        </Pressable>
+      </View>
+    </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
@@ -487,6 +537,53 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: '#ffffff',
     fontSize: 14,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 24,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: 8,
+  },
+  modalText: {
+    fontSize: 14,
+    color: '#64748b',
+    marginBottom: 24,
+  },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 16,
+  },
+  modalButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  cancelModalButton: {
+    backgroundColor: '#f1f5f9',
+  },
+  confirmCancelButton: {
+    backgroundColor: '#fee2e2',
+  },
+  cancelModalButtonText: {
+    color: '#64748b',
+    fontWeight: '500',
+  },
+  confirmCancelButtonText: {
+    color: '#ef4444',
+    fontWeight: '500',
   },
   verySmallCancelText: {
     fontSize: 12,
