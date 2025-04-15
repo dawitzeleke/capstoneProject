@@ -20,7 +20,7 @@ type RootStackParamList = {
     newQuestion?: {
       id: string;
       question: string;
-      options: string[];
+      options: Array<{ text: string; correct: boolean }>;
       tags: string[];
       hint: string;
       explanation: string;
@@ -43,6 +43,7 @@ const AddQuestionScreen = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [hint, setHint] = useState("");
   const [explanation, setExplanation] = useState("");
+  const [correctOption, setCorrectOption] = useState<number | null>(null);
 
   // Modal states
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -81,6 +82,7 @@ const AddQuestionScreen = () => {
     options: [false, false, false, false],
     explanation: false,
     tags: false,
+    correctOption: false,
   });
 
   const validateForm = () => {
@@ -89,8 +91,9 @@ const AddQuestionScreen = () => {
       options: options.map((opt) => opt.trim() === ""),
       explanation: explanation.trim() === "",
       tags: tags.length === 0,
+      correctOption: correctOption === null, // Add this
     };
-
+  
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) =>
       Array.isArray(error) ? error.some((e) => e) : error
@@ -111,7 +114,10 @@ const AddQuestionScreen = () => {
       const newQuestion = {
         id: Date.now().toString(),
         question: question.trim(),
-        options: options.map((opt) => opt.trim()),
+        options: options.map((opt, index) => ({
+          text: opt.trim(),
+          correct: index === correctOption // Update this
+        })),
         tags,
         hint: hint.trim(),
         explanation: explanation.trim(),
@@ -128,10 +134,12 @@ const AddQuestionScreen = () => {
       // Store question and show success modal
       setPostedQuestion(newQuestion);
       setShowSuccessModal(true);
+      
 
       // Reset form
       setQuestion("");
       setOptions(["", "", "", ""]);
+      setCorrectOption(null);
       setTags([]);
       setHint("");
       setExplanation("");
@@ -141,6 +149,7 @@ const AddQuestionScreen = () => {
         options: [false, false, false, false],
         explanation: false,
         tags: false,
+        correctOption: false,
       });
 
     } catch (error) {
@@ -169,7 +178,10 @@ const AddQuestionScreen = () => {
       const draftQuestion = {
         id: Date.now().toString(),
         question: question.trim(),
-        options: options.map((opt) => opt.trim()),
+        options: options.map((opt, index) => ({
+          text: opt.trim(),
+          correct: index === correctOption // Update this
+        })),
         tags,
         hint: hint.trim(),
         explanation: explanation.trim(),
@@ -190,6 +202,7 @@ const AddQuestionScreen = () => {
       // Reset form
       setQuestion("");
       setOptions(["", "", "", ""]);
+      setCorrectOption(null);
       setTags([]);
       setHint("");
       setExplanation("");
@@ -310,6 +323,16 @@ const AddQuestionScreen = () => {
           </Text>
           {options.map((option, index) => (
             <View key={`option-${index}`} style={styles.optionContainer}>
+              <Pressable
+                onPress={() => setCorrectOption(index)}
+                style={styles.radioButton}
+              >
+                <Ionicons
+                  name={correctOption === index ? "radio-button-on" : "radio-button-off"}
+                  size={20}
+                  color="#4F46E5"
+                />
+              </Pressable>
               <Text style={styles.optionLabel}>
                 {String.fromCharCode(65 + index)}.
               </Text>
@@ -327,6 +350,10 @@ const AddQuestionScreen = () => {
               />
             </View>
           ))}
+          {/* Add error message for correct option */}
+          {errors.correctOption && (
+            <Text style={styles.errorText}>Please select the correct answer</Text>
+          )}
         </View>
 
         {/* Hint Section */}
@@ -541,6 +568,7 @@ const AddQuestionScreen = () => {
                   // Clear all fields
                   setQuestion("");
                   setOptions(["", "", "", ""]);
+                  setCorrectOption(null);
                   setTagsInput("");
                   setTags([]);
                   setHint("");
@@ -550,6 +578,7 @@ const AddQuestionScreen = () => {
                     options: [false, false, false, false],
                     explanation: false,
                     tags: false,
+                    correctOption: false,
                   });
                   setShowCancelModal(false);
                   navigation.navigate({
@@ -664,6 +693,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
+  },
+  radioButton: {
+    padding: 8,
+    marginRight: 8,
   },
   sectionHeader: {
     flexDirection: "row",
