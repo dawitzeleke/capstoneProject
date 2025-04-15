@@ -13,6 +13,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
+
 
 type RootStackParamList = {
   ContentList: {
@@ -290,16 +292,7 @@ const AddQuestionScreen = () => {
         </View>
 
         {/* Content Type Selector */}
-        <View style={styles.selectorContainer}>
-          <Pressable style={[styles.selectorButton, styles.activeSelector]}>
-            <Text style={[styles.selectorText, styles.activeSelectorText]}>
-              Add question
-            </Text>
-          </Pressable>
-          <Pressable style={styles.selectorButton}>
-            <Text style={styles.selectorText}>Upload other</Text>
-          </Pressable>
-        </View>
+        <ContentTypeSelector currentScreen="AddQuestion" />
 
         {/* Question Input Section */}
         <View style={styles.sectionContainer}>

@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as  DocumentPicker from 'expo-document-picker';
-
+import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
 
 
 
@@ -282,16 +282,7 @@ const UploadOtherScreen = () => {
         </View>
 
         {/* Content Type Selector */}
-        <View style={styles.selectorContainer}>
-          <Pressable style={styles.selectorButton}>
-            <Text style={styles.selectorText}>
-              Add question
-            </Text>
-          </Pressable>
-          <Pressable style={[styles.selectorButton, styles.activeSelector]}>
-            <Text style={[styles.selectorText, styles.activeSelectorText]}>Upload other</Text>
-          </Pressable>
-        </View>
+         <ContentTypeSelector currentScreen="UploadOther" />
 
         {/* File Type Selection and Upload Area */}
         <View style={styles.sectionContainer}>
