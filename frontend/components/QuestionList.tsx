@@ -6,16 +6,16 @@ import {
   useWindowDimensions,
   ViewToken,
 } from "react-native";
-import QuestionCard from "./QuestionCard"; // Ensure the correct import path
+import QuestionCard from "./QuestionCard";
 import QuestionSkeleton from "./QuestionSkeleton";
 
 interface Question {
   id: string;
-  text: string;
+  questionText: string;
   options: string[];
-  correctAttempts: number;
-  questionDetail: string;
-  answer: string;
+  correctOption: string;
+  totalCorrectAnswers: number;
+  description: string;
 }
 
 interface QuestionsListProps {
@@ -32,7 +32,7 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
   isLoading,
 }) => {
   const { height } = useWindowDimensions();
-  const adjustedHeight = height * 0.97; // Adjusted height for devices
+  const adjustedHeight = height * 0.97;
   const flatListRef = useRef<FlatList<Question>>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -53,11 +53,7 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
       className="bg-card"
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <View
-          style={{
-            height: adjustedHeight, // Consistent height per card
-            width: "100%",
-          }}>
+        <View style={{ height: adjustedHeight, width: "100%" }}>
           <QuestionCard question={item} />
         </View>
       )}

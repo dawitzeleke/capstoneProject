@@ -6,14 +6,14 @@ import { Link, useRouter } from "expo-router";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import favicon from "@/constants/images";
-import { api } from "@/scripts/api";
+import httpRequest from "@/util/httpRequest";
 import { saveToken } from "@/scripts/storage";
 
 const SignIn = () => {
   const router = useRouter();
   const [form, setForm] = useState({
-    email: "",
-    password: "",
+    Email: "",
+    Password: "",
   });
   const [submiting, setsubmiting] = useState(false);
   const submitForm = async () => {
@@ -21,18 +21,31 @@ const SignIn = () => {
     console.log("Form submitted:", form);
     try {
       const formData = new FormData();
-      formData.append("email", form.email);
-      formData.append("password", form.password);
-      const endpoint = "/api/auth/signin";
-      const response = await api.post(endpoint, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      await saveToken(response.data.token);
-      console.log("Login response:", response.data);
+      formData.append("email", form.Email);
+      formData.append("password", form.Password);
 
-      if (response.data.role === "Student") {
+      console.log(formData)
+      const endpoint = "/api/auth/signin";
+      const response = await httpRequest(
+        endpoint,
+        formData,
+        "POST",
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      console.log("Response:", response); 
+      // const response = await api.post(endpoint, formData, {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // });
+      await saveToken(response.token);
+      console.log("Login response:", response);
+
+      if (response.role === "Student") {
         router.replace("/student/(tabs)/Home");
       }
       else {
@@ -45,7 +58,7 @@ const SignIn = () => {
       //     : "/teacher/TeacherVerification"
       // );
     } catch (error : any) {
-      console.error("Login error:", error?.response?.data || error.message);
+      console.error("Login error:", error?.response || error.messae);
       alert("Login failed. Please check your input or try again.");
     }
     setsubmiting(false);
@@ -64,9 +77,9 @@ const SignIn = () => {
           </Text>
           <FormField
             title="Email"
-            value={form.email}
+            value={form.Email}
             handleChangeText={(text: string) =>
-              setForm({ ...form, email: text })
+              setForm({ ...form, Email: text })
             }
             otherStyles="mt-7"
             keyboardType="email-address"
@@ -74,9 +87,9 @@ const SignIn = () => {
           />
           <FormField
             title="Password"
-            value={form.password}
+            value={form.Password}
             handleChangeText={(text: string) =>
-              setForm({ ...form, password: text })
+              setForm({ ...form, Password: text })
             }
             otherStyles="mt-7"
             placeholder="Enter your password"

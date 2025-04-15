@@ -1,15 +1,16 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const getBaseUrl = () => {
   if (Platform.OS === 'android' || Platform.OS === 'ios') {
-    return 'http://192.168.137.1:5019'; // Hotspot IP
+    return 'http://192.168.137.1:5019'; 
   } else {
-    return 'http://localhost:5019'; // Web or local development
+    return 'http://localhost:5019'; 
   }
 };
 
-export const api = axios.create({
-  baseURL: getBaseUrl(),
-  timeout: 10000,
-});
+
+
+
+export default getBaseUrl

@@ -15,11 +15,11 @@ import { setDisplayOption } from "@/redux/optionReducer/optionActions";
 interface QuestionProps {
   question: {
     id: string;
-    text: string;
+    questionText: string;
     options: string[];
-    correctAttempts: number;
-    questionDetail: string;
-    answer: string;
+    correctOption: string; // e.g., "A"
+    totalCorrectAnswers: number;
+    description: string;
   };
 }
 
@@ -41,8 +41,10 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const { height } = useWindowDimensions();
-
   const dispatch = useDispatch();
+
+  const correctIndex = question.correctOption.charCodeAt(0) - 65;
+  const correctAnswer = question.options[correctIndex];
 
   const handleOpenOption = () => {
     dispatch(setDisplayOption());
@@ -63,7 +65,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
 
   return (
     <View style={{ height: height * 0.94 }} className="bg-card justify-center shadow-lg mb-2 mt-4 p-5 w-full relative">
-      {/* User Info & Follow */}
+      {/* User Info */}
       <View className="absolute top-2 w-full h-[60px] left-0 flex flex-row justify-between items-center px-6">
         <View className="flex flex-row items-center">
           <View className="w-[48px] h-[48px] rounded-full justify-center items-center border-2 border-cyan-400">
@@ -76,19 +78,19 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
         </View>
         <MaterialIcons onPress={handleOpenOption} name="more-vert" size={24} color="white" />
       </View>
-      
+
       {/* Question Text */}
-      <Text className="text-xl color-slate-300 font-pmedium mb-8">{question.text}</Text>
-      
-      {/* Answer Options */}
+      <Text className="text-xl color-slate-300 font-pmedium mb-8">{question.questionText}</Text>
+
+      {/* Options */}
       {question.options.map((option, index) => (
         <TouchableOpacity
           key={index}
           disabled={!!selectedOption}
           onPress={() => handleAnswer(option)}
           className={`flex flex-row items-center mb-2 p-3 rounded-xl border ${
-            option === question.answer && selectedOption ? 'bg-correct border-green-400' :
-            option === selectedOption && option !== question.answer ? 'bg-wrong border-red-400' : ''
+            option === correctAnswer && selectedOption ? 'bg-correct border-green-400' :
+            option === selectedOption && option !== correctAnswer ? 'bg-wrong border-red-400' : ''
           }`}>
           <FontAwesome name={selectedOption === option ? "dot-circle-o" : "circle-o"} size={24} color="gray" style={{ marginRight: 10 }} />
           <Text className="text-lg color-slate-300 font-pmedium">{option}</Text>
@@ -114,19 +116,19 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
       </View>
 
       {/* Question Details */}
-      <View className="absolute  p-2  bottom-0 left-0 right-0" style={{ backgroundColor: expanded ? "#101624" : "#1A233A", width: "100%" }}>
+      <View className="absolute p-2 bottom-0 left-0 right-0" style={{ backgroundColor: expanded ? "#101624" : "#1A233A", width: "100%" }}>
         <Text className="color-slate-300 font-pmedium">
-          <Text className="font-psemibold color-slate-300">{formatNumber(question.correctAttempts)}</Text>
-          {"  "}<Text className="font-psemibold color-slate-300">Correct attempts</Text>
+          <Text className="font-psemibold color-slate-300">{formatNumber(question.totalCorrectAnswers)}</Text>
+          {"  "}Correct attempts
         </Text>
         <Animated.View style={{ maxHeight: heightAnim }}>
           <Text className="text-sm color-slate-300 font-plight">
-            {expanded ? question.questionDetail : question.questionDetail.substring(0, 45)}
+            {expanded ? question.description : question.description.substring(0, 45)}
           </Text>
         </Animated.View>
-        {question.questionDetail.length > 100 && (
+        {question.description.length > 100 && (
           <TouchableOpacity onPress={toggleExpanded}>
-            <Text className="text-blue-500 text-xs ">{expanded ? "Less" : "More"}</Text>
+            <Text className="text-blue-500 text-xs">{expanded ? "Less" : "More"}</Text>
           </TouchableOpacity>
         )}
       </View>
