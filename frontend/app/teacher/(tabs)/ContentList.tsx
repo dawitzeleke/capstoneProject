@@ -6,9 +6,11 @@ import {
   Pressable,
   StyleSheet,
   TextInput,
-  Alert,
+  Modal,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 interface QuestionItem {
   id: string;
@@ -19,10 +21,22 @@ interface QuestionItem {
 }
 
 const ContentListScreen = () => {
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "posted" | "draft">("all");
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [currentEditItem, setCurrentEditItem] = useState<QuestionItem | null>(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [originalEditItem, setOriginalEditItem] = useState<QuestionItem | null>(null);
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
 
   const [questions, setQuestions] = useState<QuestionItem[]>([
     {
@@ -46,6 +60,7 @@ const ContentListScreen = () => {
     },
   ]);
 
+  // Filter
   const filteredQuestions = questions.filter((item) => {
     const matchesTab = activeTab === "all" ? true : item.status === activeTab;
     const matchesSearch =
@@ -58,94 +73,225 @@ const ContentListScreen = () => {
     return matchesTab && matchesSearch;
   });
 
+//  Select Question Cards
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
     );
   };
 
+  // Delete fun
   const handleDelete = (id: string) => {
-    Alert.alert(
-      "Delete Question",
-      "Are you sure you want to delete this question?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            setQuestions((prev) =>
-              prev.filter((question) => question.id !== id)
-            );
-            setSelectedIds((prev) => prev.filter((itemId) => itemId !== id));
-          },
-        },
-      ]
-    );
+    setItemToDelete(id);
+  setDeleteModalVisible(true);
   };
 
+  // Confirm delete handler
+  const handleConfirmDelete = async () => {
+    if (itemToDelete) {
+      setLoading(true);
+      try {
+        await new Promise((resolve, reject) => {
+          // Simulate potential failure
+          if (Math.random() < 0.9) { // 10% chance of failure
+            setTimeout(resolve, 1000);
+          } else {
+            setTimeout(() => reject(new Error("Delete failed. Please try again.")), 1000);
+          }
+        });
+        
+        setQuestions(prev => prev.filter(question => question.id !== itemToDelete));
+        setSelectedIds(prev => prev.filter(id => id !== itemToDelete));
+        setShowSuccessToast(true);
+        setTimeout(() => setShowSuccessToast(false), 2000);
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : "Delete failed");
+        setShowErrorToast(true);
+        setTimeout(() => {
+          setShowErrorToast(false);
+          setErrorMessage(null);
+        }, 2000);
+      } finally {
+        setLoading(false);
+        setDeleteModalVisible(false);
+      }
+    }
+  };
+
+  // Bulk Delete
   const handleBulkDelete = () => {
-    Alert.alert(
-      "Delete Selected",
-      `Are you sure you want to delete ${selectedIds.length} items?`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            setQuestions((prev) =>
-              prev.filter((question) => !selectedIds.includes(question.id))
-            );
-            setSelectedIds([]);
-          },
-        },
-      ]
-    );
+    setShowBulkDeleteModal(true);
   };
 
-  const handleEdit = (id: string) => {
-    // Implement edit logic
+  // Bulk Delete confirmation handler
+  const handleConfirmBulkDelete = async () => {
+    setLoading(true);
+    try {
+      await new Promise((resolve, reject) => {
+        if (Math.random() < 0.9) {
+          setTimeout(resolve, 1000);
+        } else {
+          reject(new Error("Bulk delete failed. Please try again."));
+        }
+      });
+      
+      setQuestions(prev => prev.filter(question => !selectedIds.includes(question.id)));
+      setSelectedIds([]);
+      setShowSuccessToast(true);
+      setTimeout(() => setShowSuccessToast(false), 2000);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Bulk delete failed");
+      setShowErrorToast(true);
+      setTimeout(() => {
+        setShowErrorToast(false);
+        setErrorMessage(null);
+      }, 2000);
+    } finally {
+      setLoading(false);
+      setShowBulkDeleteModal(false);
+    }
   };
+
+  // Clear selection handler
+  const handleClearSelection = () => {
+    setSelectedIds([]);
+  };
+
+  // Edit fun
+  const handleEdit = (id: string) => {
+    const questionToEdit = questions.find((q) => q.id === id);
+      if (questionToEdit) {
+        setCurrentEditItem(questionToEdit);
+        setOriginalEditItem(questionToEdit); // Store original values
+        setShowEditModal(true);
+    }
+  };
+// Save the edits
+const handleSaveEdit = async () => {
+  if (currentEditItem) {
+    setLoading(true);
+    try {
+      await new Promise((resolve, reject) => {
+        if (Math.random() < 0.9) {
+          setTimeout(resolve, 1000);
+        } else {
+          reject(new Error("Save failed. Please try again."));
+        }
+      });
+      
+      setQuestions(prevQuestions => 
+        prevQuestions.map(q => q.id === currentEditItem.id ? currentEditItem : q)
+      );
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Save failed");
+      setShowErrorToast(true);
+      setTimeout(() => {
+        setShowErrorToast(false);
+        setErrorMessage(null);
+      }, 2000);
+    } finally {
+      setLoading(false);
+      setShowEditModal(false);
+      setCurrentEditItem(null);
+      setOriginalEditItem(null);
+    }
+  }
+};
+
+// Unsaved changes
+  const hasUnsavedChanges = () => {
+    if (!currentEditItem || !originalEditItem) return false;
+    return JSON.stringify(currentEditItem) !== JSON.stringify(originalEditItem);
+  };
+
+  // Cancel handler for Edit modal
+  const handleCancelEdit = () => {
+    if (hasUnsavedChanges()) {
+      setShowDiscardModal(true);
+    } else {
+      closeEditModal();
+    }
+  };
+
+  // Close Edit Modal
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setCurrentEditItem(null);
+    setOriginalEditItem(null);
+  };
+
 
   return (
-    <ScrollView style={styles.container}>
+    
+      <>
+      <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Content List</Text>
-        <Pressable
-          onPress={() => setShowSearch(!showSearch)}
-          style={styles.searchIcon}
-        >
-          <Ionicons name="search" size={24} color="#4F46E5" />
-        </Pressable>
-      </View>
+  <View style={styles.headerLeft}>
+    <Pressable onPress={() => navigation.goBack()}>
+      <Ionicons name="arrow-back" size={24} color="#4F46E5" />
+    </Pressable>
+  </View>
 
-      {showSearch && (
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search questions, options or dates..."
-            placeholderTextColor="#94a3b8"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            autoFocus
-          />
-        </View>
-      )}
+  <View style={styles.headerCenter}>
+    <Text style={styles.title}>Content List</Text>
+  </View>
 
-      {selectedIds.length > 0 && (
-        <Pressable style={styles.bulkDeleteButton} onPress={handleBulkDelete}>
-          <Text style={styles.bulkDeleteText}>
-            Delete Selected ({selectedIds.length})
-          </Text>
-        </Pressable>
+  <View style={styles.headerRight}>
+    <Pressable onPress={() => setShowSearch(!showSearch)}>
+      <Ionicons name="search" size={24} color="#4F46E5" />
+    </Pressable>
+  </View>
+</View>
+
+{showSearch && (
+  <View style={styles.searchContainer}>
+    <TextInput
+      style={styles.searchInput}
+      placeholder="Search questions, options or dates..."
+      placeholderTextColor="#94a3b8"
+      value={searchQuery}
+      onChangeText={setSearchQuery}
+      autoFocus
+    />
+    <Pressable
+      style={styles.searchCloseButton}
+      onPress={() => {
+        setShowSearch(false);
+        setSearchQuery("");
+      }}
+    >
+      <Ionicons name="close-circle" size={20} color="#94a3b8" />
+    </Pressable>
+  </View>
+)}
+
+{selectedIds.length > 0 && (
+  <View style={styles.bulkActionsContainer}>
+    <Pressable 
+      style={styles.bulkCancelButton}
+      onPress={handleClearSelection}
+      disabled={loading}
+    >
+      <Text style={styles.bulkCancelText}>
+        Clear Selection ({selectedIds.length})
+      </Text>
+    </Pressable>
+
+    <Pressable 
+      style={styles.bulkDeleteButton} 
+      onPress={handleBulkDelete}
+      disabled={loading}
+    >
+      {loading ? (
+        <ActivityIndicator color="white" />
+      ) : (
+        <Text style={styles.bulkDeleteText}>
+          Delete Selected ({selectedIds.length})
+        </Text>
       )}
+    </Pressable>
+  </View>
+)}
 
       {/* Navigation Tabs */}
       <View style={styles.navContainer}>
@@ -194,7 +340,23 @@ const ContentListScreen = () => {
 
       {/* Questions List */}
       <View style={styles.contentContainer}>
-        {filteredQuestions.map((item) => (
+  {filteredQuestions.length === 0 ? (
+    <View style={styles.emptyStateContainer}>
+      <Ionicons name="document-text-outline" size={64} color="#cbd5e1" />
+      <Text style={styles.emptyStateTitle}>No Items Found</Text>
+      <Text style={styles.emptyStateText}>
+        {searchQuery ? 'No results for your search' : 'Start by creating a new question'}
+      </Text>
+      <Pressable
+        style={styles.emptyStateButton}
+        onPress={() => navigation.navigate('AddQuestion')}
+      >
+        <Ionicons name="add-circle" size={20} color="white" />
+        <Text style={styles.emptyStateButtonText}>Add New Question</Text>
+      </Pressable>
+    </View>
+  ) : (
+    filteredQuestions.map((item) => (
           <Pressable
             key={item.id}
             style={[
@@ -232,15 +394,27 @@ const ContentListScreen = () => {
               <Pressable
                 style={styles.actionButton}
                 onPress={() => handleEdit(item.id)}
+                className="bg-[#d6ddff]"
+                disabled={loading}
               >
-                <Ionicons name="create-outline" size={20} color="#4F46E5" />
+                {loading ? (
+      <ActivityIndicator color="#4F46E5" />
+    ) : (
+      <Ionicons name="create-outline" size={20} color="#4F46E5" />
+    )}
               </Pressable>
 
               <Pressable
                 style={styles.actionButton}
                 onPress={() => handleDelete(item.id)}
+                className="bg-[#fdbab4]"
+                disabled={loading}
               >
-                <Ionicons name="trash-outline" size={20} color="#dc2626" />
+                {loading ? (
+      <ActivityIndicator color="#dc2626" />
+    ) : (
+      <Ionicons name="trash-outline" size={20} color="#dc2626" />
+    )}
               </Pressable>
             </View>
 
@@ -256,10 +430,232 @@ const ContentListScreen = () => {
                 {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
               </Text>
             </View>
-          </Pressable>
+          </Pressable> )
         ))}
       </View>
     </ScrollView>
+
+{/* success toast */}
+{showSuccessToast && (
+        <View style={styles.toastContainer}>
+          <Text style={styles.toastText}>Question deleted successfully</Text>
+        </View>
+      )}
+
+{/* Delete Modal */}
+<Modal
+  visible={deleteModalVisible}
+  transparent={true}
+  animationType="fade"
+  onRequestClose={() => {
+    setDeleteModalVisible(false);
+    setItemToDelete(null);
+  }}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Delete Question</Text>
+      <Text style={styles.deleteConfirmationText}>
+        Are you sure you want to delete this question? This action cannot be undone.
+      </Text>
+      
+      <View style={styles.modalButtons}>
+        <Pressable
+          style={[styles.modalButton, styles.cancelButton]}
+          onPress={() => {
+            setDeleteModalVisible(false);
+            setItemToDelete(null);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.modalButton, styles.deleteConfirmButton]}
+          onPress={handleConfirmDelete}
+          disabled={loading}
+        >
+          {loading ? (
+    <ActivityIndicator color="white" />
+  ) : (
+    <Text style={styles.deleteButtonText}>Confirm Delete</Text>
+  )}
+        </Pressable>
+      </View>
+    </View>
+  </View>
+</Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        visible={showEditModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {
+          handleCancelEdit();
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Edit Question</Text>
+
+            <Text style={styles.inputLabel}>Question</Text>
+            <TextInput
+              style={styles.input}
+              value={currentEditItem?.question ?? ""}
+              onChangeText={(text) => setCurrentEditItem((prev) => prev ? { ...prev, question: text } : null
+              )} />
+
+            <Text style={styles.inputLabel}>Options</Text>
+            {currentEditItem?.options.map((option, index) => (
+              <TextInput
+                key={index}
+                style={styles.input}
+                value={option}
+                onChangeText={(text) => {
+                  const newOptions = [...currentEditItem.options];
+                  newOptions[index] = text;
+                  setCurrentEditItem((prev) => prev ? { ...prev, options: newOptions } : null
+                  );
+                } } />
+            ))}
+
+            <Text style={styles.inputLabel}>Status</Text>
+            <View style={styles.statusContainer}>
+              <Pressable
+                style={[
+                  styles.statusButton,
+                  currentEditItem?.status === "draft" && styles.activeStatusButton,
+                ]}
+                onPress={() => setCurrentEditItem((prev) => prev ? { ...prev, status: "draft" } : null
+                )}
+              >
+                <Text
+                  style={[
+                    styles.statusButtonText,
+                    currentEditItem?.status === "draft" && styles.activeStatusText,
+                  ]}
+                >
+                  Draft
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[
+                  styles.statusButton,
+                  currentEditItem?.status === "posted" && styles.activeStatusButton,
+                ]}
+                onPress={() => setCurrentEditItem((prev) => prev ? { ...prev, status: "posted" } : null
+                )}
+              >
+                <Text
+                  style={[
+                    styles.statusButtonText,
+                    currentEditItem?.status === "posted" && styles.activeStatusText,
+                  ]}
+                >
+                  Posted
+                </Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={handleCancelEdit}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.modalButton, styles.saveButton]}
+                onPress={handleSaveEdit}
+              >
+                <Text style={styles.saveButtonText}>Save Changes</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+
+      <Modal
+visible={showDiscardModal}
+transparent={true}
+animationType="fade"
+onRequestClose={() => setShowDiscardModal(false)}
+>
+<View style={styles.modalOverlay}>
+  <View style={styles.modalContent}>
+    <Text style={styles.modalTitle}>Unsaved Changes</Text>
+    <Text style={styles.deleteConfirmationText}>
+      You have unsaved changes. Are you sure you want to discard them?
+    </Text>
+    <View style={styles.modalButtons}>
+      <Pressable
+        style={[styles.modalButton, styles.cancelButton]}
+        onPress={() => setShowDiscardModal(false)}
+      >
+        <Text style={styles.cancelButtonText}>Keep Editing</Text>
+      </Pressable>
+      <Pressable
+        style={[styles.modalButton, styles.deleteConfirmButton]}
+        onPress={() => {
+          closeEditModal();
+          setShowDiscardModal(false);
+        }}
+      >
+        <Text style={styles.deleteButtonText}>Discard Changes</Text>
+      </Pressable>
+    </View>
+  </View>
+</View>
+</Modal>
+
+{/* Add Bulk Delete Modal component */}
+<Modal
+  visible={showBulkDeleteModal}
+  transparent={true}
+  animationType="fade"
+  onRequestClose={() => setShowBulkDeleteModal(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Delete Selected Items</Text>
+      <Text style={styles.deleteConfirmationText}>
+        Are you sure you want to delete {selectedIds.length} items? 
+        This action cannot be undone.
+      </Text>
+      
+      <View style={styles.modalButtons}>
+        <Pressable
+          style={[styles.modalButton, styles.cancelButton]}
+          onPress={() => setShowBulkDeleteModal(false)}
+        >
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.modalButton, styles.deleteConfirmButton]}
+          onPress={handleConfirmBulkDelete}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.deleteButtonText}>Confirm Delete</Text>
+          )}
+        </Pressable>
+      </View>
+    </View>
+  </View>
+</Modal>
+
+{/* Error Toast */}
+{showErrorToast && (
+  <View style={styles.errorToastContainer}>
+    <Ionicons name="warning" size={16} color="white" />
+    <Text style={styles.toastText}>{errorMessage ?? "Something went wrong"}</Text>
+  </View>
+)}
+      </>
+
   );
 };
 
@@ -269,16 +665,43 @@ const styles = StyleSheet.create({
     backgroundColor: "#f3f4f6",
   },
   header: {
-    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
   },
+  headerLeft: {
+    width: '20%',
+    alignItems: 'flex-start',
+  },
+  headerCenter: {
+    width: '60%',
+    alignItems: 'center',
+  },
+  headerRight: {
+    width: '20%',
+    alignItems: 'flex-end',
+  },
+  
   title: {
-    fontSize: 24,
+    flex: 1,
+    fontSize: 20,
     fontWeight: "600",
     color: "#1f2937",
+    textAlign: 'center',
+    marginHorizontal: 8,
   },
+  searchIcon: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+
   navContainer: {
     flexDirection: "row",
     margin: 16,
@@ -339,20 +762,28 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 16,
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginTop: 8,
   },
   actionButton: {
-    padding: 6,
+  padding: 8,
+  borderRadius: 8,
+  // backgroundColor: "#f8fafc",
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.1,
+  shadowRadius: 2,
+  elevation: 2,
   },
-  searchIcon: {
-    position: "absolute",
-    right: 20,
-    top: 20,
+  disabledButton: {
+    opacity: 0.6,
   },
   searchContainer: {
     paddingHorizontal: 16,
     marginBottom: 12,
+    marginTop: 8, 
+    position: 'relative'
   },
   searchInput: {
     backgroundColor: "#fff",
@@ -362,16 +793,41 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e2e8f0",
     color: "#1f2937",
+    paddingRight: 40,
+  },
+  searchCloseButton: {
+    position: 'absolute',
+    right: 28,
+    top: 10,
+    padding: 4,
   },
   bulkDeleteButton: {
+    flex: 1,
     backgroundColor: "#dc2626",
     padding: 16,
-    marginHorizontal: 16,
     borderRadius: 8,
     alignItems: "center",
+  },
+  bulkActionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    gap: 8,
     marginBottom: 12,
+    marginTop: 8,
   },
   bulkDeleteText: {
+    color: "white",
+    fontWeight: "600",
+  },
+  bulkCancelButton: {
+    flex: 1,
+    backgroundColor: "#64748b",
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  bulkCancelText: {
     color: "white",
     fontWeight: "600",
   },
@@ -379,6 +835,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#64748b",
     marginBottom: 4,
+    marginLeft: 20,
   },
   statusBadge: {
     position: "absolute",
@@ -415,6 +872,162 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     backgroundColor: "#f5f3ff",
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 20,
+    width: "90%",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 4,
+    padding: 8,
+    marginBottom: 12,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#1f2937",
+    marginBottom: 4,
+  },
+  statusContainer: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 16,
+  },
+  statusButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  activeStatusButton: {
+    backgroundColor: "#4F46E5",
+    borderColor: "#4F46E5",
+  },
+  statusButtonText: {
+    color: "#64748b",
+  },
+  activeStatusText: {
+    color: "white",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 16,
+    color: "#1f2937",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
+    marginTop: 16,
+  },
+  modalButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 4,
+  },
+  cancelButton: {
+    backgroundColor: "#f3f4f6",
+  },
+  cancelButtonText: {
+    color: "#64748b",
+  },
+  saveButton: {
+    backgroundColor: "#4F46E5",
+  },
+  saveButtonText: {
+    color: "white",
+  },
+  toastContainer: {
+    position: 'absolute',
+    bottom: 20,
+    alignSelf: 'center',
+    backgroundColor: '#10b981',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  toastText: {
+    color: 'white',
+    fontWeight: '500',
+  },
+  deleteConfirmationText: {
+    color: '#64748b',
+    marginBottom: 24,
+  },
+deleteConfirmButton: {
+  backgroundColor: '#dc2626',
+},
+deleteButtonText: {
+  color: 'white',
+  fontWeight: '500',
+},
+emptyStateContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 40,
+  minHeight: 300, // Prevents layout glitches
+},
+emptyStateTitle: {
+  fontSize: 20,
+  fontWeight: '600',
+  color: '#1e293b',
+  marginTop: 16,
+},
+emptyStateText: {
+  fontSize: 16,
+  color: '#64748b',
+  textAlign: 'center',
+  marginTop: 8,
+  marginBottom: 24,
+},
+emptyStateButton: {
+  flexDirection: 'row',
+  backgroundColor: '#4F46E5',
+  paddingVertical: 12,
+  paddingHorizontal: 24,
+  borderRadius: 8,
+  alignItems: 'center',
+  gap: 8,
+},
+emptyStateButtonText: {
+  color: 'white',
+  fontWeight: '500',
+  fontSize: 16,
+},
+errorToastContainer: {
+  position: 'absolute',
+  bottom: 20,
+  alignSelf: 'center',
+  backgroundColor: '#dc2626',
+  paddingVertical: 12,
+  paddingHorizontal: 24,
+  borderRadius: 8,
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+  elevation: 3,
+},
 });
 
 export default ContentListScreen;
