@@ -47,36 +47,17 @@ const Leaderboard = () => {
 
   return (
     <View className="flex-1 bg-[#101624] px-4 py-6 mt-4">
-      <Link
-        href="/student/(tabs)/Profile"
-        className="text-lg text-blue-500 font-pregular">
-        <Ionicons name="chevron-back" size={20} color="gray" />
-      </Link>
       {/* 🔹 Header Section */}
       <View className="flex-row justify-between items-center mb-6">
+        <Link
+          href="/student/(tabs)/Profile"
+          className="text-lg text-blue-500 font-pregular">
+          <Ionicons name="chevron-back" size={20} color="gray" />
+        </Link>
         <Text className="text-white text-2xl font-pbold">Leaderboard</Text>
         <TouchableOpacity>
           <Entypo name="dots-three-vertical" size={20} color="white" />
         </TouchableOpacity>
-      </View>
-
-      {/* 🔹 Tabs */}
-      <View className="flex-row justify-around mb-8 bg-[#1A233A] p-2 rounded-full">
-        {["Region", "National", "Global"].map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            onPress={() => setSelectedTab(tab)}
-            className={`py-2 px-6 rounded-full ${
-              selectedTab === tab ? "bg-white" : "bg-transparent"
-            }`}>
-            <Text
-              className={`text-sm font-psemibold ${
-                selectedTab === tab ? "text-black" : "text-gray-400"
-              }`}>
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
       </View>
 
       {/* 🔹 Top 3 Users */}
