@@ -17,9 +17,8 @@ export const loadMoreQuestions = () => ({
 });
 
 // Action to set loading state for questions
-export const setLoading = (isLoading: boolean) => ({
+export const setLoading = () => ({
   type: questionsActionTypes.SET_LOADING,
-  payload: isLoading,
 });
 
 // Action to set if there are more questions available (pagination)
