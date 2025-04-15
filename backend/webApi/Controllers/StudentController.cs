@@ -20,10 +20,10 @@ public class StudentsController : ControllerBase
         return Ok(result);
     }
 
-    // [HttpPut("settings")]
-    // public async Task<IActionResult> UpdateSettings([FromBody] UpdateStudentSettingsCommand command)
-    // {
-    //     var result = await _mediator.Send(command);
-    //     return result ? Ok() : BadRequest("Update failed");
-    // }
+    [HttpPut("settings")]
+    public async Task<IActionResult> UpdateSettings([FromForm] UpdateStudentSettingsCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return result ? Ok() : BadRequest("Update failed");
+    }
 }
