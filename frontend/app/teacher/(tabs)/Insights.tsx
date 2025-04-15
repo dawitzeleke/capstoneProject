@@ -1,5 +1,7 @@
 import { View, Text, ScrollView, StyleSheet, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AppHeader from "@/components/teacher/Header";
+import { useNavigation } from '@react-navigation/native';
 
 const EngagementInsightsScreen = () => {
   const { width } = useWindowDimensions();
@@ -7,11 +9,10 @@ const EngagementInsightsScreen = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
-      <View style={styles.header}>
-        <Ionicons name="arrow-back" size={24} color="#4F46E5" />
-        <Text style={styles.title}>Engagement Insights</Text>
-        <Ionicons name="information-circle-outline" size={24} color="#4F46E5" />
-      </View>
+      <AppHeader
+        title="Engagement Insights"
+        onBack={() => navigation.navigate('Home')}
+      />
 
       {/* Main Stats Section */}
       <View style={styles.mainStatsContainer}>
@@ -22,7 +23,7 @@ const EngagementInsightsScreen = () => {
 
         <View style={styles.attemptsCard}>
           <Text style={styles.sectionTitle}>Correct Vs Incorrect Attempts</Text>
-          
+
           <View style={styles.attemptsGrid}>
             {/* Correct Column */}
             <View style={styles.attemptColumn}>

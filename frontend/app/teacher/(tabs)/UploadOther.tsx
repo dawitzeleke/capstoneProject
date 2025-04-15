@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as  DocumentPicker from 'expo-document-picker';
 import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
+import AppHeader from '@/components/teacher/Header';
 
 
 
@@ -81,7 +82,7 @@ const UploadOtherScreen = () => {
         copyToCacheDirectory: true,
         multiple: false,
       });
-  
+
       if (result.type === 'success') {
         const successResult = result;
         setFile({
@@ -274,15 +275,13 @@ const UploadOtherScreen = () => {
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
 
         {/* Header Section */}
-        <View style={styles.header}>
-          <Pressable style={styles.backButton} onPress={handleBack}>
-            <Ionicons name="arrow-back" size={24} color="#4F46E5" />
-          </Pressable>
-          <Text style={styles.title}>Upload Content</Text>
-        </View>
+        <AppHeader
+          title="Upload Content"
+          onBack={() => navigation.navigate('ContentList')}
+        />
 
         {/* Content Type Selector */}
-         <ContentTypeSelector currentScreen="UploadOther" />
+        <ContentTypeSelector currentScreen="UploadOther" />
 
         {/* File Type Selection and Upload Area */}
         <View style={styles.sectionContainer}>

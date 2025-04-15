@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
+import AppHeader from "@/components/teacher/Header";
 
 
 type RootStackParamList = {
@@ -95,7 +96,7 @@ const AddQuestionScreen = () => {
       tags: tags.length === 0,
       correctOption: correctOption === null, // Add this
     };
-  
+
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) =>
       Array.isArray(error) ? error.some((e) => e) : error
@@ -136,7 +137,7 @@ const AddQuestionScreen = () => {
       // Store question and show success modal
       setPostedQuestion(newQuestion);
       setShowSuccessModal(true);
-      
+
 
       // Reset form
       setQuestion("");
@@ -278,18 +279,10 @@ const AddQuestionScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* Header Section */}
-        <View style={styles.header}>
-          <Pressable
-            style={styles.backButton}
-            onPress={() => navigation.navigate({
-              name: "ContentList",
-              params: { refresh: false }
-            })}
-          >
-            <Ionicons name="arrow-back" size={24} color="#4F46E5" />
-          </Pressable>
-          <Text style={styles.title}>Upload Content</Text>
-        </View>
+        <AppHeader
+          title="Upload Content"
+          onBack={() => navigation.navigate('ContentList')}
+        />
 
         {/* Content Type Selector */}
         <ContentTypeSelector currentScreen="AddQuestion" />
