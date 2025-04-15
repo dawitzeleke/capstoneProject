@@ -30,16 +30,20 @@ export default function Dashboard() {
 
         {/* Stats & Buttons */}
         <View className="flex-row mx-8 justify-between items-center mt-6">
-          <View className="flex items-center">
-            <FontAwesome5 name="user-friends" size={16} color="white" />
-            <Text className="text-white text-lg font-bold">122</Text>
-            <Text className="text-gray-300 text-xs">Following</Text>
-          </View>
-          <View className="flex items-center">
-            <FontAwesome5 name="bookmark" size={16} color="white" />
-            <Text className="text-white text-lg font-bold">300</Text>
-            <Text className="text-gray-300 text-xs">Saved</Text>
-          </View>
+          <Link href="../FollowingList" className="text-lg font-pregular">
+            <View className="flex items-center">
+              <FontAwesome5 name="user-friends" size={16} color="white" />
+              <Text className="text-white text-lg font-bold">122</Text>
+              <Text className="text-gray-300 text-xs">Following</Text>
+            </View>
+          </Link>
+          <Link href="/student/(tabs)/SavedQuestions" className="text-lg font-pregular">
+            <View className="flex items-center">
+              <FontAwesome5 name="bookmark" size={16} color="white" />
+              <Text className="text-white text-lg font-bold">300</Text>
+              <Text className="text-gray-300 text-xs">Saved</Text>
+            </View>
+          </Link>
         </View>
       </View>
 

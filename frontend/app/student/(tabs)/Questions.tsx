@@ -12,7 +12,6 @@ const { height } = Dimensions.get("window"); // Get device height
 
 const Questions = () => {
   const dispatch = useDispatch();
-
   // Retrieve questions from Redux store
   const questions = useSelector((state: RootState) => state.questions.data);
   const isLoading = useSelector((state: RootState) => state.questions.isLoading);
