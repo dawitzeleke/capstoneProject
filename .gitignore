@@ -2,3 +2,5 @@
 *.vsidx
 **/bin/
 **/obj/
+backend/Application/obj/
+backend/Application.Tests/obj/
