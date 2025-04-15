@@ -1,5 +1,6 @@
 import { View, Text, Image, Switch, TouchableOpacity } from "react-native";
 import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { Ionicons, MaterialIcons, Feather } from "@expo/vector-icons";
 import { useState } from "react";
 
@@ -8,6 +9,7 @@ const SettingsScreen = () => {
   const [isPermissionsEnabled, setIsPermissionsEnabled] = useState(true);
   const [isPlayInBackground, setIsPlayInBackground] = useState(false);
   const [isWifiOnly, setIsWifiOnly] = useState(true);
+  const router = useRouter();
 
   return (
     <View className="flex-1 bg-primary p-6">
@@ -19,20 +21,22 @@ const SettingsScreen = () => {
           <Ionicons name="chevron-back" size={20} color="gray" />
         </Link>
       </View>
-
       {/* Settings Section */}
-      <Text className="text-gray-300 font-pregular font-bold text-lg mb-3" font-pregular>Settings</Text>
+      <Text
+        className="text-gray-300 font-pregular font-bold text-lg mb-3"
+        font-pregular>
+        Settings
+      </Text>
 
-      {/* Language */}
-      <TouchableOpacity className="flex-row items-center justify-between py-4 border-b border-gray-300">
+      {/* Edit Profile */}
+      <TouchableOpacity
+        className="flex-row items-center justify-between py-4 border-b border-gray-300"
+        onPress={() => router.push("/student/(tabs)/EditProfileScreen")}>
         <View className="flex-row items-center">
-          <Ionicons name="globe-outline" size={20} color="cyan" />
-          <Text className="ml-4 text-gray-300 font-pregular">Language</Text>
+          <Ionicons name="information-circle-outline" size={20} color="cyan" />
+          <Text className="ml-4 text-gray-300 font-pregular">Edit Profile</Text>
         </View>
-        <View className="flex-row items-center">
-          <Text className="text-gray-300 font-pregular">English</Text>
-          <Ionicons name="chevron-forward" size={20} color="gray" />
-        </View>
+        <Ionicons name="create-outline" size={20} color="gray" />
       </TouchableOpacity>
 
       {/* Permissions Toggle */}
@@ -60,7 +64,9 @@ const SettingsScreen = () => {
       <View className="flex-row items-center justify-between py-4 border-b border-gray-300">
         <View className="flex-row items-center">
           <MaterialIcons name="music-note" size={20} color="cyan" />
-          <Text className="ml-4 text-gray-300 font-pregular">Play in Background</Text>
+          <Text className="ml-4 text-gray-300 font-pregular">
+            Play in Background
+          </Text>
         </View>
         <Switch
           value={isPlayInBackground}
@@ -81,16 +87,20 @@ const SettingsScreen = () => {
       <TouchableOpacity className="flex-row items-center justify-between py-4 border-b border-gray-300">
         <View className="flex-row items-center">
           <Feather name="bell" size={20} color="cyan" />
-          <Text className="ml-4 text-gray-300 font-pregular">Notifications</Text>
+          <Text className="ml-4 text-gray-300 font-pregular">
+            Notifications
+          </Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color="gray" />
+        <Switch value={isWifiOnly} onValueChange={setIsWifiOnly} />
       </TouchableOpacity>
 
       {/* About App */}
       <TouchableOpacity className="flex-row items-center justify-between py-4 border-b border-gray-300">
         <View className="flex-row items-center">
           <Ionicons name="information-circle-outline" size={20} color="cyan" />
-          <Text className="ml-4 text-gray-300 font-pregular">About Application</Text>
+          <Text className="ml-4 text-gray-300 font-pregular">
+            About Application
+          </Text>
         </View>
         <Ionicons name="chevron-forward" size={20} color="gray" />
       </TouchableOpacity>
