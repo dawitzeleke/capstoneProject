@@ -15,7 +15,6 @@ const { height } = Dimensions.get("window"); // Get device height
 
 const Questions = () => {
   const dispatch = useDispatch();
-  // Retrieve questions from Redux store
 
     // Dispatch loadQuestions when component mounts
     useEffect(() => {
@@ -27,7 +26,7 @@ const Questions = () => {
           const response = await httpRequest("/api/Questions", null, "GET");
           console.log(response)
           dispatch(
-            setQuestions(response), // Assuming the API returns a list of questions
+            setQuestions(response), 
           );
         } catch (err) {
           console.error("Failed to load user", err);
