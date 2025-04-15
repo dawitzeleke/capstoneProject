@@ -1,3 +1,4 @@
 # Ignore build artifacts
 **/bin/
 **/obj/
+backend/.vs/
