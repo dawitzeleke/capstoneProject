@@ -35,7 +35,7 @@ public class QuestionsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionCommand question)
+    public async Task<IActionResult> CreateQuestion([FromForm] CreateQuestionCommand question)
     {
         System.Console.WriteLine("input data",question);
         Console.WriteLine($"Received Question: {System.Text.Json.JsonSerializer.Serialize(question)}");
