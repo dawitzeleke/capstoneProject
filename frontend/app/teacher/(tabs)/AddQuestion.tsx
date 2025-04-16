@@ -13,6 +13,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
+import AppHeader from "@/components/teacher/Header";
+
 
 type RootStackParamList = {
   ContentList: {
@@ -93,7 +96,7 @@ const AddQuestionScreen = () => {
       tags: tags.length === 0,
       correctOption: correctOption === null, // Add this
     };
-  
+
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) =>
       Array.isArray(error) ? error.some((e) => e) : error
@@ -134,7 +137,7 @@ const AddQuestionScreen = () => {
       // Store question and show success modal
       setPostedQuestion(newQuestion);
       setShowSuccessModal(true);
-      
+
 
       // Reset form
       setQuestion("");
@@ -276,30 +279,13 @@ const AddQuestionScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* Header Section */}
-        <View style={styles.header}>
-          <Pressable
-            style={styles.backButton}
-            onPress={() => navigation.navigate({
-              name: "ContentList",
-              params: { refresh: false }
-            })}
-          >
-            <Ionicons name="arrow-back" size={24} color="#4F46E5" />
-          </Pressable>
-          <Text style={styles.title}>Upload Content</Text>
-        </View>
+        <AppHeader
+          title="Upload Content"
+          onBack={() => navigation.navigate('ContentList')}
+        />
 
         {/* Content Type Selector */}
-        <View style={styles.selectorContainer}>
-          <Pressable style={[styles.selectorButton, styles.activeSelector]}>
-            <Text style={[styles.selectorText, styles.activeSelectorText]}>
-              Add question
-            </Text>
-          </Pressable>
-          <Pressable style={styles.selectorButton}>
-            <Text style={styles.selectorText}>Upload other</Text>
-          </Pressable>
-        </View>
+        <ContentTypeSelector currentScreen="AddQuestion" />
 
         {/* Question Input Section */}
         <View style={styles.sectionContainer}>
