@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,12 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
+  useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AppHeader from "@/components/teacher/Header";
+import SearchFilter from "@/components/teacher/SearchFilter";
 
 interface QuestionItem {
   id: string;
@@ -25,8 +27,7 @@ const ContentListScreen = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "posted" | "draft">("all");
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredQuestions, setFilteredQuestions] = useState<QuestionItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentEditItem, setCurrentEditItem] = useState<QuestionItem | null>(null);
@@ -38,6 +39,10 @@ const ContentListScreen = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const { width } = useWindowDimensions();
+  const [showSearch, setShowSearch] = useState(false);
+
+
 
   const [questions, setQuestions] = useState<QuestionItem[]>([
     {
@@ -61,25 +66,28 @@ const ContentListScreen = () => {
     },
   ]);
 
-  // Filter
-  const filteredQuestions = questions.filter((item) => {
-    const matchesTab = activeTab === "all" ? true : item.status === activeTab;
-    const matchesSearch =
-      item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.options
-        .join(" ")
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      item.date.includes(searchQuery);
-    return matchesTab && matchesSearch;
-  });
 
-  //  Select Question Cards
+
+  useEffect(() => {
+    setFilteredQuestions(questions);
+  }, [questions]);
+
+  // Keep this for tab filtering
+  useEffect(() => {
+    const tabFiltered = activeTab === 'all'
+      ? filteredQuestions
+      : filteredQuestions.filter(item => item.status === activeTab);
+    setDisplayQuestions(tabFiltered);
+  }, [activeTab, filteredQuestions]);
+
   const toggleSelection = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
     );
   };
+
+  // Add new state:
+  const [displayQuestions, setDisplayQuestions] = useState<QuestionItem[]>([]);
 
   // Delete fun
   const handleDelete = (id: string) => {
@@ -226,41 +234,37 @@ const ContentListScreen = () => {
 
     <>
       <ScrollView style={styles.container}>
+        {/* Header  */}
         <View style={styles.header}>
-
-          {/* Header  */}
           <AppHeader
             title="Content Management"
             onBack={() => navigation.navigate('Home')}
+            buttons={[{
+              component: (
+                <Pressable onPress={() => setShowSearch(!showSearch)}>
+                  <Ionicons
+                    name={showSearch ? "close" : "search"}
+                    size={24}
+                    color="#4F46E5" />
+                </Pressable>
+              ),
+              side: 'right',
+              onPress: function (): void {
+                throw new Error("Function not implemented.");
+              }
+            }]}
           />
-
-          <View style={styles.headerRight}>
-            <Pressable onPress={() => setShowSearch(!showSearch)}>
-              <Ionicons name="search" size={24} color="#4F46E5" />
-            </Pressable>
-          </View>
         </View>
 
+        {/* Search Filter Section */}
         {showSearch && (
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search questions, options or dates..."
-              placeholderTextColor="#94a3b8"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoFocus
-            />
-            <Pressable
-              style={styles.searchCloseButton}
-              onPress={() => {
-                setShowSearch(false);
-                setSearchQuery("");
-              }}
-            >
-              <Ionicons name="close-circle" size={20} color="#94a3b8" />
-            </Pressable>
-          </View>
+          <SearchFilter
+            data={questions}
+            searchKeys={['question', 'options', 'date']}
+            onFilter={setFilteredQuestions}
+            onClose={() => setShowSearch(false)}
+            placeholder="Search questions, options or dates..."
+          />
         )}
 
         {selectedIds.length > 0 && (
@@ -338,12 +342,14 @@ const ContentListScreen = () => {
 
         {/* Questions List */}
         <View style={styles.contentContainer}>
-          {filteredQuestions.length === 0 ? (
+          {displayQuestions.length === 0 ? (
             <View style={styles.emptyStateContainer}>
               <Ionicons name="document-text-outline" size={64} color="#cbd5e1" />
               <Text style={styles.emptyStateTitle}>No Items Found</Text>
               <Text style={styles.emptyStateText}>
-                {searchQuery ? 'No results for your search' : 'Start by creating a new question'}
+                {filteredQuestions.length === 0
+                  ? 'No results for your search'
+                  : 'Start by creating a new question'}
               </Text>
               <Pressable
                 style={styles.emptyStateButton}
@@ -354,7 +360,7 @@ const ContentListScreen = () => {
               </Pressable>
             </View>
           ) : (
-            filteredQuestions.map((item) => (
+            displayQuestions.map((item) => (
               <Pressable
                 key={item.id}
                 style={[
@@ -663,28 +669,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f3f4f6",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
+    paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
+    borderBottomColor: '#e5e7eb',
   },
-  headerLeft: {
-    width: '20%',
-    alignItems: 'flex-start',
-  },
-  headerCenter: {
-    width: '60%',
-    alignItems: 'center',
-  },
-  headerRight: {
-    width: '20%',
-    alignItems: 'flex-end',
-  },
-
   title: {
     flex: 1,
     fontSize: 20,
@@ -693,13 +682,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginHorizontal: 8,
   },
-  searchIcon: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-
   navContainer: {
     flexDirection: "row",
     margin: 16,
@@ -776,28 +758,6 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     opacity: 0.6,
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    marginTop: 8,
-    position: 'relative'
-  },
-  searchInput: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    color: "#1f2937",
-    paddingRight: 40,
-  },
-  searchCloseButton: {
-    position: 'absolute',
-    right: 28,
-    top: 10,
-    padding: 4,
   },
   bulkDeleteButton: {
     flex: 1,
