@@ -4,7 +4,6 @@ import {
   Text,
   Pressable,
   ScrollView,
-  TextInput,
   Modal,
   ActivityIndicator,
   Platform
@@ -14,15 +13,9 @@ import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
 import AppHeader from '@/components/teacher/Header';
+import TagsInput from '@/components/teacher/TagsInput';
 
-type RootStackParamList = {
-  ContentList: {
-    refresh: boolean;
-  };
-  UploadOtherScreen: undefined;
-};
 
-type DocumentResult = DocumentPicker.DocumentPickerResult;
 
 type FileData = {
   uri: string;
@@ -34,7 +27,6 @@ type FileData = {
 const UploadOtherScreen = () => {
 
   const [selectedFileType, setSelectedFileType] = useState('mp4');
-  const [tagsInput, setTagsInput] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [file, setFile] = useState<FileData | null>(null);
   const [isPosting, setIsPosting] = useState(false);
@@ -49,6 +41,11 @@ const UploadOtherScreen = () => {
   const handleBack = () => {
     router.push("../ContentList");
   };
+
+  const [errors, setErrors] = useState({
+    file: false,
+    tags: false,
+  });
 
   const FILE_TYPES = {
     mp4: ['video/mp4', 'video/quicktime'],
@@ -69,14 +66,14 @@ const UploadOtherScreen = () => {
         copyToCacheDirectory: true,
         multiple: false,
       });
-  
+
       if (result?.assets && result.assets.length > 0) {
         const asset = result.assets[0];
         setFile({
           uri: asset.uri,
           name: asset.name || 'unnamed_file',
-          type: asset.mimeType || FILE_TYPES[selectedFileType as keyof typeof FILE_TYPES][0],
-          size: asset.size || 0,
+          type: asset.mimeType ?? FILE_TYPES[selectedFileType as keyof typeof FILE_TYPES][0],
+          size: asset.size ?? 0,
         });
       } else {
         setErrorMessage('No file was selected.');
@@ -88,24 +85,19 @@ const UploadOtherScreen = () => {
       setShowErrorModal(true);
     }
   };
-  
 
-  const handleTagInput = (text: string) => {
-    setTagsInput(text);
-    if (text.includes(',') || text.includes(' ')) {
-      const newTags = text.split(/[ ,]+/).filter(tag => tag.trim() !== '');
-      setTags([...tags, ...newTags]);
-      setTagsInput('');
-    }
-  };
 
-  const removeTag = (index: number) => {
-    setTags(tags.filter((_, i) => i !== index));
-  };
-
+  // Validation
   const validateForm = (): string | true => {
-    if (!file || !file.uri || file.uri === '') return 'Please select a valid file';
-    if (tags.length === 0) return 'Please add at least one tag';
+    const newErrors = {
+      file: !file || !file.uri,
+      tags: tags.length === 0
+    };
+
+    setErrors(newErrors);
+
+    if (newErrors.file) return 'Please select a valid file';
+    if (newErrors.tags) return 'Please add at least one tag';
     return true;
   };
 
@@ -192,7 +184,6 @@ const UploadOtherScreen = () => {
   const resetForm = () => {
     setFile(null);
     setTags([]);
-    setTagsInput('');
   };
 
   useEffect(() => {
@@ -234,8 +225,8 @@ const UploadOtherScreen = () => {
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <AppHeader title="Upload Content" onBack={handleBack} />
         <ContentTypeSelector currentScreen="UploadOther" />
-
-        <View className="bg-white m-4 mb-4 p-4 rounded-lg shadow">
+<View className='px-4 pt-4'>
+        <View className="bg-white  mb-4 p-4 rounded-lg shadow">
           <Text className="text-slate-800 text-base font-psemibold mb-3">File type</Text>
           <View className="flex-row flex-wrap gap-2 justify-center items-center mb-4">
             {Object.keys(FILE_TYPES).map((type) => (
@@ -269,26 +260,17 @@ const UploadOtherScreen = () => {
           </Pressable>
         </View>
 
-        <View className="bg-white m-4 mb-4 p-4 rounded-lg shadow">
-          <Text className="text-slate-800 text-base font-psemibold mb-3">Tags</Text>
-          <View className="flex-row flex-wrap gap-2">
-            {tags.map((tag, index) => (
-              <View key={`${tag}-${index}`} className="flex-row items-center bg-indigo-50 py-1 px-2 rounded gap-1">
-                <Text className="text-indigo-600 text-xs font-pmedium">{tag}</Text>
-                <Pressable onPress={() => removeTag(index)}>
-                  <Ionicons name="close" size={16} color="#4F46E5" />
-                </Pressable>
-              </View>
-            ))}
-            <TextInput
-              className="text-slate-700 text-sm min-w-[150px]"
-              placeholder="Add tags (comma separated)..."
-              placeholderTextColor="#94a3b8"
-              value={tagsInput}
-              onChangeText={handleTagInput}
-            />
-          </View>
-        </View>
+        {/* TAGS */}
+         
+        <TagsInput
+          value={tags}
+          onChange={setTags}
+          placeholder="Add tags separated by comma or space"
+          error={errors.tags}
+          maxLength={20}
+        />
+        
+
 
         <View className="flex-row gap-2 mx-4 mt-4 min-h-[44px]">
           <Pressable
@@ -321,6 +303,7 @@ const UploadOtherScreen = () => {
           >
             <Text className="text-white text-sm font-pmedium">Cancel</Text>
           </Pressable>
+        </View>
         </View>
       </ScrollView>
 
