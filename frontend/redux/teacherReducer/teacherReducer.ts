@@ -1,4 +1,4 @@
-import { SET_TEACHER_DATA, RESET_TEACHER_DATA } from "./teacherActionTypes";
+import { SET_TEACHER_DATA, RESET_TEACHER_DATA, UPDATE_TEACHER_IMAGE } from "./teacherActionTypes";
 import { TeacherData, TeacherActionTypes } from "./teacherActions";
 
 // Define the Teacher interface
@@ -62,6 +62,18 @@ const teacherReducer = (
       return {
         ...state,
         teacherData: null,
+      };
+
+    case UPDATE_TEACHER_IMAGE:
+      if (!state.teacherData) {
+        return state;
+      }
+      return {
+        ...state,
+        teacherData: {
+          ...state.teacherData,
+          imageUrl: action.payload,
+        },
       };
 
     default:
