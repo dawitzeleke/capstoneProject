@@ -14,6 +14,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
 import AppHeader from '@/components/teacher/Header';
 import TagsInput from '@/components/teacher/TagsInput';
+import ActionButtons from '@/components/teacher/ActionButtons';
+
 
 
 
@@ -272,38 +274,14 @@ const UploadOtherScreen = () => {
         
 
 
-        <View className="flex-row gap-2 mx-4 mt-4 min-h-[44px]">
-          <Pressable
-            className="flex-1 rounded bg-indigo-100 py-3 items-center justify-center"
-            onPress={handleSaveDraft}
-            disabled={isSavingDraft}
-          >
-            {isSavingDraft ? (
-              <ActivityIndicator color="#4F46E5" size="small" />
-            ) : (
-              <Text className="text-indigo-600 text-sm font-pmedium">Save Draft</Text>
-            )}
-          </Pressable>
+        <ActionButtons
+  onSaveDraft={handleSaveDraft}
+  onPost={handlePost}
+  onCancel={() => setShowCancelModal(true)}
+  isSavingDraft={isSavingDraft}
+  isPosting={isPosting}
+/>
 
-          <Pressable
-            className="flex-1 rounded bg-indigo-600 py-3 items-center justify-center"
-            onPress={handlePost}
-            disabled={isPosting}
-          >
-            {isPosting ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <Text className="text-white text-sm font-pmedium">Post</Text>
-            )}
-          </Pressable>
-
-          <Pressable
-            className="flex-1 rounded bg-red-300 py-3 items-center justify-center"
-            onPress={() => setShowCancelModal(true)}
-          >
-            <Text className="text-white text-sm font-pmedium">Cancel</Text>
-          </Pressable>
-        </View>
         </View>
       </ScrollView>
 
