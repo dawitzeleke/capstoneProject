@@ -13,15 +13,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import ContentTypeSelector from "@/components/teacher/ContentTypeSelector";
 import AppHeader from "@/components/teacher/Header";
+import TagsInput from '@/components/teacher/TagsInput';
 
 const AddQuestion = () => {
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const isVerySmallScreen = width <= 320;
 
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", "", "", ""]);
-  const [tagsInput, setTagsInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [hint, setHint] = useState("");
   const [explanation, setExplanation] = useState("");
@@ -49,19 +48,6 @@ const AddQuestion = () => {
     setOptions(newOptions);
   };
 
-  const handleTagInput = (text: string) => {
-    setTagsInput(text);
-    if (text.includes(",") || text.includes(" ")) {
-      const newTags = text.split(/[ ,]+/).filter((tag) => tag.trim() !== "");
-      setTags([...tags, ...newTags]);
-      setTagsInput("");
-    }
-  };
-
-  const removeTag = (index: number) => {
-    const newTags = tags.filter((_, i) => i !== index);
-    setTags(newTags);
-  };
 
   const validateForm = () => {
     const newErrors = {
@@ -177,7 +163,6 @@ const AddQuestion = () => {
     setTags([]);
     setHint("");
     setExplanation("");
-    setTagsInput("");
     setErrors({
       question: false,
       options: [false, false, false, false],
@@ -227,163 +212,144 @@ const AddQuestion = () => {
   return (
     <View className="flex-1 bg-slate-50">
       <ScrollView
-        className="px-4 pt-4 pb-10"
+        className="pb-10"
         showsVerticalScrollIndicator={false}>
         <AppHeader title="Upload Content" onBack={() => router.back()} />
         <ContentTypeSelector currentScreen="AddQuestion" />
+        
+        <View className="px-4 pt-4">
+          {/* QUESTION */}
+          <View className="bg-white rounded-xl shadow p-4 mb-4">
+            <Text className="text-base font-psemibold text-slate-800 mb-2">
+              Question<Text className="text-red-500">*</Text>
+            </Text>
+            <TextInput
+              multiline
+              placeholder="Start writing your question here..."
+              placeholderTextColor="#94a3b8"
+              className="min-h-[100px] text-sm text-slate-700"
+              value={question}
+              onChangeText={setQuestion}
+            />
+          </View>
 
-        {/* QUESTION */}
-        <View className="bg-white rounded-xl shadow p-4 mb-4">
-          <Text className="text-base font-psemibold text-slate-800 mb-2">
-            Question<Text className="text-red-500">*</Text>
-          </Text>
-          <TextInput
-            multiline
-            placeholder="Start writing your question here..."
-            placeholderTextColor="#94a3b8"
-            className="min-h-[100px] text-sm text-slate-700"
-            value={question}
-            onChangeText={setQuestion}
-          />
-        </View>
-
-        {/* OPTIONS */}
-        <View className="bg-white rounded-xl shadow p-4 mb-4">
-          <Text className="text-base font-psemibold text-slate-800 mb-2">
-            Options<Text className="text-red-500">*</Text>
-          </Text>
-          {options.map((option, index) => (
-            <View key={index} className="flex-row items-center mb-2">
-              <Pressable
-                onPress={() => setCorrectOption(index)}
-                className="p-2 mr-2">
-                <Ionicons
-                  name={
-                    correctOption === index
-                      ? "radio-button-on"
-                      : "radio-button-off"
-                  }
-                  size={20}
-                  color="#4F46E5"
-                />
-              </Pressable>
-              <Text className="w-6 text-sm font-pmedium text-indigo-700">
-                {String.fromCharCode(65 + index)}.
-              </Text>
-              <TextInput
-                placeholder={`Start writing choice ${String.fromCharCode(
-                  65 + index
-                )}...`}
-                placeholderTextColor="#94a3b8"
-                className={`flex-1 border-b border-slate-200 text-sm text-slate-700 py-1 ${
-                  errors.options[index]
+          {/* OPTIONS */}
+          <View className="bg-white rounded-xl shadow p-4 mb-4">
+            <Text className="text-base font-psemibold text-slate-800 mb-2">
+              Options<Text className="text-red-500">*</Text>
+            </Text>
+            {options.map((option, index) => (
+              <View key={index} className="flex-row items-center mb-2">
+                <Pressable
+                  onPress={() => setCorrectOption(index)}
+                  className="p-2 mr-2">
+                  <Ionicons
+                    name={
+                      correctOption === index
+                        ? "radio-button-on"
+                        : "radio-button-off"
+                    }
+                    size={20}
+                    color="#4F46E5"
+                  />
+                </Pressable>
+                <Text className="w-6 text-sm font-pmedium text-indigo-700">
+                  {String.fromCharCode(65 + index)}.
+                </Text>
+                <TextInput
+                  placeholder={`Start writing choice ${String.fromCharCode(
+                    65 + index
+                  )}...`}
+                  placeholderTextColor="#94a3b8"
+                  className={`flex-1 border-b border-slate-200 text-sm text-slate-700 py-1 ${errors.options[index]
                     ? "border-red-500 bg-red-100 rounded"
                     : ""
-                }`}
-                value={option}
-                onChangeText={(text) => handleOptionChange(text, index)}
-              />
-            </View>
-          ))}
-          {errors.correctOption && (
-            <Text className="text-red-500 text-xs mt-1">
-              Please select the correct answer
-            </Text>
-          )}
-        </View>
-        {/* HINT */}
-        <View className="bg-white rounded-xl shadow p-4 mb-4">
-          <Text className="text-base font-psemibold text-slate-800 mb-2">
-            Hint (Optional)
-          </Text>
-          <TextInput
-            multiline
-            placeholder="You can add a hint to help students"
-            placeholderTextColor="#94a3b8"
-            className="min-h-[80px] text-sm text-slate-700"
-            value={hint}
-            onChangeText={setHint}
-          />
-        </View>
-
-        {/* EXPLANATION */}
-        <View className="bg-white rounded-xl shadow p-4 mb-4">
-          <Text className="text-base font-psemibold text-slate-800 mb-2">
-            Explanation<Text className="text-red-500">*</Text>
-          </Text>
-          <TextInput
-            multiline
-            placeholder="Explain why the correct answer is correct"
-            placeholderTextColor="#94a3b8"
-            className={`min-h-[100px] text-sm text-slate-700 ${
-              errors.explanation
-                ? "border border-red-500 bg-red-100 rounded px-2"
-                : ""
-            }`}
-            value={explanation}
-            onChangeText={setExplanation}
-          />
-        </View>
-
-        {/* TAGS */}
-        <View className="bg-white rounded-xl shadow p-4 mb-6">
-          <Text className="text-base font-psemibold text-slate-800 mb-2">
-            Tags<Text className="text-red-500">*</Text>
-          </Text>
-          <TextInput
-            placeholder="Add tags separated by comma or space"
-            placeholderTextColor="#94a3b8"
-            className={`border-b border-slate-200 text-sm text-slate-700 py-1 mb-2 ${
-              errors.tags ? "border-red-500 bg-red-100 rounded" : ""
-            }`}
-            value={tagsInput}
-            onChangeText={handleTagInput}
-          />
-          <View className="flex-row flex-wrap gap-2">
-            {tags.map((tag, index) => (
-              <View
-                key={index}
-                className="bg-indigo-100 px-3 py-1 rounded-full flex-row items-center">
-                <Text className="text-indigo-700 text-xs">{tag}</Text>
-                <Pressable onPress={() => removeTag(index)} className="ml-1">
-                  <Ionicons name="close-circle" size={14} color="#4F46E5" />
-                </Pressable>
+                    }`}
+                  value={option}
+                  onChangeText={(text) => handleOptionChange(text, index)}
+                />
               </View>
             ))}
-          </View>
-        </View>
-
-        {/* ACTION BUTTONS */}
-        <View className="flex-row gap-2 mx-4 mt-4 min-h-[44px]">
-          <Pressable
-            className="flex-1 rounded bg-indigo-100 py-3 items-center justify-center"
-            onPress={handleSaveDraft}
-            disabled={isSavingDraft}>
-            {isSavingDraft ? (
-              <ActivityIndicator color="#4F46E5" size="small" />
-            ) : (
-              <Text className="text-indigo-600 text-sm font-pmedium">
-                Save Draft
+            {errors.correctOption && (
+              <Text className="text-red-500 text-xs mt-1">
+                Please select the correct answer
               </Text>
             )}
-          </Pressable>
+          </View>
+          {/* HINT */}
+          <View className="bg-white rounded-xl shadow p-4 mb-4">
+            <Text className="text-base font-psemibold text-slate-800 mb-2">
+              Hint (Optional)
+            </Text>
+            <TextInput
+              multiline
+              placeholder="You can add a hint to help students"
+              placeholderTextColor="#94a3b8"
+              className="min-h-[80px] text-sm text-slate-700"
+              value={hint}
+              onChangeText={setHint}
+            />
+          </View>
 
-          <Pressable
-            className="flex-1 rounded bg-indigo-600 py-3 items-center justify-center"
-            onPress={handlePost}
-            disabled={isPosting}>
-            {isPosting ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <Text className="text-white text-sm font-pmedium">Post</Text>
-            )}
-          </Pressable>
+          {/* EXPLANATION */}
+          <View className="bg-white rounded-xl shadow p-4 mb-4">
+            <Text className="text-base font-psemibold text-slate-800 mb-2">
+              Explanation<Text className="text-red-500">*</Text>
+            </Text>
+            <TextInput
+              multiline
+              placeholder="Explain why the correct answer is correct"
+              placeholderTextColor="#94a3b8"
+              className={`min-h-[100px] text-sm text-slate-700 ${errors.explanation
+                ? "border border-red-500 bg-red-100 rounded px-2"
+                : ""
+                }`}
+              value={explanation}
+              onChangeText={setExplanation}
+            />
+          </View>
 
-          <Pressable
-            className="flex-1 rounded bg-red-300 py-3 items-center justify-center"
-            onPress={() => setShowCancelModal(true)}>
-            <Text className="text-white text-sm font-pmedium">Cancel</Text>
-          </Pressable>
+          {/* TAGS */}
+          <TagsInput
+            value={tags}
+            onChange={setTags}
+            placeholder="Add tags separated by comma or space"
+            error={errors.tags}
+            maxLength={20}
+          />
+
+          {/* ACTION BUTTONS */}
+          <View className="flex-row gap-2 mx-4 mt-4 min-h-[44px]">
+            <Pressable
+              className="flex-1 rounded bg-indigo-100 py-3 items-center justify-center"
+              onPress={handleSaveDraft}
+              disabled={isSavingDraft}>
+              {isSavingDraft ? (
+                <ActivityIndicator color="#4F46E5" size="small" />
+              ) : (
+                <Text className="text-indigo-600 text-sm font-pmedium">
+                  Save Draft
+                </Text>
+              )}
+            </Pressable>
+
+            <Pressable
+              className="flex-1 rounded bg-indigo-600 py-3 items-center justify-center"
+              onPress={handlePost}
+              disabled={isPosting}>
+              {isPosting ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text className="text-white text-sm font-pmedium">Post</Text>
+              )}
+            </Pressable>
+
+            <Pressable
+              className="flex-1 rounded bg-red-300 py-3 items-center justify-center"
+              onPress={() => setShowCancelModal(true)}>
+              <Text className="text-white text-sm font-pmedium">Cancel</Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* MODALS */}
@@ -420,7 +386,7 @@ const AddQuestion = () => {
                   onPress={() => {
                     setShowCancelModal(false);
                     resetForm();
-                   router.push("../(teacher)/ContentList"); 
+                    router.push("../(teacher)/ContentList");
                   }}>
                   <Text className="text-red-500 font-pmedium">Discard</Text>
                 </Pressable>
