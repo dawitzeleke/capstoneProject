@@ -13,9 +13,14 @@ import ContentTypeSelector from "@/components/teacher/ContentTypeSelector";
 import AppHeader from "@/components/teacher/Header";
 import TagsInput from '@/components/teacher/TagsInput';
 import ActionButtons from '@/components/teacher/ActionButtons';
-import { SuccessModal} from '@/components/teacher/modals/SuccessModal';
-import { ErrorModal } from '@/components/teacher/modals/ErrorModal';
-import { CancelModal } from '@/components/teacher/modals/CancelModal';
+import { SuccessModal } from '@/components/teacher/popups/SuccessModal';
+import { ErrorModal } from '@/components/teacher/popups/ErrorModal';
+import { CancelModal } from '@/components/teacher/popups/CancelModal';
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import {
+  updateQuestion,
+  clearEditingQuestion} from "@/redux/teacherReducer/contentSlice";
 
 
 const AddQuestion = () => {
@@ -37,6 +42,9 @@ const AddQuestion = () => {
   const [showDraftSuccessModal, setShowDraftSuccessModal] = useState(false);
   const [postedQuestion, setPostedQuestion] = useState<any>(null);
 
+  const { questions, editingQuestionId } = useSelector((state: RootState) => state.content);
+  const dispatch = useDispatch();
+
   const [errors, setErrors] = useState({
     question: false,
     options: [false, false, false, false],
@@ -47,10 +55,9 @@ const AddQuestion = () => {
 
   const handleOptionChange = (text: string, index: number) => {
     const newOptions = [...options];
-    newOptions[index] = text;
+    newOptions[index] = text.trim();
     setOptions(newOptions);
-  };
-
+};
 
   const validateForm = () => {
     const newErrors = {
@@ -74,16 +81,27 @@ const AddQuestion = () => {
       return;
     }
 
+    const correctAnswer = correctOption !== null ? options[correctOption] : "";
+
+    const questionData = {
+        id: editingQuestionId || Date.now().toString(),
+        question: question.trim(),
+        options: options.map(opt => opt.trim()),
+        tags,
+        hint: hint.trim(),
+        explanation: explanation.trim(),
+        correctAnswer,
+        status: "posted",
+        date: new Date().toISOString(),
+    };
+
     setIsPosting(true);
 
     try {
-      const newQuestion = {
-        id: Date.now().toString(),
+      const questionData = {
+        id: editingQuestionId || Date.now().toString(),
         question: question.trim(),
-        options: options.map((opt, index) => ({
-          text: opt.trim(),
-          correct: index === correctOption,
-        })),
+        options: options.map(opt => opt.trim()),
         tags,
         hint: hint.trim(),
         explanation: explanation.trim(),
@@ -91,15 +109,20 @@ const AddQuestion = () => {
         date: new Date().toISOString(),
       };
 
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          Math.random() > 0.1
-            ? resolve(true)
-            : reject(new Error("Simulated API failure"));
-        }, 1500);
-      });
+      if (editingQuestionId) {
+        dispatch(updateQuestion(questionData));
+      } else {
+        // Simulate API call only for new questions
+        await new Promise((resolve, reject) => {
+          setTimeout(() => {
+            Math.random() > 0.1
+              ? resolve(true)
+              : reject(new Error("Simulated API failure"));
+          }, 1500);
+        });
+      }
 
-      setPostedQuestion(newQuestion);
+      setPostedQuestion(questionData);
       setShowSuccessModal(true);
       resetForm();
     } catch (error) {
@@ -182,7 +205,7 @@ const AddQuestion = () => {
       timers.push(
         setTimeout(() => {
           setShowSuccessModal(false);
-          router.push("../(teacher)/ContentList");
+          router.push("../teacher/ContentList");
         }, 2000)
       );
     }
@@ -191,7 +214,7 @@ const AddQuestion = () => {
       timers.push(
         setTimeout(() => {
           setShowDraftSuccessModal(false);
-          router.push("../(teacher)/Drafts");
+          router.push("../teacher/ContentList");
         }, 2000)
       );
     }
@@ -209,6 +232,32 @@ const AddQuestion = () => {
       setShowErrorModal(false);
       setShowDraftSuccessModal(false);
       setPostedQuestion(null);
+    };
+  }, []);
+
+  // Load question data when editing
+  useEffect(() => {
+    if (editingQuestionId) {
+        const questionToEdit = questions.find(q => q.id === editingQuestionId);
+        if (questionToEdit) {
+            setQuestion(questionToEdit.question);
+            setOptions(questionToEdit.options);
+            setTags(questionToEdit.tags || []);
+            setHint(questionToEdit.hint || "");
+            setExplanation(questionToEdit.explanation || "");
+            // Find correct option index based on stored answer text
+            const correctIndex = questionToEdit.options.findIndex(
+                opt => opt === questionToEdit.correctAnswer
+            );
+            setCorrectOption(correctIndex);
+        }
+    }
+}, [editingQuestionId, questions]);
+
+  // Clear Edit State on Unmount
+  useEffect(() => {
+    return () => {
+      dispatch(clearEditingQuestion());
     };
   }, []);
 
@@ -355,7 +404,7 @@ const AddQuestion = () => {
             onConfirm={() => {
               setShowCancelModal(false);
               resetForm();
-              router.push("../(teacher)/ContentList");
+              router.push("/teacher/(tabs)/ContentList");
             }}
             onCancel={() => setShowCancelModal(false)}
           />
