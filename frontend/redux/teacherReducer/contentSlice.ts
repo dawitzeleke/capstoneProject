@@ -1,17 +1,21 @@
-// redux/contentReducer/contentSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface QuestionItem {
+export interface QuestionItem {
     id: string;
     question: string;
     options: string[];
     status: "draft" | "posted";
     date: string;
+    tags?: string[];
+    hint?: string;
+    explanation?: string;
+    correctAnswer?: string;
 }
 
 interface ContentState {
     questions: QuestionItem[];
     selectedIds: string[];
+    editingQuestionId: string | null;
 }
 
 const initialState: ContentState = {
@@ -39,6 +43,7 @@ const initialState: ContentState = {
         },
     ],
     selectedIds: [],
+    editingQuestionId: null,
 };
 
 const contentSlice = createSlice({
@@ -51,9 +56,40 @@ const contentSlice = createSlice({
                 ? state.selectedIds.filter(itemId => itemId !== id)
                 : [...state.selectedIds, id];
         },
-        // Add other reducers as needed
+
+        setEditingQuestion: (state, action: PayloadAction<string>) => {
+            state.editingQuestionId = action.payload;
+        },
+        clearEditingQuestion: (state) => {
+            state.editingQuestionId = null;
+        },
+
+        updateQuestion: (state, action: PayloadAction<QuestionItem>) => {
+            const index = state.questions.findIndex(q => q.id === action.payload.id);
+            if (index !== -1) {
+                state.questions[index] = action.payload;
+            }
+        },
+        deleteQuestion: (state, action: PayloadAction<string>) => {
+            // Remove from questions array
+            state.questions = state.questions.filter(
+                question => question.id !== action.payload
+            );
+
+            // Remove from selectedIds if present
+            state.selectedIds = state.selectedIds.filter(
+                id => id !== action.payload
+            );
+        },
+        
     },
 });
 
-export const { toggleSelection } = contentSlice.actions;
+
+export const { toggleSelection,
+    setEditingQuestion,
+    clearEditingQuestion,
+    updateQuestion,
+    deleteQuestion
+} = contentSlice.actions;
 export default contentSlice.reducer;
