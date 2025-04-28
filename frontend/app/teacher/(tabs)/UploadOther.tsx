@@ -13,9 +13,9 @@ import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
 import AppHeader from '@/components/teacher/Header';
 import TagsInput from '@/components/teacher/TagsInput';
 import ActionButtons from '@/components/teacher/ActionButtons';
-import { SuccessModal} from '@/components/teacher/modals/SuccessModal';
-import { ErrorModal } from '@/components/teacher/modals/ErrorModal';
-import { CancelModal } from '@/components/teacher/modals/CancelModal';
+import { SuccessModal} from '@/components/teacher/popups/SuccessModal';
+import { ErrorModal } from '@/components/teacher/popups/ErrorModal';
+import { CancelModal } from '@/components/teacher/popups/CancelModal';
 
 
 
