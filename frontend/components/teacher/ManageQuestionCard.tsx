@@ -1,6 +1,8 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import EditButton from "@/components/teacher/EditButton";
+import DeleteButton from "@/components/teacher/DeleteButton";
 
 
 interface ManageQuestionItem {
@@ -18,6 +20,7 @@ interface ManageQuestionCardProps {
   onEdit: () => void;
   onDelete: () => void;
   loading: boolean;
+  onPreview: () => void;
 }
 
 const ManageQuestionCard = ({
@@ -27,12 +30,14 @@ const ManageQuestionCard = ({
   onEdit,
   onDelete,
   loading,
+  onPreview
 }: ManageQuestionCardProps) => {
   return (
     <Pressable
       className={`bg-white rounded-lg p-4 mb-3 shadow ${isSelected ? "border-2 border-indigo-600 bg-indigo-50" : ""
         }`}
       onLongPress={onToggleSelection} // Long press handler
+      onPress={onPreview}
     >
       <Pressable
         className="absolute left-2 top-2 z-10"
@@ -64,21 +69,13 @@ const ManageQuestionCard = ({
       </View>
 
       <View className="flex-row justify-between items-center mt-2">
-        <Pressable
-          className="p-2 rounded-lg bg-indigo-100"
-          onPress={onEdit}
-          disabled={loading}
-        >
-          <Ionicons name="create-outline" size={20} color="#4F46E5" />
-        </Pressable>
+        <EditButton itemId={item.id} loading={loading} />
 
-        <Pressable
-          className="p-2 rounded-lg bg-red-200"
+        <DeleteButton
+          loading={loading}
           onPress={onDelete}
-          disabled={loading}
-        >
-          <Ionicons name="trash-outline" size={20} color="#dc2626" />
-        </Pressable>
+          variant="icon"
+        />
       </View>
 
       <View
