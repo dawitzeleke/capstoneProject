@@ -4,8 +4,6 @@ import {
   Text,
   Pressable,
   ScrollView,
-  Modal,
-  ActivityIndicator,
   Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +13,9 @@ import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
 import AppHeader from '@/components/teacher/Header';
 import TagsInput from '@/components/teacher/TagsInput';
 import ActionButtons from '@/components/teacher/ActionButtons';
+import { SuccessModal} from '@/components/teacher/modals/SuccessModal';
+import { ErrorModal } from '@/components/teacher/modals/ErrorModal';
+import { CancelModal } from '@/components/teacher/modals/CancelModal';
 
 
 
@@ -227,106 +228,88 @@ const UploadOtherScreen = () => {
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <AppHeader title="Upload Content" onBack={handleBack} />
         <ContentTypeSelector currentScreen="UploadOther" />
-<View className='px-4 pt-4'>
-        <View className="bg-white  mb-4 p-4 rounded-lg shadow">
-          <Text className="text-slate-800 text-base font-psemibold mb-3">File type</Text>
-          <View className="flex-row flex-wrap gap-2 justify-center items-center mb-4">
-            {Object.keys(FILE_TYPES).map((type) => (
-              <Pressable
-                key={type}
-                className={`py-2 px-4 rounded-full border ${selectedFileType === type ? 'bg-indigo-600 border-indigo-600' : 'bg-slate-50 border-slate-200'}`}
-                onPress={() => setSelectedFileType(type)}
-              >
-                <Text className={`text-sm font-pmedium ${selectedFileType === type ? 'text-white' : 'text-slate-500'}`}>{type.toUpperCase()}</Text>
-              </Pressable>
-            ))}
+        <View className='px-4 pt-4'>
+          <View className="bg-white  mb-4 p-4 rounded-lg shadow">
+            <Text className="text-slate-800 text-base font-psemibold mb-3">File type</Text>
+            <View className="flex-row flex-wrap gap-2 justify-center items-center mb-4">
+              {Object.keys(FILE_TYPES).map((type) => (
+                <Pressable
+                  key={type}
+                  className={`py-2 px-4 rounded-full border ${selectedFileType === type ? 'bg-indigo-600 border-indigo-600' : 'bg-slate-50 border-slate-200'}`}
+                  onPress={() => setSelectedFileType(type)}
+                >
+                  <Text className={`text-sm font-pmedium ${selectedFileType === type ? 'text-white' : 'text-slate-500'}`}>{type.toUpperCase()}</Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <Pressable
+              className={`min-h-[180px] border-2 border-dashed rounded-xl justify-center items-center p-5 ${file ? 'border-indigo-600 bg-indigo-50' : 'border-slate-200 bg-slate-50'}`}
+              onPress={handleFilePick}
+            >
+              {file ? (
+                <>
+                  <Ionicons name="document" size={40} color="#4F46E5" />
+                  <Text className="text-slate-800 text-base font-psemibold mt-2">{file.name}</Text>
+                  <Text className="text-slate-500 text-sm">{`${(file.size / 1024).toFixed(1)}KB • ${file.type}`}</Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons name="cloud-upload" size={48} color="#4F46E5" />
+                  <Text className="text-slate-800 text-base font-psemibold mt-2">Select {selectedFileType.toUpperCase()} File</Text>
+                  <Text className="text-slate-500 text-sm text-center">Tap to choose from your device</Text>
+                </>
+              )}
+            </Pressable>
           </View>
 
-          <Pressable
-            className={`min-h-[180px] border-2 border-dashed rounded-xl justify-center items-center p-5 ${file ? 'border-indigo-600 bg-indigo-50' : 'border-slate-200 bg-slate-50'}`}
-            onPress={handleFilePick}
-          >
-            {file ? (
-              <>
-                <Ionicons name="document" size={40} color="#4F46E5" />
-                <Text className="text-slate-800 text-base font-psemibold mt-2">{file.name}</Text>
-                <Text className="text-slate-500 text-sm">{`${(file.size / 1024).toFixed(1)}KB • ${file.type}`}</Text>
-              </>
-            ) : (
-              <>
-                <Ionicons name="cloud-upload" size={48} color="#4F46E5" />
-                <Text className="text-slate-800 text-base font-psemibold mt-2">Select {selectedFileType.toUpperCase()} File</Text>
-                <Text className="text-slate-500 text-sm text-center">Tap to choose from your device</Text>
-              </>
-            )}
-          </Pressable>
-        </View>
-
-        {/* TAGS */}
-         
-        <TagsInput
-          value={tags}
-          onChange={setTags}
-          placeholder="Add tags separated by comma or space"
-          error={errors.tags}
-          maxLength={20}
-        />
-        
+          {/* TAGS */}
+          <TagsInput
+            value={tags}
+            onChange={setTags}
+            placeholder="Add tags separated by comma or space"
+            error={errors.tags}
+            maxLength={20}
+          />
 
 
-        <ActionButtons
-  onSaveDraft={handleSaveDraft}
-  onPost={handlePost}
-  onCancel={() => setShowCancelModal(true)}
-  isSavingDraft={isSavingDraft}
-  isPosting={isPosting}
-/>
+          {/* Buttons */}
+          <ActionButtons
+            onSaveDraft={handleSaveDraft}
+            onPost={handlePost}
+            onCancel={() => setShowCancelModal(true)}
+            isSavingDraft={isSavingDraft}
+            isPosting={isPosting}
+          />
 
         </View>
       </ScrollView>
 
-      <Modal visible={showCancelModal} transparent animationType="fade">
-        <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="bg-white rounded-xl p-6 w-4/5">
-            <Text className="text-lg font-psemibold text-slate-800 mb-2">Discard Changes?</Text>
-            <Text className="text-sm text-slate-500 mb-6">Are you sure you want to discard this upload?</Text>
-            <View className="flex-row justify-end gap-2">
-              <Pressable className="bg-slate-100 px-4 py-2 rounded" onPress={() => setShowCancelModal(false)}>
-                <Text className="text-slate-500 font-pmedium">Continue Editing</Text>
-              </Pressable>
-              <Pressable
-                className="bg-red-200 px-4 py-2 rounded"
-                onPress={() => {
-                  setShowCancelModal(false);
-                  resetForm();
-                  router.push("../ContentList");
-                }}
-              >
-                <Text className="text-red-500 font-pmedium">Discard</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Modals */}
+      <>
+        <CancelModal
+          isVisible={showCancelModal}
+          onConfirm={() => {
+            setShowCancelModal(false);
+            resetForm();
+            router.push("../ContentList");
+          }}
+          onCancel={() => setShowCancelModal(false)}
+        />
 
-      <Modal visible={showSuccessModal} transparent animationType="fade">
-        <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="bg-white rounded-xl p-8 items-center gap-4">
-            <Ionicons name="cloud-done" size={48} color="#4F46E5" />
-            <Text className="text-slate-800 text-base font-psemibold">Upload Successful!</Text>
-          </View>
-        </View>
-      </Modal>
+        <SuccessModal
+          isVisible={showSuccessModal}
+          onDismiss={() => setShowSuccessModal(false)}
+          icon="cloud-done"
+          message="Upload Successful!"
+        />
 
-      <Modal visible={showErrorModal} transparent animationType="fade">
-        <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="bg-white rounded-xl p-8 items-center gap-4">
-            <Ionicons name="cloud-offline" size={48} color="#DC2626" />
-            <Text className="text-slate-800 text-base font-psemibold">Error</Text>
-            <Text className="text-slate-500 text-sm">{errorMessage}</Text>
-          </View>
-        </View>
-      </Modal>
+        <ErrorModal
+          isVisible={showErrorModal}
+          message={errorMessage}
+          onDismiss={() => setShowErrorModal(false)}
+        />
+      </>
     </View>
   );
 };
