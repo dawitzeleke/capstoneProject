@@ -5,7 +5,6 @@ import {
   Pressable,
   ScrollView,
   useWindowDimensions,
-  Modal,
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,6 +13,9 @@ import ContentTypeSelector from "@/components/teacher/ContentTypeSelector";
 import AppHeader from "@/components/teacher/Header";
 import TagsInput from '@/components/teacher/TagsInput';
 import ActionButtons from '@/components/teacher/ActionButtons';
+import { SuccessModal} from '@/components/teacher/modals/SuccessModal';
+import { ErrorModal } from '@/components/teacher/modals/ErrorModal';
+import { CancelModal } from '@/components/teacher/modals/CancelModal';
 
 
 const AddQuestion = () => {
@@ -217,7 +219,7 @@ const AddQuestion = () => {
         showsVerticalScrollIndicator={false}>
         <AppHeader title="Upload Content" onBack={() => router.back()} />
         <ContentTypeSelector currentScreen="AddQuestion" />
-        
+
         <View className="px-4 pt-4">
           {/* QUESTION */}
           <View className="bg-white rounded-xl shadow p-4 mb-4">
@@ -321,79 +323,49 @@ const AddQuestion = () => {
 
           {/* ACTION BUTTONS */}
           <ActionButtons
-  onSaveDraft={handleSaveDraft}
-  onPost={handlePost}
-  onCancel={() => setShowCancelModal(true)}
-  isSavingDraft={isSavingDraft}
-  isPosting={isPosting}
-/>
+            onSaveDraft={handleSaveDraft}
+            onPost={handlePost}
+            onCancel={() => setShowCancelModal(true)}
+            isSavingDraft={isSavingDraft}
+            isPosting={isPosting}
+          />
 
         </View>
 
         {/* MODALS */}
-        <Modal transparent visible={showSuccessModal}>
-          <View className="flex-1 justify-center items-center bg-black/40 px-6">
-            <View className="bg-white rounded-xl p-6 w-full items-center">
-              <Ionicons name="checkmark-circle" size={48} color="#22c55e" />
-              <Text className="text-lg font-psemibold text-green-600 mt-2">
-                Posted Successfully!
-              </Text>
-            </View>
-          </View>
-        </Modal>
+        <>
+          <SuccessModal
+            isVisible={showSuccessModal}
+            onDismiss={() => setShowSuccessModal(false)}
+            icon="checkmark-circle"
+            message="Posted Successfully!"
+            color="#22c55e"
+          />
 
-        <Modal visible={showCancelModal} transparent animationType="fade">
-          <View className="flex-1 bg-black/50 justify-center items-center">
-            <View className="bg-white rounded-xl p-6 w-4/5">
-              <Text className="text-lg font-psemibold text-slate-800 mb-2">
-                Discard Changes?
-              </Text>
-              <Text className="text-sm text-slate-500 mb-6">
-                Are you sure you want to discard this upload?
-              </Text>
-              <View className="flex-row justify-end gap-2">
-                <Pressable
-                  className="bg-slate-100 px-4 py-2 rounded"
-                  onPress={() => setShowCancelModal(false)}>
-                  <Text className="text-slate-500 font-pmedium">
-                    Continue Editing
-                  </Text>
-                </Pressable>
-                <Pressable
-                  className="bg-red-200 px-4 py-2 rounded"
-                  onPress={() => {
-                    setShowCancelModal(false);
-                    resetForm();
-                    router.push("../(teacher)/ContentList");
-                  }}>
-                  <Text className="text-red-500 font-pmedium">Discard</Text>
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        </Modal>
+          <SuccessModal
+            isVisible={showDraftSuccessModal}
+            onDismiss={() => setShowDraftSuccessModal(false)}
+            icon="checkmark-circle"
+            message="Saved as Draft!"
+            color="#3b82f6"
+          />
 
-        <Modal transparent visible={showDraftSuccessModal}>
-          <View className="flex-1 justify-center items-center bg-black/40 px-6">
-            <View className="bg-white rounded-xl p-6 w-full items-center">
-              <Ionicons name="checkmark-circle" size={48} color="#3b82f6" />
-              <Text className="text-lg font-psemibold text-blue-600 mt-2">
-                Saved as Draft!
-              </Text>
-            </View>
-          </View>
-        </Modal>
+          <CancelModal
+            isVisible={showCancelModal}
+            onConfirm={() => {
+              setShowCancelModal(false);
+              resetForm();
+              router.push("../(teacher)/ContentList");
+            }}
+            onCancel={() => setShowCancelModal(false)}
+          />
 
-        <Modal transparent visible={showErrorModal}>
-          <View className="flex-1 justify-center items-center bg-black/40 px-6">
-            <View className="bg-white rounded-xl p-6 w-full items-center">
-              <Ionicons name="close-circle" size={48} color="#ef4444" />
-              <Text className="text-lg font-psemibold text-red-600 mt-2">
-                {errorMessage}
-              </Text>
-            </View>
-          </View>
-        </Modal>
+          <ErrorModal
+            isVisible={showErrorModal}
+            message={errorMessage}
+            onDismiss={() => setShowErrorModal(false)}
+          />
+        </>
 
         {/* Remaining inputs and buttons (hint, explanation, tags, modals, etc.) will follow same pattern */}
       </ScrollView>
