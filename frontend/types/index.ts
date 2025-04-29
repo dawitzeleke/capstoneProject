@@ -1,0 +1,1 @@
+export type { QuestionItem } from "@/redux/teacherReducer/contentSlice";
