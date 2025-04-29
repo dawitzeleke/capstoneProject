@@ -1,9 +1,5 @@
-import React, { useState } from "react";
-import {
-  View,
-  ScrollView,
-  Pressable,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import AppHeader from "@/components/teacher/Header";
@@ -19,12 +15,15 @@ import {
   setEditingQuestion,
   selectDisplayQuestions,
   setSearchTerm,
-  setActiveTab
+  setActiveTab,
+  clearSelections,
+  deleteMultipleQuestions,
 } from "@/redux/teacherReducer/contentSlice";
 import TabSwitcher from "@/components/teacher/TabSwitcher";
 import ContentList from "@/components/teacher/ContentList";
 import EmptyState from "@/components/teacher/EmptyState";
 import type { QuestionItem } from "@/types";
+import BulkActionsBar from "@/components/teacher/BulkActionsBar";
 
 const ContentListScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -39,6 +38,8 @@ const ContentListScreen = () => {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [selectionMode, setSelectionMode] = useState(false);
 
   const toggleSelectionHandler = (id: string) => {
     dispatch(toggleSelection(id));
@@ -51,16 +52,41 @@ const ContentListScreen = () => {
 
   const handleConfirmDelete = async () => {
     setShowDeleteModal(false);
-    dispatch(deleteQuestion(itemToDelete!));
+
+    if (itemToDelete) {
+      dispatch(deleteQuestion(itemToDelete));
+      setSuccessMessage("Question deleted successfully");
+    } else if (selectedIds.length > 0) {
+      const count = selectedIds.length;
+      dispatch(deleteMultipleQuestions(selectedIds));
+      setSuccessMessage(`${count} ${count === 1 ? 'question' : 'questions'} deleted successfully`);
+    }
+
     setPreviewQuestion(null);
     setShowSuccessToast(true);
     setTimeout(() => setShowSuccessToast(false), 2000);
     setItemToDelete(null);
   };
 
+  const handleBulkDelete = () => {
+    setItemToDelete(null);
+    setShowDeleteModal(true);
+  };
+
+  const handleClearSelections = () => {
+    dispatch(clearSelections());
+    setSelectionMode(false);
+  };
+
+  useEffect(() => {
+    if (selectedIds.length === 0) {
+      setSelectionMode(false);
+    }
+  }, [selectedIds]);
+
   return (
     <View className="flex-1 bg-slate-50">
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: selectedIds.length > 0 ? 100 : 0 }}>
         <View className="bg-white pb-2 border-b border-gray-200">
           <AppHeader
             title="Content Management"
@@ -76,9 +102,7 @@ const ContentListScreen = () => {
                   </Pressable>
                 ),
                 side: "right",
-                onPress: function (): void {
-                  throw new Error("Function not implemented.");
-                }
+                onPress: () => { }
               },
             ]}
           />
@@ -99,7 +123,7 @@ const ContentListScreen = () => {
         />
 
         {displayQuestions.length === 0 ? (
-          <EmptyState  onPress={() => router.push("/teacher/AddQuestion")} />
+          <EmptyState onPress={() => router.push("/teacher/AddQuestion")} />
         ) : (
           <ContentList
             questions={displayQuestions}
@@ -111,9 +135,19 @@ const ContentListScreen = () => {
               dispatch(setEditingQuestion(id));
               router.push("/teacher/AddQuestion");
             }}
+            selectionMode={selectionMode}
+            setSelectionMode={setSelectionMode}
           />
         )}
       </ScrollView>
+
+      {selectedIds.length > 0 && (
+        <BulkActionsBar
+          count={selectedIds.length}
+          onClear={handleClearSelections}
+          onDelete={handleBulkDelete}
+        />
+      )}
 
       {/* Modals and Toasts */}
       {showDeleteModal && (
@@ -121,6 +155,7 @@ const ContentListScreen = () => {
           visible={showDeleteModal}
           onConfirm={handleConfirmDelete}
           onCancel={() => setShowDeleteModal(false)}
+          count={itemToDelete ? 1 : selectedIds.length}
         />
       )}
 
@@ -145,7 +180,7 @@ const ContentListScreen = () => {
       />
 
       {showSuccessToast && (
-        <SuccessToast message="Question deleted successfully" />
+        <SuccessToast message={successMessage} />
       )}
     </View>
   );
