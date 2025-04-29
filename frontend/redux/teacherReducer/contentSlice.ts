@@ -96,6 +96,14 @@ const contentSlice = createSlice({
         addQuestion: (state, action: PayloadAction<QuestionItem>) => {
             state.questions.unshift(action.payload);
         },
+        clearSelections(state) {
+            state.selectedIds = [];
+          },
+          deleteMultipleQuestions(state, action: PayloadAction<string[]>) {
+            const idsToDelete = action.payload;
+            state.questions = state.questions.filter(q => !idsToDelete.includes(q.id));
+            state.selectedIds = state.selectedIds.filter(id => !idsToDelete.includes(id));
+          },
     }
 });
 
@@ -106,6 +114,8 @@ export const { toggleSelection,
     deleteQuestion,
     setSearchTerm,
     setActiveTab,
+    clearSelections,
+    deleteMultipleQuestions,
 } = contentSlice.actions;
 
 export const selectFilteredQuestions = createSelector(
