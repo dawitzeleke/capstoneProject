@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { RootState } from "@/redux/store";
 
 export interface QuestionItem {
     id: string;
@@ -16,6 +17,9 @@ interface ContentState {
     questions: QuestionItem[];
     selectedIds: string[];
     editingQuestionId: string | null;
+    searchTerm: string;
+    activeTab: "all" | "posted" | "draft";
+
 }
 
 const initialState: ContentState = {
@@ -44,6 +48,8 @@ const initialState: ContentState = {
     ],
     selectedIds: [],
     editingQuestionId: null,
+    searchTerm: "",
+    activeTab: "all"
 };
 
 const contentSlice = createSlice({
@@ -81,15 +87,48 @@ const contentSlice = createSlice({
                 id => id !== action.payload
             );
         },
-        
-    },
+        setSearchTerm: (state, action: PayloadAction<string>) => {
+            state.searchTerm = action.payload;
+        },
+        setActiveTab: (state, action: PayloadAction<"all" | "posted" | "draft">) => {
+            state.activeTab = action.payload;
+        },
+        addQuestion: (state, action: PayloadAction<QuestionItem>) => {
+            state.questions.unshift(action.payload);
+        },
+    }
 });
-
 
 export const { toggleSelection,
     setEditingQuestion,
     clearEditingQuestion,
     updateQuestion,
-    deleteQuestion
+    deleteQuestion,
+    setSearchTerm,
+    setActiveTab,
 } = contentSlice.actions;
+
+export const selectFilteredQuestions = createSelector(
+    [(state: RootState) => state.content.questions,
+    (state: RootState) => state.content.searchTerm],
+    (questions, searchTerm) => {
+        if (!searchTerm) return questions;
+        const lowerSearch = searchTerm.toLowerCase();
+        return questions.filter(item =>
+            item.question.toLowerCase().includes(lowerSearch) ||
+            item.options.some(opt => opt.toLowerCase().includes(lowerSearch)) ||
+            item.date.toLowerCase().includes(lowerSearch)
+        );
+    }
+);
+
+export const selectDisplayQuestions = createSelector(
+    [selectFilteredQuestions,
+        (state: RootState) => state.content.activeTab],
+    (filtered, activeTab) => activeTab === 'all'
+        ? filtered
+        : filtered.filter(item => item.status === activeTab)
+);
+
+
 export default contentSlice.reducer;
