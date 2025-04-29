@@ -11,6 +11,8 @@ interface ContentListProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onPreview: (item: QuestionItem) => void;
+  selectionMode: boolean;
+  setSelectionMode: (value: boolean) => void;
 }
 
 const ContentList = ({
@@ -20,11 +22,11 @@ const ContentList = ({
   onEdit,
   onDelete,
   onPreview,
+  selectionMode,
+  setSelectionMode,
 }: ContentListProps) => {
   if (questions.length === 0) {
-    return <EmptyState onPress={function (): void {
-      throw new Error("Function not implemented.");
-    } } />;
+    return <EmptyState onPress={() => {}} />;
   }
 
   return (
@@ -37,7 +39,11 @@ const ContentList = ({
           onToggleSelection={() => onToggleSelection(item.id)}
           onEdit={() => onEdit(item.id)}
           onDelete={() => onDelete(item.id)}
-          onPreview={() => onPreview(item)} loading={false}        />
+          onPreview={() => onPreview(item)}
+          loading={false}
+          selectionMode={selectionMode}
+          setSelectionMode={setSelectionMode}
+        />
       ))}
     </View>
   );
