@@ -11,11 +11,11 @@ import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
 import AppHeader from '@/components/teacher/Header';
-import TagsInput from '@/components/teacher/TagsInput';
-import ActionButtons from '@/components/teacher/ActionButtons';
+import TagsInput from '@/components/teacher/QuestionForm/TagsInput';
 import { SuccessModal} from '@/components/teacher/popups/SuccessModal';
 import { ErrorModal } from '@/components/teacher/popups/ErrorModal';
 import { CancelModal } from '@/components/teacher/popups/CancelModal';
+import FormActions from '@/components/teacher/QuestionForm/FormActions';
 
 
 
@@ -274,13 +274,18 @@ const UploadOtherScreen = () => {
 
 
           {/* Buttons */}
-          <ActionButtons
+          <FormActions
             onSaveDraft={handleSaveDraft}
             onPost={handlePost}
             onCancel={() => setShowCancelModal(true)}
             isSavingDraft={isSavingDraft}
-            isPosting={isPosting}
-          />
+            isPosting={isPosting} validationErrors={{
+              question: false,
+              options: [],
+              explanation: false,
+              tags: false,
+              correctAnswer: false
+            }}          />
 
         </View>
       </ScrollView>
