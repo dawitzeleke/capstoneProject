@@ -7,6 +7,7 @@ interface TagsInputProps {
   onChange: (tags: string[]) => void;
   placeholder?: string;
   error?: boolean;
+  submitted?: boolean;
   maxLength?: number;
 }
 
@@ -15,6 +16,7 @@ const TagsInput = ({
   onChange, 
   placeholder, 
   error, 
+  submitted,
   maxLength = 20 
 }: TagsInputProps) => {
   const [inputText, setInputText] = useState("");
@@ -32,7 +34,7 @@ const TagsInput = ({
   const triggerError = (message: string) => {
     setLocalError(true);
     setErrorMessage(message);
-    setInputText(""); // Reset input field when error occurs
+    setInputText("");
     setTimeout(() => {
       setLocalError(false);
       setErrorMessage(null);
@@ -40,21 +42,16 @@ const TagsInput = ({
   };
 
   const handleInputChange = (text: string) => {
-    if (localError) {
-      // If already in error state, block typing temporarily
-      return;
-    }
+    if (localError) return;
     setInputText(text);
 
-    // Check for separators (space, comma, enter)
     if (RegExp(/[ ,\n]/).exec(text)) {
       const newTags = text
         .split(/[ ,\n]+/)
         .map((tag) => tag.trim())
         .filter((tag) => {
           if (tag === "") return false;
-          const isValid = validateTag(tag) && !value.includes(tag);
-          return isValid;
+          return validateTag(tag) && !value.includes(tag);
         });
 
       if (newTags.length > 0) {
@@ -73,29 +70,33 @@ const TagsInput = ({
   };
 
   const removeTag = (index: number) => {
-    const newTags = value.filter((_, i) => i !== index);
-    onChange(newTags);
+    onChange(value.filter((_, i) => i !== index));
   };
 
   return (
     <View className="bg-white rounded-xl shadow p-4 mb-6">
-      <Text className="text-base font-psemibold text-slate-800 mb-2">
-        Tags<Text className="text-red-500">*</Text>
-      </Text>
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-base font-psemibold text-slate-800">
+          Tags<Text className="text-red-500">*</Text>
+        </Text>
+        {submitted && error && (
+          <Text className="text-red-500 text-xs">At least one tag required</Text>
+        )}
+      </View>
 
       <View className="flex-row items-center justify-between">
         <TextInput
           placeholder={placeholder}
           placeholderTextColor="#94a3b8"
           className={`flex-1 border-b text-sm py-1 ${
-            (error || localError) 
-              ? "border-red-500 bg-red-100 text-red-600 rounded" 
+            (submitted && error) || localError
+              ? "border-red-200 bg-red-50 rounded" 
               : "border-slate-200 text-slate-700"
           }`}
           value={inputText}
           onChangeText={handleInputChange}
           onSubmitEditing={handleSubmit}
-          editable={!localError} // temporarily disable input when error
+          editable={!localError}
         />
       </View>
 
