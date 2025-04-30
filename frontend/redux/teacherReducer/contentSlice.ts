@@ -5,13 +5,13 @@ export interface QuestionItem {
     id: string;
     question: string;
     options: string[];
+    tags: string[];     
+    hint: string;       
+    explanation: string;
+    correctAnswer: number;
     status: "draft" | "posted";
     date: string;
-    tags?: string[];
-    hint?: string;
-    explanation?: string;
-    correctAnswer?: string;
-}
+  }
 
 interface ContentState {
     questions: QuestionItem[];
@@ -27,23 +27,35 @@ const initialState: ContentState = {
         {
             id: "1",
             question: 'Which organelle is known as the "powerhouse of the cell"?',
-            options: ["A. Nucleus", "B. Mitochondria", "C. Ribosome", "D. Organelles"],
+            options: ["Nucleus", "Mitochondria", "Ribosome", "Organelles"],
             status: "posted",
             date: "2024-03-15",
+            correctAnswer: 1,
+            tags: ["bio", "science"],
+            hint: "It's the organelle responsible for producing energy in the form of ATP.",
+            explanation: "The mitochondria are often called the 'powerhouse of the cell' because they generate most of the cell's energy through cellular respiration. They convert glucose and oxygen into ATP, the energy currency of the cell."
         },
         {
             id: "2",
             question: "What is the process of cell division called?",
-            options: ["A. Mitosis", "B. Meiosis", "C. Both A and B", "D. None"],
+            options: ["Mitosis", "Meiosis", "Both A and B", "None"],
             status: "draft",
             date: "2024-03-16",
+            correctAnswer: 0,
+            tags: ["bio", "science"],
+            hint: "It involves the division of a single cell into two identical daughter cells.",
+            explanation: "Mitosis is the process by which a cell divides to produce two genetically identical daughter cells. It is essential for growth, repair, and asexual reproduction. Meiosis, on the other hand, is used in the formation of gametes and results in four genetically different cells."
         },
         {
             id: "3",
             "question": "What molecule carries genetic information in most living organisms?",
-            "options": ["A. RNA", "B. DNA", "C. Protein", "D. Lipid"],
+            "options": ["RNA", "Lipid", "Protein", "DNA"],
             "status": "draft",
-            "date": "2024-03-14"
+            "date": "2024-03-14",
+            correctAnswer: 3,
+            tags: ["bio", "science"],
+            hint: "This molecule has a double helix structure and contains the instructions for building proteins.",
+            explanation: "DNA (Deoxyribonucleic acid) is the molecule that carries genetic information in most living organisms. It encodes the instructions needed for an organism to develop, survive, and reproduce."
         },
     ],
     selectedIds: [],
@@ -73,9 +85,14 @@ const contentSlice = createSlice({
         updateQuestion: (state, action: PayloadAction<QuestionItem>) => {
             const index = state.questions.findIndex(q => q.id === action.payload.id);
             if (index !== -1) {
-                state.questions[index] = action.payload;
+                // Validate correctAnswer index
+                if (action.payload.correctAnswer >= 0 && 
+                    action.payload.correctAnswer < action.payload.options.length) {
+                    state.questions[index] = action.payload;
+                }
             }
         },
+        
         deleteQuestion: (state, action: PayloadAction<string>) => {
             // Remove from questions array
             state.questions = state.questions.filter(
@@ -110,12 +127,14 @@ const contentSlice = createSlice({
 export const { toggleSelection,
     setEditingQuestion,
     clearEditingQuestion,
+    addQuestion,
     updateQuestion,
     deleteQuestion,
     setSearchTerm,
     setActiveTab,
     clearSelections,
     deleteMultipleQuestions,
+
 } = contentSlice.actions;
 
 export const selectFilteredQuestions = createSelector(
