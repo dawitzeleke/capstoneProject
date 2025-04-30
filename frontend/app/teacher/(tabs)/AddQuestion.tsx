@@ -1,422 +1,399 @@
-import React, { useEffect, useState } from "react";
-import {
-  Text,
-  TextInput,
-  Pressable,
-  ScrollView,
-  useWindowDimensions,
-  View,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import React, { useEffect, useState, useCallback } from "react";
+import { ScrollView, useWindowDimensions, View, Text } from "react-native";
+import { useRouter, useFocusEffect } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
 import ContentTypeSelector from "@/components/teacher/ContentTypeSelector";
 import AppHeader from "@/components/teacher/Header";
-import TagsInput from '@/components/teacher/TagsInput';
-import ActionButtons from '@/components/teacher/ActionButtons';
+import TagsInput from '@/components/teacher/QuestionForm/TagsInput';
 import { SuccessModal } from '@/components/teacher/popups/SuccessModal';
 import { ErrorModal } from '@/components/teacher/popups/ErrorModal';
 import { CancelModal } from '@/components/teacher/popups/CancelModal';
-import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import {
-  updateQuestion,
-  clearEditingQuestion} from "@/redux/teacherReducer/contentSlice";
-
+import { updateQuestion, clearEditingQuestion, QuestionItem, addQuestion } from "@/redux/teacherReducer/contentSlice";
+import { QuestionFormState } from "@/types";
+import QuestionInputSection from "@/components/teacher/QuestionForm/QuestionInputSection";
+import OptionsGrid from "@/components/teacher/QuestionForm/OptionsGrid";
+import HintInput from "@/components/teacher/QuestionForm/HintInput";
+import ExplanationInput from "@/components/teacher/QuestionForm/ExplanationInput";
+import FormActions from "@/components/teacher/QuestionForm/FormActions";
+import { Ionicons } from "@expo/vector-icons";
 
 const AddQuestion = () => {
   const router = useRouter();
-  const { width } = useWindowDimensions();
-
-  const [question, setQuestion] = useState("");
-  const [options, setOptions] = useState(["", "", "", ""]);
-  const [tags, setTags] = useState<string[]>([]);
-  const [hint, setHint] = useState("");
-  const [explanation, setExplanation] = useState("");
-  const [correctOption, setCorrectOption] = useState<number | null>(null);
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [isPosting, setIsPosting] = useState(false);
-  const [isSavingDraft, setIsSavingDraft] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [showDraftSuccessModal, setShowDraftSuccessModal] = useState(false);
-  const [postedQuestion, setPostedQuestion] = useState<any>(null);
-
-  const { questions, editingQuestionId } = useSelector((state: RootState) => state.content);
   const dispatch = useDispatch();
+  const { width } = useWindowDimensions();
+  const [submitted, setSubmitted] = useState(false);
+  const { questions, editingQuestionId } = useSelector((state: RootState) => state.content);
 
-  const [errors, setErrors] = useState({
+  // Form state
+  const [formState, setFormState] = useState<QuestionFormState>({
+    id: "",
+    question: "",
+    options: ["", "", "", ""],
+    tags: [],
+    hint: "",
+    explanation: "",
+    correctAnswer: -1,
+    status: "draft",
+    date: new Date().toISOString()
+  });
+
+  // Modal and loading states
+  const [modalState, setModalState] = useState({
+    success: false,
+    error: false,
+    draftSuccess: false,
+    cancel: false,
+    message: ""
+  });
+
+  const [validationErrors, setValidationErrors] = useState({
     question: false,
     options: [false, false, false, false],
     explanation: false,
     tags: false,
-    correctOption: false,
+    correctAnswer: false,
   });
 
-  const handleOptionChange = (text: string, index: number) => {
-    const newOptions = [...options];
-    newOptions[index] = text.trim();
-    setOptions(newOptions);
-};
+  const [isPosting, setIsPosting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
-  const validateForm = () => {
-    const newErrors = {
-      question: question.trim() === "",
-      options: options.map((opt) => opt.trim() === ""),
-      explanation: explanation.trim() === "",
-      tags: tags.length === 0,
-      correctOption: correctOption === null,
+  // Single source of truth for form state management
+  useFocusEffect(
+    useCallback(() => {
+      if (editingQuestionId) {
+        const questionToEdit = questions.find(q => q.id === editingQuestionId);
+        if (questionToEdit) {
+          setFormState({
+            id: questionToEdit.id,
+            question: questionToEdit.question,
+            options: [...questionToEdit.options] as [string, string, string, string],
+            tags: questionToEdit.tags,
+            hint: questionToEdit.hint,
+            explanation: questionToEdit.explanation,
+            correctAnswer: questionToEdit.correctAnswer,
+            status: questionToEdit.status,
+            date: questionToEdit.date
+          });
+        }
+      } else {
+        resetForm();
+      }
+
+      return () => {
+        if (!editingQuestionId) {
+          dispatch(clearEditingQuestion());
+          resetForm();
+        }
+      };
+    }, [editingQuestionId, questions, dispatch])
+  );
+
+  // Form handlers
+  const handleOptionChange = useCallback((text: string, index: number) => {
+    setFormState(prev => ({
+      ...prev,
+      options: prev.options.map((opt, i) =>
+        i === index ? text.trim() : opt
+      ) as [string, string, string, string]
+    }));
+  }, []);
+
+  const handleCorrectAnswer = useCallback((index: number) => {
+    setFormState(prev => ({ ...prev, correctAnswer: index }));
+  }, []);
+
+  // Validation
+  const validateForm = useCallback(() => {
+    const errors = {
+      question: formState.question.trim() === "",
+      options: formState.options.map(opt => opt.trim() === ""),
+      explanation: formState.explanation.trim() === "",
+      tags: formState.tags.length === 0,
+      correctAnswer: formState.correctAnswer === -1,
     };
 
-    setErrors(newErrors);
-    return !Object.values(newErrors).some((error) =>
-      Array.isArray(error) ? error.some((e) => e) : error
-    );
-  };
+    setValidationErrors({
+      question: submitted && errors.question,
+      options: submitted ? errors.options : [false, false, false, false],
+      explanation: submitted && errors.explanation,
+      tags: submitted && errors.tags,
+      correctAnswer: submitted && errors.correctAnswer,
+    });
 
-  const handlePost = async () => {
-    if (!validateForm()) {
-      setErrorMessage("Please fill all required fields");
-      setShowErrorModal(true);
+    return !Object.values(errors).some(error =>
+      Array.isArray(error) ? error.some(e => e) : error
+    );
+  }, [formState, submitted]);
+
+  // Form submissions
+  const handlePost = useCallback(async () => {
+    setSubmitted(true);
+    const isValid = validateForm();
+    
+    if (!isValid) {
+      setModalState(prev => ({
+        ...prev,
+        error: true,
+        message: "Please complete all required fields marked with *"
+      }));
       return;
     }
 
-    const correctAnswer = correctOption !== null ? options[correctOption] : "";
-
-    const questionData = {
-        id: editingQuestionId || Date.now().toString(),
-        question: question.trim(),
-        options: options.map(opt => opt.trim()),
-        tags,
-        hint: hint.trim(),
-        explanation: explanation.trim(),
-        correctAnswer,
-        status: "posted",
-        date: new Date().toISOString(),
+    const questionData: QuestionItem = {
+      id: editingQuestionId || Date.now().toString(),
+      question: formState.question.trim(),
+      options: formState.options.map(opt => opt.trim()),
+      tags: formState.tags,
+      hint: formState.hint.trim(),
+      explanation: formState.explanation.trim(),
+      correctAnswer: formState.correctAnswer,
+      status: "posted",
+      date: new Date().toISOString(),
     };
 
     setIsPosting(true);
 
     try {
-      const questionData = {
-        id: editingQuestionId || Date.now().toString(),
-        question: question.trim(),
-        options: options.map(opt => opt.trim()),
-        tags,
-        hint: hint.trim(),
-        explanation: explanation.trim(),
-        status: "posted",
-        date: new Date().toISOString(),
-      };
-
       if (editingQuestionId) {
         dispatch(updateQuestion(questionData));
       } else {
-        // Simulate API call only for new questions
         await new Promise((resolve, reject) => {
           setTimeout(() => {
-            Math.random() > 0.1
-              ? resolve(true)
+            Math.random() > 0.1 
+              ? resolve(true) 
               : reject(new Error("Simulated API failure"));
           }, 1500);
         });
+        dispatch(addQuestion(questionData));
       }
 
-      setPostedQuestion(questionData);
-      setShowSuccessModal(true);
+      setModalState({
+        success: true,
+        error: false,
+        draftSuccess: false,
+        cancel: false,
+        message: "Posted Successfully!"
+      });
       resetForm();
+      setSubmitted(false);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Posting failed. Please try again."
-      );
-      setShowErrorModal(true);
+      setModalState({
+        success: false,
+        error: true,
+        draftSuccess: false,
+        cancel: false,
+        message: error instanceof Error ? error.message : "Posting failed. Please try again."
+      });
     } finally {
       setIsPosting(false);
     }
-  };
+  }, [formState, editingQuestionId, dispatch, validateForm]);
 
-  const handleSaveDraft = async () => {
-    if (question.trim() === "") {
-      setErrorMessage("Question field is required for drafts");
-      setShowErrorModal(true);
+  const handleSaveDraft = useCallback(async () => {
+    if (formState.question.trim() === "") {
+      setSubmitted(true);
+      setModalState(prev => ({
+        ...prev,
+        error: true,
+        message: "Question field is required for drafts"
+      }));
       return;
     }
 
     setIsSavingDraft(true);
 
     try {
-      const draftQuestion = {
+      const draftQuestion: QuestionItem = {
         id: Date.now().toString(),
-        question: question.trim(),
-        options: options.map((opt, index) => ({
-          text: opt.trim(),
-          correct: index === correctOption,
-        })),
-        tags,
-        hint: hint.trim(),
-        explanation: explanation.trim(),
+        question: formState.question.trim(),
+        options: formState.options.map(opt => opt.trim()),
+        tags: formState.tags,
+        hint: formState.hint.trim(),
+        explanation: formState.explanation.trim(),
+        correctAnswer: formState.correctAnswer,
         status: "draft",
         date: new Date().toISOString(),
       };
 
       await new Promise((resolve, reject) => {
         setTimeout(() => {
-          Math.random() > 0.1
-            ? resolve(true)
+          Math.random() > 0.1 
+            ? resolve(true) 
             : reject(new Error("Simulated save failure"));
         }, 1000);
       });
 
-      setPostedQuestion(draftQuestion);
-      setShowDraftSuccessModal(true);
+      dispatch(addQuestion(draftQuestion));
+      setModalState(prev => ({
+        ...prev,
+        draftSuccess: true,
+        message: "Saved as Draft!"
+      }));
       resetForm();
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Saving draft failed"
-      );
-      setShowErrorModal(true);
+      setModalState(prev => ({
+        ...prev,
+        error: true,
+        message: error instanceof Error ? error.message : "Saving draft failed"
+      }));
     } finally {
       setIsSavingDraft(false);
     }
-  };
+  }, [formState, dispatch]);
 
-  const resetForm = () => {
-    setQuestion("");
-    setOptions(["", "", "", ""]);
-    setCorrectOption(null);
-    setTags([]);
-    setHint("");
-    setExplanation("");
-    setErrors({
+  // Form reset
+  const resetForm = useCallback(() => {
+    setFormState({
+      id: "",
+      question: "",
+      options: ["", "", "", ""],
+      tags: [],
+      hint: "",
+      explanation: "",
+      correctAnswer: -1,
+      status: "draft",
+      date: new Date().toISOString()
+    });
+    setValidationErrors({
       question: false,
       options: [false, false, false, false],
       explanation: false,
       tags: false,
-      correctOption: false,
+      correctAnswer: false,
     });
-  };
-
-  useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
-
-    if (showSuccessModal) {
-      timers.push(
-        setTimeout(() => {
-          setShowSuccessModal(false);
-          router.push("../teacher/ContentList");
-        }, 2000)
-      );
-    }
-
-    if (showDraftSuccessModal) {
-      timers.push(
-        setTimeout(() => {
-          setShowDraftSuccessModal(false);
-          router.push("../teacher/ContentList");
-        }, 2000)
-      );
-    }
-
-    if (showErrorModal) {
-      timers.push(setTimeout(() => setShowErrorModal(false), 2000));
-    }
-
-    return () => timers.forEach((timer) => clearTimeout(timer));
-  }, [showSuccessModal, showDraftSuccessModal, showErrorModal, postedQuestion]);
-
-  useEffect(() => {
-    return () => {
-      setShowSuccessModal(false);
-      setShowErrorModal(false);
-      setShowDraftSuccessModal(false);
-      setPostedQuestion(null);
-    };
+    setSubmitted(false);
   }, []);
 
-  // Load question data when editing
+  // Real-time validation
   useEffect(() => {
-    if (editingQuestionId) {
-        const questionToEdit = questions.find(q => q.id === editingQuestionId);
-        if (questionToEdit) {
-            setQuestion(questionToEdit.question);
-            setOptions(questionToEdit.options);
-            setTags(questionToEdit.tags || []);
-            setHint(questionToEdit.hint || "");
-            setExplanation(questionToEdit.explanation || "");
-            // Find correct option index based on stored answer text
-            const correctIndex = questionToEdit.options.findIndex(
-                opt => opt === questionToEdit.correctAnswer
-            );
-            setCorrectOption(correctIndex);
-        }
-    }
-}, [editingQuestionId, questions]);
+    validateForm();
+  }, [formState, validateForm]);
 
-  // Clear Edit State on Unmount
+  // Success state cleanup
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+  
+    if (modalState.success || modalState.draftSuccess) {
+      timeoutId = setTimeout(() => {
+        router.navigate("/teacher/ContentList");
+        setModalState(prev => ({
+          ...prev,
+          success: false,
+          draftSuccess: false
+        }));
+        dispatch(clearEditingQuestion());
+      }, 2000);
+    }
+  
+    if (modalState.error) {
+      timeoutId = setTimeout(() => {
+        setModalState(prev => ({ ...prev, error: false }));
+        setSubmitted(false); // Reset submitted state to clear validation errors
+      }, 3000);
+    }
+  
     return () => {
-      dispatch(clearEditingQuestion());
+      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, []);
+  }, [modalState, router, dispatch]);
+
 
   return (
     <View className="flex-1 bg-slate-50">
-      <ScrollView
-        className="pb-10"
-        showsVerticalScrollIndicator={false}>
-        <AppHeader title="Upload Content" onBack={() => router.back()} />
+      <ScrollView className="pb-10" showsVerticalScrollIndicator={false}>
+        <AppHeader title="Upload Content" onBack={router.back} />
+
         <ContentTypeSelector currentScreen="AddQuestion" />
 
-        <View className="px-4 pt-4">
-          {/* QUESTION */}
-          <View className="bg-white rounded-xl shadow p-4 mb-4">
-            <Text className="text-base font-psemibold text-slate-800 mb-2">
-              Question<Text className="text-red-500">*</Text>
-            </Text>
-            <TextInput
-              multiline
-              placeholder="Start writing your question here..."
-              placeholderTextColor="#94a3b8"
-              className="min-h-[100px] text-sm text-slate-700"
-              value={question}
-              onChangeText={setQuestion}
-            />
-          </View>
-
-          {/* OPTIONS */}
-          <View className="bg-white rounded-xl shadow p-4 mb-4">
-            <Text className="text-base font-psemibold text-slate-800 mb-2">
-              Options<Text className="text-red-500">*</Text>
-            </Text>
-            {options.map((option, index) => (
-              <View key={index} className="flex-row items-center mb-2">
-                <Pressable
-                  onPress={() => setCorrectOption(index)}
-                  className="p-2 mr-2">
-                  <Ionicons
-                    name={
-                      correctOption === index
-                        ? "radio-button-on"
-                        : "radio-button-off"
-                    }
-                    size={20}
-                    color="#4F46E5"
-                  />
-                </Pressable>
-                <Text className="w-6 text-sm font-pmedium text-indigo-700">
-                  {String.fromCharCode(65 + index)}.
+        {submitted && Object.values(validationErrors).some(error =>
+          Array.isArray(error) ? error.some(e => e) : error
+        ) && (
+            <View className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mx-4 mt-4 rounded">
+              <View className="flex flex-row items-center">
+                <Ionicons name="warning" size={20} color="#f59e0b" />
+                <Text className="ml-2 text-sm font-pmedium text-yellow-700">
+                  Please fill all required fields (*) and select correct answer
                 </Text>
-                <TextInput
-                  placeholder={`Start writing choice ${String.fromCharCode(
-                    65 + index
-                  )}...`}
-                  placeholderTextColor="#94a3b8"
-                  className={`flex-1 border-b border-slate-200 text-sm text-slate-700 py-1 ${errors.options[index]
-                    ? "border-red-500 bg-red-100 rounded"
-                    : ""
-                    }`}
-                  value={option}
-                  onChangeText={(text) => handleOptionChange(text, index)}
-                />
               </View>
-            ))}
-            {errors.correctOption && (
-              <Text className="text-red-500 text-xs mt-1">
-                Please select the correct answer
-              </Text>
-            )}
-          </View>
-          {/* HINT */}
-          <View className="bg-white rounded-xl shadow p-4 mb-4">
-            <Text className="text-base font-psemibold text-slate-800 mb-2">
-              Hint (Optional)
-            </Text>
-            <TextInput
-              multiline
-              placeholder="You can add a hint to help students"
-              placeholderTextColor="#94a3b8"
-              className="min-h-[80px] text-sm text-slate-700"
-              value={hint}
-              onChangeText={setHint}
-            />
-          </View>
+            </View>
+          )}
 
-          {/* EXPLANATION */}
-          <View className="bg-white rounded-xl shadow p-4 mb-4">
-            <Text className="text-base font-psemibold text-slate-800 mb-2">
-              Explanation<Text className="text-red-500">*</Text>
-            </Text>
-            <TextInput
-              multiline
-              placeholder="Explain why the correct answer is correct"
-              placeholderTextColor="#94a3b8"
-              className={`min-h-[100px] text-sm text-slate-700 ${errors.explanation
-                ? "border border-red-500 bg-red-100 rounded px-2"
-                : ""
-                }`}
-              value={explanation}
-              onChangeText={setExplanation}
-            />
-          </View>
+        <View className="px-4 pt-4">
+          <QuestionInputSection
+            value={formState.question}
+            onChange={(text) => setFormState(prev => ({ ...prev, question: text }))}
+            error={validationErrors.question}
+            submitted={submitted} />
 
-          {/* TAGS */}
-          <TagsInput
-            value={tags}
-            onChange={setTags}
-            placeholder="Add tags separated by comma or space"
-            error={errors.tags}
-            maxLength={20}
+          <OptionsGrid
+            options={formState.options}
+            correctAnswer={formState.correctAnswer}
+            onOptionChange={handleOptionChange}
+            onCorrectAnswer={handleCorrectAnswer}
+            errors={validationErrors.options}
+            correctAnswerError={validationErrors.correctAnswer}
+            submitted={submitted} />
+
+          <HintInput
+            value={formState.hint}
+            onChange={(text) => setFormState(prev => ({ ...prev, hint: text }))}
           />
 
-          {/* ACTION BUTTONS */}
-          <ActionButtons
+          <ExplanationInput
+            value={formState.explanation}
+            onChange={(text) => setFormState(prev => ({ ...prev, explanation: text }))}
+            error={validationErrors.explanation}
+            submitted={submitted} />
+
+          <TagsInput
+            value={formState.tags}
+            onChange={(tags) => setFormState(prev => ({ ...prev, tags }))}
+            error={validationErrors.tags}
+            submitted={submitted}
+          />
+
+          <FormActions
             onSaveDraft={handleSaveDraft}
             onPost={handlePost}
-            onCancel={() => setShowCancelModal(true)}
+            onCancel={() => setModalState(prev => ({ ...prev, cancel: true }))}
             isSavingDraft={isSavingDraft}
             isPosting={isPosting}
+            validationErrors={validationErrors}
           />
-
         </View>
 
-        {/* MODALS */}
-        <>
-          <SuccessModal
-            isVisible={showSuccessModal}
-            onDismiss={() => setShowSuccessModal(false)}
-            icon="checkmark-circle"
-            message="Posted Successfully!"
-            color="#22c55e"
-          />
+        <SuccessModal
+          isVisible={modalState.success}
+          onDismiss={() => setModalState(prev => ({ ...prev, success: false }))}
+          icon="checkmark-circle"
+          message={modalState.message}
+          color="#22c55e"
+        />
 
-          <SuccessModal
-            isVisible={showDraftSuccessModal}
-            onDismiss={() => setShowDraftSuccessModal(false)}
-            icon="checkmark-circle"
-            message="Saved as Draft!"
-            color="#3b82f6"
-          />
+        <SuccessModal
+          isVisible={modalState.draftSuccess}
+          onDismiss={() => setModalState(prev => ({ ...prev, draftSuccess: false }))}
+          icon="checkmark-circle"
+          message={modalState.message}
+          color="#3b82f6"
+        />
 
-          <CancelModal
-            isVisible={showCancelModal}
-            onConfirm={() => {
-              setShowCancelModal(false);
-              resetForm();
-              router.push("/teacher/(tabs)/ContentList");
-            }}
-            onCancel={() => setShowCancelModal(false)}
-          />
+        <CancelModal
+          isVisible={modalState.cancel}
+          onConfirm={() => {
+            setModalState(prev => ({ ...prev, cancel: false }));
+            resetForm();
+            router.push("/teacher/ContentList");
+          }}
+          onCancel={() => setModalState(prev => ({ ...prev, cancel: false }))}
+        />
 
-          <ErrorModal
-            isVisible={showErrorModal}
-            message={errorMessage}
-            onDismiss={() => setShowErrorModal(false)}
-          />
-        </>
-
-        {/* Remaining inputs and buttons (hint, explanation, tags, modals, etc.) will follow same pattern */}
+        <ErrorModal
+          isVisible={modalState.error}
+          message={modalState.message}
+          onDismiss={() => setModalState(prev => ({ ...prev, error: false }))}
+        />
       </ScrollView>
     </View>
   );
