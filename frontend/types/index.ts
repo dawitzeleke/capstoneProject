@@ -1,6 +1,6 @@
-import { QuestionItem } from "@/redux/teacherReducer/contentSlice";
+import { QuestionItem } from "@/redux/teacherReducer/questionSlice";
 
-export type { QuestionItem } from "@/redux/teacherReducer/contentSlice";
+export type { QuestionItem } from "@/redux/teacherReducer/questionSlice";
 
 export type QuestionStatus = "draft" | "posted";
 

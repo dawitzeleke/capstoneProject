@@ -3,7 +3,7 @@ import optionReducer from "./optionReducer/optionReducer";
 import questionsReducer from "./questionsReducer/questionsReducer";
 import savedQuestionsReducer from "./savedQuestionsReducer/savedQuestionReducer";
 import teacherReducer from "./teacherReducer/teacherReducer";
-import contentReducer from "./teacherReducer/contentSlice";
+import contentReducer from "./teacherReducer/questionSlice";
 
 const rootReducer = combineReducers({
   option: optionReducer,

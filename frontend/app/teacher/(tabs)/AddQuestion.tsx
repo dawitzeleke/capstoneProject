@@ -9,7 +9,7 @@ import { SuccessModal } from '@/components/teacher/popups/SuccessModal';
 import { ErrorModal } from '@/components/teacher/popups/ErrorModal';
 import { CancelModal } from '@/components/teacher/popups/CancelModal';
 import { RootState } from "@/redux/store";
-import { updateQuestion, clearEditingQuestion, QuestionItem, addQuestion } from "@/redux/teacherReducer/contentSlice";
+import { updateQuestion, clearEditingQuestion, QuestionItem, addQuestion } from "@/redux/teacherReducer/questionSlice";
 import { QuestionFormState } from "@/types";
 import QuestionInputSection from "@/components/teacher/QuestionForm/QuestionInputSection";
 import OptionsGrid from "@/components/teacher/QuestionForm/OptionsGrid";
