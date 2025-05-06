@@ -39,14 +39,12 @@ public class QuestionsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateQuestion([FromForm] CreateQuestionCommand question)
     {
-        System.Console.WriteLine("input data",question);
-        Console.WriteLine($"Received Question: {System.Text.Json.JsonSerializer.Serialize(question)}");
         var response= await _mediator.Send(question);
         return Ok(response);
     }
     
     [HttpPut]
-    public async Task<IActionResult> Put([FromBody] UpdateQuestionCommand question)
+    public async Task<IActionResult> UpdateQuestion([FromBody] UpdateQuestionCommand question)
     {
         var response = await _mediator.Send(question);
         if (response == null)

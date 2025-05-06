@@ -16,5 +16,6 @@ public class GetQuestionDetailDto
         public int TotalCorrectAnswers { get; set; }
         public int[] Feedbacks { get; set;}
         public string CreatedBy { get; set; }
+        public string Report { get; set; }
     }
     

@@ -18,4 +18,5 @@ public class Question : ContentEntity
     public int TotalCorrectAnswers { get; set; }
     public string Explanation { get; set; }
     public string Hint { get; set; }
+    public string Report { get; set;}
 }

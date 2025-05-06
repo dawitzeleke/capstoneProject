@@ -11,4 +11,5 @@ public class VideoContent : ContentEntity
     public int Views { get; set; }
     public string[] Tags { get; set; }
     public string[] Feedbacks { get; set; }
+    public string Report { get; set; }
 }

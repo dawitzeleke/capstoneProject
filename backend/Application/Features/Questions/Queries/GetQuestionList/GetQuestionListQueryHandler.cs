@@ -29,7 +29,8 @@ public class GetQuestionListQueryHandler : IRequestHandler<GetQuestionListQuery,
                 Difficulty = q.Difficulty,
                 Feedbacks = q.Feedbacks,
                 QuestionType = q.QuestionType,
-                CreatedBy = q.CreatedBy
+                CreatedBy = q.CreatedBy,
+                Report=q.Report
             }).ToList();
 
         return questionDtos;
