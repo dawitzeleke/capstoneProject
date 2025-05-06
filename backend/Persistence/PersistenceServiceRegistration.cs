@@ -57,6 +57,7 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IPasswordHasher<Admin>, PasswordHasher<Admin>>();
         services.AddScoped<IVideoContentRepository, VideoContentRepository>();
         services.AddScoped<IImageContentRepository, ImageContentRepository>();
+        services.AddScoped<IReportRepository, ReportRepository>();
         return services;
     }
 }
