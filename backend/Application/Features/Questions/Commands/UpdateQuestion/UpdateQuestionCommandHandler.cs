@@ -43,6 +43,7 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
             Feedbacks = updated.Feedbacks,
             QuestionType = updated.QuestionType,
             TotalCorrectAnswers = updated.TotalCorrectAnswers,
+            Report = updated.Report,
             // CreatedBy = updated.CreatedBy,
         };
     }
