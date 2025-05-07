@@ -35,4 +35,10 @@ public class FollowRepository : GenericRepository<Follow>, IFollowRepository
         var result = await _follows.DeleteOneAsync(filter);
         return result.DeletedCount > 0;
     }
+
+    public async Task<List<Follow>> GetByStudentIdAsync(string studentId)
+    {
+        var filter = Builders<Follow>.Filter.Eq(f => f.StudentId, studentId);
+        return await _follows.Find(filter).ToListAsync();
+    }
 }
