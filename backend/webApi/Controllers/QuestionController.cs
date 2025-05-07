@@ -5,6 +5,8 @@ using backend.Application.Contracts.Persistence;
 using backend.Application.Features.Questions.Commands.CreateQuestion;
 using backend.Application.Features.Questions.Queries.GetQuestionDetail;
 using backend.Application.Features.Questions.Queries.GetQuestionList;
+using backend.Application.Features.Questions.Commands.DeleteQuestion;
+using backend.Application.Features.Questions.Commands.UpdateQuestion;
 
 namespace backend.webApi.Controllers;
 
@@ -42,18 +44,26 @@ public class QuestionsController : ControllerBase
         var response= await _mediator.Send(question);
         return Ok(response);
     }
+    
+    [HttpPut]
+    public async Task<IActionResult> Put([FromBody] UpdateQuestionCommand question)
+    {
+        var response = await _mediator.Send(question);
+        if (response == null)
+        {
+            return NotFound();
+        }
+        return Ok(question);
+    }
 
-    // [HttpPut]
-    // public async Task<IActionResult> Put(Question question)
-    // {
-    //     await _mediator.Send(question);
-    //     return Ok(question);
-    // }
-
-    // [HttpDelete]
-    // public async Task<IActionResult> Delete(Question question)
-    // {
-    //     await _mediator.Send(question);
-    //     return Ok(question);
-    // }
+    [HttpDelete]
+    public async Task<IActionResult> DeleteQuestion(DeleteQuestionCommand request)
+    {
+        var response= await _mediator.Send(request);
+        if (response)
+        {
+            return Ok();
+        }
+        return NotFound();
+    }
 }

@@ -7,7 +7,7 @@ using backend.Application.Contracts.Persistence;
 
 namespace backend.Application.Features.Questions.Commands.CreateQuestion;
 
-public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand, bool>
+public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand, Question>
 {
     private readonly IQuestionRepository _questionRepository;
 
@@ -16,7 +16,7 @@ public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand
         _questionRepository = questionRepository;
     }
 
-    public async Task<bool> Handle(CreateQuestionCommand request, CancellationToken cancellationToken)
+    public async Task<Question> Handle(CreateQuestionCommand request, CancellationToken cancellationToken)
     {
         var question = new Question{
             QuestionText = request.QuestionText,
@@ -25,7 +25,7 @@ public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand
             CorrectOption = request.CorrectOption,
             CreatedAt = DateTime.Now,
             Grade = request.Grade,
-            totalCorrectAnswers=0,
+            TotalCorrectAnswers=0,
             CourseName = request.CourseName,
             Point = request.Point,
             Difficulty = request.Difficulty,
@@ -34,7 +34,7 @@ public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand
             CreatedBy = request.CreatedBy,
         };
         // System.Console.WriteLine(question);
-        await _questionRepository.CreateAsync(question);
-        return true;
+        var newQuestion = await _questionRepository.CreateAsync(question);
+        return newQuestion;
     }
 }
