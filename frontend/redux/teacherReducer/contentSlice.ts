@@ -5,13 +5,13 @@ export interface QuestionItem {
     id: string;
     question: string;
     options: string[];
-    tags: string[];     
-    hint: string;       
+    tags: string[];
+    hint: string;
     explanation: string;
     correctAnswer: number;
     status: "draft" | "posted";
     date: string;
-  }
+}
 
 interface ContentState {
     questions: QuestionItem[];
@@ -29,7 +29,7 @@ const initialState: ContentState = {
             question: 'Which organelle is known as the "powerhouse of the cell"?',
             options: ["Nucleus", "Mitochondria", "Ribosome", "Organelles"],
             status: "posted",
-            date: "2024-03-15",
+            date: "2024-03-16T00:00:00Z",
             correctAnswer: 1,
             tags: ["bio", "science"],
             hint: "It's the organelle responsible for producing energy in the form of ATP.",
@@ -40,7 +40,7 @@ const initialState: ContentState = {
             question: "What is the process of cell division called?",
             options: ["Mitosis", "Meiosis", "Both A and B", "None"],
             status: "draft",
-            date: "2024-03-16",
+            date: "2024-03-15T00:00:00Z",
             correctAnswer: 0,
             tags: ["bio", "science"],
             hint: "It involves the division of a single cell into two identical daughter cells.",
@@ -51,7 +51,7 @@ const initialState: ContentState = {
             "question": "What molecule carries genetic information in most living organisms?",
             "options": ["RNA", "Lipid", "Protein", "DNA"],
             "status": "draft",
-            "date": "2024-03-14",
+            date: "2024-03-14T00:00:00Z",
             correctAnswer: 3,
             tags: ["bio", "science"],
             hint: "This molecule has a double helix structure and contains the instructions for building proteins.",
@@ -68,6 +68,10 @@ const contentSlice = createSlice({
     name: "content",
     initialState,
     reducers: {
+        addQuestion: (state, action: PayloadAction<QuestionItem>) => {
+            // Add new question to the beginning of the array
+            state.questions.unshift(action.payload);
+        },
         toggleSelection(state, action: PayloadAction<string>) {
             const id = action.payload;
             state.selectedIds = state.selectedIds.includes(id)
@@ -86,13 +90,13 @@ const contentSlice = createSlice({
             const index = state.questions.findIndex(q => q.id === action.payload.id);
             if (index !== -1) {
                 // Validate correctAnswer index
-                if (action.payload.correctAnswer >= 0 && 
+                if (action.payload.correctAnswer >= 0 &&
                     action.payload.correctAnswer < action.payload.options.length) {
                     state.questions[index] = action.payload;
                 }
             }
         },
-        
+
         deleteQuestion: (state, action: PayloadAction<string>) => {
             // Remove from questions array
             state.questions = state.questions.filter(
@@ -110,17 +114,14 @@ const contentSlice = createSlice({
         setActiveTab: (state, action: PayloadAction<"all" | "posted" | "draft">) => {
             state.activeTab = action.payload;
         },
-        addQuestion: (state, action: PayloadAction<QuestionItem>) => {
-            state.questions.unshift(action.payload);
-        },
         clearSelections(state) {
             state.selectedIds = [];
-          },
-          deleteMultipleQuestions(state, action: PayloadAction<string[]>) {
+        },
+        deleteMultipleQuestions(state, action: PayloadAction<string[]>) {
             const idsToDelete = action.payload;
             state.questions = state.questions.filter(q => !idsToDelete.includes(q.id));
             state.selectedIds = state.selectedIds.filter(id => !idsToDelete.includes(id));
-          },
+        },
     }
 });
 

@@ -33,9 +33,7 @@ const ContentListScreen = () => {
   const { selectedIds, activeTab, searchTerm } = useSelector(
     (state: RootState) => state.content
   );
-  const displayQuestions = useSelector(selectDisplayQuestions);
-  const displayMedia = useSelector(selectDisplayMedia);
-  const combinedItems = [...displayQuestions, ...displayMedia];
+ 
 
   const [previewQuestion, setPreviewQuestion] = useState<QuestionItem | null>(null);
   const [previewMedia, setPreviewMedia] = useState<MediaItem | null>(null);
@@ -46,6 +44,8 @@ const ContentListScreen = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [selectionMode, setSelectionMode] = useState(false);
+
+  
 
   const router = useRouter();
 
@@ -98,6 +98,17 @@ const ContentListScreen = () => {
       setSelectionMode(false);
     }
   }, [selectedIds]);
+
+  // Get sorted display items
+  const displayQuestions = useSelector(selectDisplayQuestions);
+  const displayMedia = useSelector(selectDisplayMedia);
+  
+  // Combine and sort by date descending
+  const combinedItems = [...displayQuestions, ...displayMedia]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+
+    
 
   return (
     <View className="flex-1 bg-slate-50">

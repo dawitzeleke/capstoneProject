@@ -35,6 +35,7 @@ const mediaSlice = createSlice({
       state.editingMediaId = null;
     },
     addMedia: (state, action: PayloadAction<MediaItem>) => {
+      // Add new media to the beginning of the array
       state.media.unshift(action.payload);
     },
     updateMedia: (state, action: PayloadAction<MediaItem>) => {
