@@ -141,7 +141,7 @@ const AddQuestion = () => {
     }
 
     const questionData: QuestionItem = {
-      id: editingQuestionId || Date.now().toString(),
+      id: editingQuestionId ?? Date.now().toString(),
       question: formState.question.trim(),
       options: formState.options.map(opt => opt.trim()),
       tags: formState.tags,
