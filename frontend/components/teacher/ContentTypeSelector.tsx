@@ -1,4 +1,3 @@
-// ContentTypeSelector.tsx
 import { useNavigation } from '@react-navigation/native';
 import { Pressable, View, Text, StyleSheet } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';

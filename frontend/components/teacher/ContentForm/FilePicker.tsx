@@ -1,4 +1,3 @@
-// components/teacher/FilePicker.tsx
 import { Pressable, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
