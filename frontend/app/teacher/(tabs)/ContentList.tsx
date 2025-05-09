@@ -7,6 +7,7 @@ import SearchFilter from "@/components/teacher/SearchFilter";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import QuestionPreviewModal from "@/components/teacher/popups/QuestionPreviewModal";
+import MediaPreviewModal from "@/components/teacher/popups/MediaPreviewModal";
 import { DeleteConfirmationModal } from "@/components/teacher/popups/DeleteConfirmationModal";
 import { SuccessToast } from "@/components/teacher/popups/SuccessToast";
 import {
@@ -19,10 +20,12 @@ import {
   clearSelections,
   deleteMultipleQuestions,
 } from "@/redux/teacherReducer/contentSlice";
+import { deleteMedia, deleteMultipleMedia, selectDisplayMedia } from "@/redux/teacherReducer/mediaSlice";
 import TabSwitcher from "@/components/teacher/TabSwitcher";
 import ContentList from "@/components/teacher/ContentList";
 import EmptyState from "@/components/teacher/EmptyState";
 import type { QuestionItem } from "@/types";
+import type { MediaItem } from "@/types/mediaTypes";
 import BulkActionsBar from "@/components/teacher/BulkActionsBar";
 
 const ContentListScreen = () => {
@@ -31,15 +34,20 @@ const ContentListScreen = () => {
     (state: RootState) => state.content
   );
   const displayQuestions = useSelector(selectDisplayQuestions);
-  const [previewQuestion, setPreviewQuestion] = useState<QuestionItem | null>(null);
-  const router = useRouter();
+  const displayMedia = useSelector(selectDisplayMedia);
+  const combinedItems = [...displayQuestions, ...displayMedia];
 
+  const [previewQuestion, setPreviewQuestion] = useState<QuestionItem | null>(null);
+  const [previewMedia, setPreviewMedia] = useState<MediaItem | null>(null);
+  const [showMediaPreview, setShowMediaPreview] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [selectionMode, setSelectionMode] = useState(false);
+
+  const router = useRouter();
 
   const toggleSelectionHandler = (id: string) => {
     dispatch(toggleSelection(id));
@@ -51,22 +59,29 @@ const ContentListScreen = () => {
   };
 
   const handleConfirmDelete = async () => {
-    setShowDeleteModal(false);
+        setShowDeleteModal(false);
 
-    if (itemToDelete) {
-      dispatch(deleteQuestion(itemToDelete));
-      setSuccessMessage("Question deleted successfully");
-    } else if (selectedIds.length > 0) {
-      const count = selectedIds.length;
-      dispatch(deleteMultipleQuestions(selectedIds));
-      setSuccessMessage(`${count} ${count === 1 ? 'question' : 'questions'} deleted successfully`);
-    }
+        if (itemToDelete) {
+            // Check if the item is a media item
+            const isMedia = displayMedia.some(m => m.id === itemToDelete);
+            if (isMedia) {
+                dispatch(deleteMedia(itemToDelete));
+            } else {
+                dispatch(deleteQuestion(itemToDelete));
+            }
+            setSuccessMessage("Item deleted successfully");
+        } else if (selectedIds.length > 0) {
+            const count = selectedIds.length;
+            dispatch(deleteMultipleQuestions(selectedIds));
+            dispatch(deleteMultipleMedia(selectedIds));
+            setSuccessMessage(`${count} ${count === 1 ? 'item' : 'items'} deleted successfully`);
+        }
 
-    setPreviewQuestion(null);
-    setShowSuccessToast(true);
-    setTimeout(() => setShowSuccessToast(false), 2000);
-    setItemToDelete(null);
-  };
+        setPreviewQuestion(null);
+        setShowSuccessToast(true);
+        setTimeout(() => setShowSuccessToast(false), 2000);
+        setItemToDelete(null);
+    };
 
   const handleBulkDelete = () => {
     setItemToDelete(null);
@@ -122,15 +137,22 @@ const ContentListScreen = () => {
           onTabChange={(tab) => dispatch(setActiveTab(tab))}
         />
 
-        {displayQuestions.length === 0 ? (
+        {combinedItems.length === 0 ? (
           <EmptyState onPress={() => router.push("/teacher/AddQuestion")} />
         ) : (
           <ContentList
-            questions={displayQuestions}
+            items={combinedItems}
             selectedIds={selectedIds}
             onToggleSelection={toggleSelectionHandler}
             onDelete={handleDelete}
-            onPreview={setPreviewQuestion}
+            onPreview={(item) => {
+              if ("type" in item) {
+                setPreviewMedia(item);
+                setShowMediaPreview(true);
+              } else {
+                setPreviewQuestion(item);
+              }
+            }}
             onEdit={(id) => {
               dispatch(setEditingQuestion(id));
               router.push("/teacher/AddQuestion");
@@ -178,6 +200,28 @@ const ContentListScreen = () => {
         }}
         loading={false}
       />
+
+      {showMediaPreview && (
+        <MediaPreviewModal
+          visible={showMediaPreview}
+          media={previewMedia}
+          onClose={() => setShowMediaPreview(false)}
+          onEdit={() => {
+            if (previewMedia) {
+              router.push(`/teacher/EditMedia?id=${previewMedia.id}`);
+              setShowMediaPreview(false);
+            }
+          }}
+          onDelete={() => {
+            if (previewMedia) {
+              setItemToDelete(previewMedia.id);
+              setShowDeleteModal(true);
+              setShowMediaPreview(false);
+            }
+          }}
+          loading={false}
+        />
+      )}
 
       {showSuccessToast && (
         <SuccessToast message={successMessage} />
