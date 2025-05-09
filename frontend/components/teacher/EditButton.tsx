@@ -3,8 +3,7 @@ import { Pressable, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
-import { setEditingQuestion } from "@/redux/teacherReducer/questionSlice";
-
+import { setEditingQuestion } from "@/redux/teacherReducer/contentSlice"
 interface EditButtonProps {
   itemId: string;
   loading: boolean;

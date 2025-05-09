@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, View, Text, Pressable, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { type QuestionItem } from "@/redux/teacherReducer/questionSlice";
+import { type QuestionItem } from "@/redux/teacherReducer/contentSlice";
 import EditButton from '@/components/teacher/EditButton';
 import DeleteButton from "@/components/teacher/DeleteButton";
 

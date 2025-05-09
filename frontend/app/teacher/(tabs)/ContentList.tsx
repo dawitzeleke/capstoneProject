@@ -18,7 +18,7 @@ import {
   setActiveTab,
   clearSelections,
   deleteMultipleQuestions,
-} from "@/redux/teacherReducer/questionSlice";
+} from "@/redux/teacherReducer/contentSlice";
 import TabSwitcher from "@/components/teacher/TabSwitcher";
 import ContentList from "@/components/teacher/ContentList";
 import EmptyState from "@/components/teacher/EmptyState";
