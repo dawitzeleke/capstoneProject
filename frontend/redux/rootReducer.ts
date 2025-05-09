@@ -4,6 +4,7 @@ import questionsReducer from "./questionsReducer/questionsReducer";
 import savedQuestionsReducer from "./savedQuestionsReducer/savedQuestionReducer";
 import teacherReducer from "./teacherReducer/teacherReducer";
 import contentReducer from "./teacherReducer/contentSlice";
+import mediaReducer from "@/redux/teacherReducer/mediaSlice"
 
 const rootReducer = combineReducers({
   option: optionReducer,
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   teacher: teacherReducer,
   savedQuestions:savedQuestionsReducer,
   content: contentReducer,
+   media: mediaReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
