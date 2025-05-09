@@ -4,6 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import EditButton from "@/components/teacher/EditButton";
 import DeleteButton from "@/components/teacher/DeleteButton";
 
+
+
 interface ManageQuestionItem {
   id: string;
   question: string;
