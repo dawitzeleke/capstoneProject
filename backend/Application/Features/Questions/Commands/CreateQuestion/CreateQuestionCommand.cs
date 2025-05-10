@@ -1,9 +1,10 @@
 using MediatR;
 using backend.Domain.Enums; 
+using backend.Domain.Entities;
 
 namespace backend.Application.Features.Questions.Commands.CreateQuestion;
 
-public class CreateQuestionCommand: IRequest<bool>
+public class CreateQuestionCommand: IRequest<Question>
 {
     public string QuestionText { get; set; }
     public string Description { get; set; }

@@ -5,8 +5,12 @@ using backend.Application.Features.Questions.Commands.CreateQuestion;
 using backend.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
+using backend.Infrastructure;
+using backend.webApi.ExceptionHandlerMiddleware;
 
 var builder = WebApplication.CreateBuilder(args);
+
+DotNetEnv.Env.Load("../.env");
 
 // Add services to the container.
 
@@ -15,6 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddPersistenceServices(builder.Configuration);
+builder.Services.AddInfrastructureServices();
 
 // builder.Services.AddScoped<AuthService>();
 builder.Services.AddControllers()
@@ -37,13 +42,16 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// register the exception handler
+app.UseMiddleware<ExceptionHandlerMiddleware>();
+
 // Validate MongoDB connection
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
-        // Resolve the IMongoDatabase service
+        //E Resolve the IMongoDatabase service
         var mongoDatabase = services.GetRequiredService<IMongoDatabase>();
 
         // Ping the MongoDB server to validate the connection
