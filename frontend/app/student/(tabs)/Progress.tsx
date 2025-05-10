@@ -1,78 +1,123 @@
 import React from "react";
 import { View, Text, ScrollView, Dimensions } from "react-native";
 import { Link } from "expo-router";
-import {
-  Ionicons,
-  FontAwesome5,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import Heatmap from "@/components/Heatmap";
 import CircularProgressChart from "@/components/CircularProgressChart";
 import { BarChart } from "react-native-chart-kit";
+import { useSelector } from "react-redux";
 
 const screenWidth = Dimensions.get("window").width;
 
 const Progress = () => {
+  const currentTheme = useSelector((state: any) => state.theme.mode);
+  const isDark = currentTheme === "dark";
+
   return (
-    <ScrollView className="bg-primary flex-1 p-5 mt-3">
+    <ScrollView
+      className={`flex-1 px-4 pt-6 pb-20 ${isDark ? "bg-black" : "bg-[#f1f3fc]"}`}>
+      
       {/* Header */}
-      <View className="flex-row justify-between items-center mb-4">
-        <Link
-          href="/student/(tabs)/Profile"
-          className="text-lg font- font-pregularpregular text-blue-500 font-pregular">
-          <Ionicons name="chevron-back" size={20} color="gray" />
+      <View className="flex-row justify-between items-center mb-6">
+        <Link href="/student/(tabs)/Profile">
+          <Ionicons
+            name="chevron-back"
+            size={20}
+            color={isDark ? "#ccc" : "#4B5563"} // dark gray for light mode
+          />
         </Link>
-        <Text className="text-gray-100 text-2xl font-pbold">Progress</Text>
-        <Ionicons name="ellipsis-horizontal" size={24} color="gray" />
-      </View>
-      {/* Wellness Statistics */}
-      <View className="bg-card pt-5 pb-5 pr-8 font-pregular flex rounded-2xl shadow-md mb-6 items-center">
-        <BarChart
-          data={{
-            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], // Weekly labels
-            datasets: [{ data: [50, 75, 60, 80, 95, 70, 85] }], // Weekly progress data
-          }}
-          width={screenWidth * 0.9} // Slightly reduced to fit inside the container
-          height={220}
-          yAxisLabel=""
-          yAxisSuffix=""
-          fromZero={true} // Ensures bars start from zero
-          withInnerLines={false} // Hide horizontal grid lines
-          withHorizontalLabels={true} // Show y-axis labels for better understanding
-          chartConfig={{
-            backgroundGradientFromOpacity: 0, // Ensures full transparency
-            backgroundGradientToOpacity: 0, // Ensures full transparency
-            fillShadowGradient: "aqua", // Ensure bars stay colored
-            fillShadowGradientOpacity: 1, // Keep bars fully visible
-            barPercentage: 0.6,
-            color: () => "aqua",
-            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            decimalPlaces: 0,
-            propsForBackgroundLines: {
-              stroke: "transparent", // Removes grid lines if needed
-            },
-          }}
-          showBarTops={false}
+        <Text
+          className={`text-2xl font-pbold ${
+            isDark ? "text-gray-200" : "text-gray-800"
+          }`}>
+          Progress
+        </Text>
+        <Ionicons
+          name="ellipsis-horizontal"
+          size={24}
+          color={isDark ? "#ccc" : "#4B5563"}
         />
       </View>
 
+      {/* Bar Chart */}
+      <View
+        className={`py-5 px-4 rounded-2xl shadow-md mb-6 items-center ${
+          isDark ? "bg-neutral-800" : "bg-white border border-gray-200"
+        }`}>
+        <BarChart
+          data={{
+            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            datasets: [{ data: [50, 75, 60, 80, 95, 70, 85] }],
+          }}
+          width={screenWidth - 50}
+          height={220}
+          fromZero
+          withInnerLines={false}
+          withHorizontalLabels={true}
+          yAxisLabel=""
+          yAxisSuffix=""
+          showBarTops={false}
+          chartConfig={{
+            backgroundGradientFromOpacity: 0,
+            backgroundGradientToOpacity: 0,
+            decimalPlaces: 0,
+            barRadius: 6,
+            fillShadowGradient: isDark ? "#ffffff" : "#6366F1", // indigo for light
+            fillShadowGradientOpacity: 1,
+            color: () => (isDark ? "#ffffff" : "#6366F1"),
+            labelColor: () => (isDark ? "#ffffff" : "#374151"), // dark gray for light
+            propsForBackgroundLines: {
+              stroke: isDark ? "#374151" : "#D1D5DB",
+            },
+            barPercentage: 0.7,
+          }}
+        />
+      </View>
+
+      {/* Stats and Heatmap */}
       <View className="flex-row justify-between mb-16">
         <View className="flex-col flex-1 mr-4">
-          <View className="bg-card p-5 rounded-2xl mb-2 shadow-md">
-            <CircularProgressChart />
+          {/* Circular Progress */}
+          <View
+            className={`p-5 rounded-2xl mb-4 shadow-md ${
+              isDark ? "bg-neutral-800" : "bg-white border border-gray-200"
+            }`}>
+            <CircularProgressChart isDark={isDark} />
           </View>
-          <View className="bg-card p-5 rounded-2xl mt-2 shadow-md items-center justify-center">
-            <Ionicons name="checkmark-circle-outline" size={28} color="gray" />
-            <Text className="font-pbold text-2xl text-center text-[#00FFFF]">
+
+          {/* Correct Attempts */}
+          <View
+            className={`p-5 rounded-2xl shadow-md items-center justify-center ${
+              isDark ? "bg-neutral-800" : "bg-white border border-gray-200"
+            }`}>
+            <Ionicons
+              name="checkmark-circle-outline"
+              size={28}
+              color={isDark ? "#10B981" : "#10B981"} // Emerald green
+            />
+            <Text
+              className={`font-pbold text-2xl text-center ${
+                isDark ? "text-white" : "text-gray-800"
+              }`}>
               349
             </Text>
-            <Text className="text-gray-500 text-lg font-pbold mt-2 text-center">
+            <Text
+              className={`text-lg font-pbold mt-2 text-center ${
+                isDark ? "text-gray-400" : "text-gray-500"
+              }`}>
               Correct Attempts
             </Text>
           </View>
         </View>
-        <View className="bg-card rounded-2xl shadow-md flex-1 row-span-2">
-          <Heatmap/>
+
+        {/* Heatmap */}
+        <View
+          className={`rounded-2xl shadow-md flex-1 ml-2 ${
+            isDark
+              ? "bg-neutral-900"
+              : "bg-white border border-gray-200"
+          }`}>
+          <Heatmap />
         </View>
       </View>
     </ScrollView>

@@ -14,7 +14,7 @@ import {
   AntDesign,
   Feather,
 } from "@expo/vector-icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setDisplayOption } from "@/redux/optionReducer/optionActions";
 
 interface QuestionProps {
@@ -22,7 +22,7 @@ interface QuestionProps {
     id: string;
     questionText: string;
     options: string[];
-    correctOption: string; // e.g., "A"
+    correctOption: string;
     totalCorrectAnswers: number;
     description: string;
   };
@@ -47,9 +47,9 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
   const [saved, setSaved] = useState(false);
   const { height } = useWindowDimensions();
   const dispatch = useDispatch();
+  const currentTheme = useSelector((state: any) => state.theme.mode);
 
-  const correctAnswer = question.correctOption
-
+  const correctAnswer = question.correctOption;
 
   const handleOpenOption = () => {
     dispatch(setDisplayOption());
@@ -57,9 +57,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
 
   const handleAnswer = (option: string) => {
     setSelectedOption(option);
-    
   };
-  console.log(selectedOption);
 
   const toggleExpanded = () => {
     Animated.timing(heightAnim, {
@@ -73,7 +71,9 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
   return (
     <View
       style={{ height: height * 0.94 }}
-      className="bg-card justify-center shadow-lg mb-2 mt-4 p-5 w-full relative">
+      className={`justify-center mb-2 mt-4 p-5 w-full relative rounded-2xl ${
+        currentTheme === "dark" ? "bg-black" : "bg-white border border-gray-200"
+      }`}>
       {/* User Info */}
       <View className="absolute top-2 w-full h-[60px] left-0 flex flex-row justify-between items-center px-6">
         <View className="flex flex-row items-center">
@@ -84,13 +84,21 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
               resizeMode="contain"
             />
           </View>
-          <Text className="color-slate-300 font-pthin ml-3">Birhanu</Text>
+          <Text
+            className={`font-pregular ml-3 ${
+              currentTheme === "dark" ? "text-gray-300" : "text-black"
+            }`}>
+            Birhanu
+          </Text>
           <Pressable
             onPress={() => setIsFollowing(!isFollowing)}
             className={`ml-4 p-2 rounded-xl border ${
               isFollowing ? "border-gray-400" : "border-green-400"
             }`}>
-            <Text className="color-slate-300 font-pthin">
+            <Text
+              className={`font-pregular ${
+                currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
+              }`}>
               {isFollowing ? "Following" : "Follow"}
             </Text>
           </Pressable>
@@ -99,12 +107,15 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
           onPress={handleOpenOption}
           name="more-vert"
           size={24}
-          color="white"
+          color={currentTheme === "dark" ? "white" : "black"}
         />
       </View>
 
       {/* Question Text */}
-      <Text className="text-xl color-slate-300 font-pmedium mb-8">
+      <Text
+        className={`text-xl font-pmedium mb-8 ${
+          currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
+        }`}>
         {question.questionText}
       </Text>
 
@@ -119,37 +130,65 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
               ? "bg-correct border-green-400"
               : option === selectedOption && option !== correctAnswer
               ? "bg-wrong border-red-400"
-              : ""
+              : currentTheme === "dark"
+              ? "border-gray-700"
+              : "border-gray-300"
           }`}>
           <FontAwesome
             name={selectedOption === option ? "dot-circle-o" : "circle-o"}
             size={24}
-            color="gray"
+            color={currentTheme === "dark" ? "gray" : "black"}
             style={{ marginRight: 10 }}
           />
-          <Text className="text-lg color-slate-300 font-pmedium">{option}</Text>
+          <Text
+            className={`text-lg font-pmedium ${
+              currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
+            }`}>
+            {option}
+          </Text>
         </TouchableOpacity>
       ))}
 
       {/* Social Buttons */}
       <View className="absolute right-6 top-2/3 transform -translate-y-5">
         <TouchableOpacity className="mb-4" onPress={() => setLiked(!liked)}>
-          <AntDesign name="heart" size={22} color={liked ? "red" : "white"} />
-          <Text className="text-xs text-center color-slate-300 font-pmedium">
+          <AntDesign
+            name="heart"
+            size={22}
+            color={liked ? "red" : currentTheme === "dark" ? "white" : "black"}
+          />
+          <Text
+            className={`text-xs text-center font-pmedium ${
+              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}>
             +1.2k
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="mb-4" onPress={() => setSaved(!saved)}>
-          <Feather name="star" size={22} color={saved ? "yellow" : "white"} />
-          <Text className="text-xs text-center color-slate-300 font-pmedium">
+          <Feather
+            name="star"
+            size={22}
+            color={saved ? "gold" : currentTheme === "dark" ? "white" : "black"}
+          />
+          <Text
+            className={`text-xs text-center font-pmedium ${
+              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}>
             +1.2k
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity>
-          <Feather name="send" size={22} color="white" />
-          <Text className="text-xs text-center color-slate-300 font-pmedium">
+          <Feather
+            name="send"
+            size={22}
+            color={currentTheme === "dark" ? "white" : "black"}
+          />
+          <Text
+            className={`text-xs text-center font-pmedium ${
+              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}>
             +1.2k
           </Text>
         </TouchableOpacity>
@@ -159,17 +198,29 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
       <View
         className="absolute p-2 bottom-0 left-0 right-0"
         style={{
-          backgroundColor: expanded ? "#101624" : "#1A233A",
-          width: "100%",
+          backgroundColor:
+            currentTheme === "dark"
+              ? expanded
+                ? "#101624"
+                : "#1A233A"
+              : expanded
+              ? "#F0F4FF"
+              : "#E8EDF5",
         }}>
-        <Text className="color-slate-300 font-pmedium">
-          <Text className="font-psemibold color-slate-300">
+        <Text
+          className={`font-pmedium ${
+            currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
+          }`}>
+          <Text className="font-psemibold">
             {formatNumber(question.totalCorrectAnswers)}
           </Text>
           {"  "}Correct attempts
         </Text>
         <Animated.View style={{ maxHeight: heightAnim }}>
-          <Text className="text-sm color-slate-300 font-plight">
+          <Text
+            className={`text-sm font-plight ${
+              currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
+            }`}>
             {expanded
               ? question.description
               : question.description.substring(0, 45)}
@@ -177,7 +228,10 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
         </Animated.View>
         {question.description.length > 100 && (
           <TouchableOpacity onPress={toggleExpanded}>
-            <Text className="text-blue-500 text-xs">
+            <Text
+              className={`text-xs ${
+                currentTheme === "dark" ? "text-blue-400" : "text-indigo-600"
+              }`}>
               {expanded ? "Less" : "More"}
             </Text>
           </TouchableOpacity>
