@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, FlatList, Image, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
 
 interface Notification {
   id: string;
@@ -11,10 +12,11 @@ interface Notification {
   date: string;
   avatar: string;
   isRead: boolean;
-  bgColor: string;
 }
 
 const NotificationScreen = () => {
+  const currentTheme = useSelector((state: any) => state.theme.mode);
+
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: "1",
@@ -24,7 +26,6 @@ const NotificationScreen = () => {
       date: "Today",
       avatar: "https://randomuser.me/api/portraits/women/44.jpg",
       isRead: false,
-      bgColor: "bg-blue-100",
     },
     {
       id: "2",
@@ -34,7 +35,6 @@ const NotificationScreen = () => {
       date: "Today",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
       isRead: false,
-      bgColor: "bg-blue-100",
     },
     {
       id: "3",
@@ -44,7 +44,6 @@ const NotificationScreen = () => {
       date: "November 26, 2020",
       avatar: "https://randomuser.me/api/portraits/women/25.jpg",
       isRead: true,
-      bgColor: "bg-yellow-100",
     },
     {
       id: "4",
@@ -54,37 +53,6 @@ const NotificationScreen = () => {
       date: "November 25, 2020",
       avatar: "https://randomuser.me/api/portraits/men/23.jpg",
       isRead: true,
-      bgColor: "bg-pink-100",
-    },
-    {
-      id: "5",
-      user: "Stephen",
-      message: "Has a new post: 'Lorem Ipsum is simply dummy text...'",
-      time: "4 days ago - 05:00 PM",
-      date: "November 25, 2020",
-      avatar: "https://randomuser.me/api/portraits/men/23.jpg",
-      isRead: true,
-      bgColor: "bg-pink-100",
-    },
-    {
-      id: "6",
-      user: "Stephen",
-      message: "Has a new post: 'Lorem Ipsum is simply dummy text...'",
-      time: "4 days ago - 05:00 PM",
-      date: "November 25, 2020",
-      avatar: "https://randomuser.me/api/portraits/men/23.jpg",
-      isRead: true,
-      bgColor: "bg-pink-100",
-    },
-    {
-      id: "7",
-      user: "Stephen",
-      message: "Has a new post: 'Lorem Ipsum is simply dummy text...'",
-      time: "4 days ago - 05:00 PM",
-      date: "November 25, 2020",
-      avatar: "https://randomuser.me/api/portraits/men/23.jpg",
-      isRead: true,
-      bgColor: "bg-pink-100",
     },
   ]);
 
@@ -93,16 +61,38 @@ const NotificationScreen = () => {
   };
 
   const renderItem = ({ item }: { item: Notification }) => (
-    <View className={`rounded-lg p-4 my-2 mx-4 bg-card`}>
-      <View className="flex-row items-center space-x-3">
+    <View
+      className={`w-[94%] self-center p-5 mb-4 rounded-2xl border shadow-xl ${
+        currentTheme === "dark"
+          ? "bg-neutral-800 border-neutral-700"
+          : "bg-gray-50 border-gray-200"
+      }`}
+    >
+      <View className="flex-row items-center space-x-4">
         <Image
           source={{ uri: item.avatar }}
-          className="w-12 h-12 rounded-full mx-2"
+          className="w-12 h-12 rounded-full"
         />
         <View className="flex-1">
-          <Text className="font-psemibold text-gray-200">{item.user}</Text>
-          <Text className="text-gray-400 font-pregular">{item.message}</Text>
-          <Text className="text-gray-400 text-xs mt-1 font-pextralight">
+          <Text
+            className={`font-psemibold text-base ${
+              currentTheme === "dark" ? "text-gray-100" : "text-gray-800"
+            }`}
+          >
+            {item.user}
+          </Text>
+          <Text
+            className={`font-pregular text-sm ${
+              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
+            {item.message}
+          </Text>
+          <Text
+            className={`text-xs mt-1 font-pextralight ${
+              currentTheme === "dark" ? "text-gray-400" : "text-gray-500"
+            }`}
+          >
             {item.time}
           </Text>
         </View>
@@ -111,15 +101,33 @@ const NotificationScreen = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView
+      className={`flex-1 ${
+        currentTheme === "dark" ? "bg-black" : "bg-[#f1f3fc]"
+      }`}
+    >
       {/* Header */}
       <View className="flex-row justify-between items-center px-5 py-3">
         <Pressable>
-          <Ionicons name="arrow-back" size={24} color="white" />
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={currentTheme === "dark" ? "white" : "black"}
+          />
         </Pressable>
-        <Text className="text-white text-lg font-psemibold">Notification</Text>
+        <Text
+          className={`text-lg font-psemibold ${
+            currentTheme === "dark" ? "text-white" : "text-black"
+          }`}
+        >
+          Notification
+        </Text>
         <Pressable onPress={markAllAsRead}>
-          <Text className="text-blue-400 text-sm font-pregular">
+          <Text
+            className={`text-sm font-pregular ${
+              currentTheme === "dark" ? "text-blue-400" : "text-indigo-600"
+            }`}
+          >
             Mark All as Read
           </Text>
         </Pressable>
@@ -137,3 +145,4 @@ const NotificationScreen = () => {
 };
 
 export default NotificationScreen;
+  

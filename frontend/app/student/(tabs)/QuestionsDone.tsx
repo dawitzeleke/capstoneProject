@@ -1,48 +1,74 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useState } from "react";
-import { SavedQuestionCard } from "@/components/SavedQuestionCard";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { TouchableOpacity } from "react-native";
+import { SavedQuestionCard } from "@/components/SavedQuestionCard";
 import { Link } from "expo-router";
 import { Entypo, Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const QuestionsDone = () => {
   const [selectedTab, setSelectedTab] = useState("Correct");
   const savedQuestions = useSelector(
     (state: RootState) => state.questions.data
   );
+  const currentTheme = useSelector((state: any) => state.theme.mode);
 
-  // Filter based on selected tab
   const filteredQuestions = savedQuestions.filter((q) =>
     selectedTab === "Correct" ? q.isCorrect : !q.isCorrect
   );
 
   return (
-    <View className="flex-1 bg-primary px-4 pt-6">
-      <View className="flex-row justify-between items-center mb-6">
-        <Link
-          href="/student/(tabs)/Profile"
-          className="text-lg text-blue-500 font-pregular">
-          <Ionicons name="chevron-back" size={20} color="gray" />
+    <SafeAreaView
+      className={`flex-1  ${
+        currentTheme === "dark" ? "bg-black" : "bg-[#f1f3fc]"
+      }`}>
+      {/* 🔹 Header */}
+      <View className="flex-row justify-between py-6 px-2  items-center mb-6">
+        <Link href="/student/(tabs)/Profile">
+          <Ionicons
+            name="chevron-back"
+            size={24}
+            color={currentTheme === "dark" ? "white" : "black"}
+          />
         </Link>
-        <Text className="text-white text-2xl font-pbold">Leaderboard</Text>
+        <Text
+          className={`text-2xl font-pbold ${
+            currentTheme === "dark" ? "text-white" : "text-black"
+          }`}>
+          Leaderboard
+        </Text>
         <TouchableOpacity>
-          <Entypo name="dots-three-vertical" size={20} color="white" />
+          <Entypo
+            name="dots-three-vertical"
+            size={20}
+            color={currentTheme === "dark" ? "white" : "black"}
+          />
         </TouchableOpacity>
       </View>
+
       {/* 🔹 Tabs */}
-      <View className="flex-row justify-around mb-6 bg-[#1A233A] p-2 rounded-full">
+      <View className={`flex-row justify-around mb-6 p-2 rounded-full`}>
         {["Correct", "Incorrect"].map((tab) => (
           <TouchableOpacity
             key={tab}
             onPress={() => setSelectedTab(tab)}
-            className={`py-2 px-6 rounded-full ${
-              selectedTab === tab ? "bg-white" : "bg-transparent"
+            className={`py-4 px-6 rounded-lg ${
+              selectedTab === tab
+                ? currentTheme === "dark"
+                  ? "bg-[#4F46E5]"
+                  : "bg-[#4F46E5]"
+                : "bg-transparent"
             }`}>
             <Text
               className={`text-sm font-psemibold ${
-                selectedTab === tab ? "text-black" : "text-gray-400"
+                selectedTab === tab
+                  ? currentTheme === "dark"
+                    ? "text-white"
+                    : "text-white"
+                  : currentTheme === "dark"
+                  ? "text-gray-400"
+                  : "text-gray-600"
               }`}>
               {tab}
             </Text>
@@ -50,7 +76,7 @@ const QuestionsDone = () => {
         ))}
       </View>
 
-      {/* 🔹 Question List */}
+      {/* 🔹 Questions List */}
       <ScrollView showsVerticalScrollIndicator={false}>
         {filteredQuestions.length > 0 ? (
           filteredQuestions.map((q) => (
@@ -63,12 +89,16 @@ const QuestionsDone = () => {
             />
           ))
         ) : (
-          <Text className="text-center text-gray-400 font-pregular mt-20">
+          <Text
+            className={`text-center mt-20 font-pregular ${
+              currentTheme === "dark" ? "text-gray-500" : "text-gray-400"
+            }`}>
             No questions in this category yet.
           </Text>
         )}
+        <View className="h-4" />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
