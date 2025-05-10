@@ -7,7 +7,7 @@ import { fetchNotifications, removeMultipleNotifications } from '@/redux/teacher
 import { RootState } from '@/redux/store';
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-
+import type { Notification as AppNotification } from '@/redux/teacherReducer/notificationsSlice';
 
 const NotificationsScreen = () => {
   const dispatch = useAppDispatch();
@@ -24,7 +24,7 @@ const NotificationsScreen = () => {
     setSelectedIds([]);
   };
 
-  const groupedNotifications = items.reduce((acc: Record<string, Notification[]>, notification) => {
+  const groupedNotifications = items.reduce((acc: Record<string, AppNotification[]>, notification) => {
     const date = format(new Date(notification.timestamp), 'MMMM d, yyyy');
     if (!acc[date]) acc[date] = [];
     acc[date].push(notification);
@@ -87,7 +87,7 @@ const NotificationsScreen = () => {
         renderItem={({ item: [date, notifications] }) => (
           <View className="px-4">
             <Text className="text-gray-500 text-sm font-medium py-3">{date}</Text>
-            {notifications.map((notification: Notification) => (
+            {notifications.map((notification: AppNotification) => (
               <NotificationItem
                 key={notification.id}
                 notification={notification}

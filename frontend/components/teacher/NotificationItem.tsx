@@ -1,4 +1,3 @@
-// NotificationItem.tsx
 import { View, Text, TouchableOpacity, Image, Pressable } from 'react-native'; // Added Pressable
 import { useDispatch } from 'react-redux';
 import { markAsRead, removeNotification } from '@/redux/teacherReducer/notificationsSlice';
