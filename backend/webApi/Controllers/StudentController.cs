@@ -20,13 +20,13 @@ public class StudentsController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
-    
+
     [Authorize]
-    [HttpPut("settings")]
+    [HttpPatch("settings")]
     public async Task<IActionResult> UpdateSettings([FromForm] UpdateStudentSettingsCommand command)
     {
         var result = await _mediator.Send(command);
-        return result ? Ok() : BadRequest("Update failed");
+        return result ? Ok("Student Updated Succefully") : BadRequest("Update failed");
     }
 
     [HttpGet("{studentId}/following")]
@@ -35,4 +35,5 @@ public class StudentsController : ControllerBase
         var result = await _mediator.Send(new GetStudentFollowingQuery { StudentId = studentId });
         return Ok(result);
     }
+
 }

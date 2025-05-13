@@ -9,7 +9,11 @@ namespace backend.Application.Mappings
     {
         public MappingProfile()
         {
-            CreateMap<UpdateStudentSettingsCommand, Student>();
+            CreateMap<UpdateStudentSettingsCommand, Student>()
+            .ForMember(dest => dest.ProfilePictureUrl, opt => opt.Ignore())
+            .ForMember(dest => dest.ProfilePicturePublicId, opt => opt.Ignore())
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
+            
             CreateMap<UpdateTeacherSettingsCommand, Teacher>()
             .ForMember(dest => dest.ProfilePictureUrl, opt => opt.Ignore())
             .ForMember(dest => dest.ProfilePicturePublicId, opt => opt.Ignore())

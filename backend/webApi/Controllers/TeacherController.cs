@@ -45,7 +45,7 @@ public class TeachersController : ControllerBase
     }
 
     [Authorize]
-    [HttpPut("settings")]
+    [HttpPatch("settings")]
     public async Task<IActionResult> UpdateSettings([FromForm] UpdateTeacherSettingsCommand request)
     {
         var result = await _mediator.Send(request);

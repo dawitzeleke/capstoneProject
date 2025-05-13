@@ -34,10 +34,17 @@ public class CloudinaryService : ICloudinaryService
     }
     public async Task<bool> Delete(string publicId)
     {
-        var deleteParams = new DeletionParams(publicId);
-        var result = await _cloudinary.DestroyAsync(deleteParams);
-        return result.Result == "ok" ? true : false;
+        var deletionParams = new DeletionParams(publicId)
+        {
+            ResourceType = ResourceType.Raw 
+        };
+
+        var result = await _cloudinary.DestroyAsync(deletionParams);
+        Console.WriteLine($"Cloudinary delete result: {result.Result} for {publicId}");
+
+        return result.Result == "ok" || result.Result == "not found";
     }
+
 
     public async Task<UploadResponse> UploadVideoAsync(Stream video)
     {
@@ -75,22 +82,22 @@ public class CloudinaryService : ICloudinaryService
         };
         return response;
     }
-    public async Task<UploadResponse> UpdateFileAsync(IFormFile file, string publicId)
-    {
-        var uploadParams = new RawUploadParams
-        {
-            File = new FileDescription(file.FileName, file.OpenReadStream()),
-            PublicId = publicId,
-        };
+    // public async Task<UploadResponse> UpdateFileAsync(IFormFile file, string publicId)
+    // {
+    //     var uploadParams = new RawUploadParams
+    //     {
+    //         File = new FileDescription(file.FileName, file.OpenReadStream()),
+    //         PublicId = publicId,
+    //     };
 
-        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+    //     var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
-        var response = new UploadResponse
-        {
-            Url = uploadResult.Url.ToString(),
-            PublicId = uploadResult.PublicId,
-        };
-        return response;
-    }
+    //     var response = new UploadResponse
+    //     {
+    //         Url = uploadResult.Url.ToString(),
+    //         PublicId = uploadResult.PublicId,
+    //     };
+    //     return response;
+    // }
 
 }

@@ -28,12 +28,39 @@ public class UpdateTeacherSettingsCommandHandler : IRequestHandler<UpdateTeacher
         var teacher = await _teacherRepository.GetByIdAsync(_currentUserService.UserId);
         if (teacher == null)
             throw new Exception("Teacher not found");
-        var userName = await _teacherRepository.GetByUserNameAsync(request.UserName);
-        if (userName != null)
-            throw new Exception("Username already exists");
+
+        if (!string.IsNullOrWhiteSpace(request.UserName))
+        {
+            var existingUser = await _teacherRepository.GetByUserNameAsync(request.UserName);
+            if (existingUser != null && existingUser.Id != teacher.Id)
+                throw new Exception("Username already exists");
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Email))
+        {
+            var existingUser = await _teacherRepository.GetByEmailAsync(request.Email);
+            if (existingUser != null && existingUser.Id != teacher.Id)
+                throw new Exception("Email already exists");
+        }
+
+        if (request.RemoveProfilePicture)
+        {
+            if (!string.IsNullOrEmpty(teacher.ProfilePicturePublicId))
+            {
+                await _cloudinaryService.Delete(teacher.ProfilePicturePublicId);
+            }
+
+            teacher.ProfilePictureUrl = null;
+            teacher.ProfilePicturePublicId = null;
+        }
 
         if (request.ProfilePicture != null)
         {
+            if (!string.IsNullOrEmpty(teacher.ProfilePicturePublicId))
+            {
+                await _cloudinaryService.Delete(teacher.ProfilePicturePublicId);
+            }
+
             var uploadResult = await _cloudinaryService.UploadFileAsync(request.ProfilePicture, "ProfilePictures");
 
             if (uploadResult == null || string.IsNullOrWhiteSpace(uploadResult.Url))
@@ -43,7 +70,20 @@ public class UpdateTeacherSettingsCommandHandler : IRequestHandler<UpdateTeacher
             teacher.ProfilePicturePublicId = uploadResult.PublicId;
         }
 
-        _mapper.Map(request, teacher); 
+        if (!string.IsNullOrWhiteSpace(request.FirstName))
+            teacher.FirstName = request.FirstName;
+
+        if (!string.IsNullOrWhiteSpace(request.LastName))
+            teacher.LastName = request.LastName;
+
+        if (!string.IsNullOrWhiteSpace(request.Email))
+            teacher.Email = request.Email;
+
+        if (!string.IsNullOrWhiteSpace(request.UserName))
+            teacher.UserName = request.UserName;
+
+        if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+            teacher.PhoneNumber = request.PhoneNumber;
 
         await _teacherRepository.UpdateAsync(teacher);
         return true;
