@@ -5,8 +5,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { Link, useRouter } from "expo-router";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
-import favicon from "@/constants/images";
-import { api } from "@/scripts/api";
+import httpRequest from "@/util/httpRequest";
 import { saveToken } from "@/scripts/storage";
 
 const SignUp = () => {
@@ -31,31 +30,34 @@ const SignUp = () => {
       formData.append("email", form.email);
       formData.append("password", form.password);
       formData.append("phoneNumber", form.phoneNumber);
-      
+
       if (userType === "Student") {
         formData.append("grade", form.grade);
       }
 
-      const endpoint = userType === "Student" 
-        ? "/api/auth/student/signup" 
-        : "/api/auth/teacher/signup";
+      const endpoint =
+        userType === "Student"
+          ? "/api/auth/student/signup"
+          : "/api/auth/teacher/signup";
 
-      const response = await api.post(endpoint, formData, {
+      // Using httpRequest to make the API call
+      const response = await httpRequest(endpoint, formData, "POST", {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log("Signup response:", response.data);
-      await saveToken(response.data.token);
-      console.log("Signup response:", response.data);
+
+      console.log("Signup response:", response);
+      await saveToken(response.token); // Save the received token
+      console.log("Signup response:", response);
+
       router.replace(
         userType === "Student"
           ? "/student/(tabs)/Home"
           : "/teacher/TeacherVerification"
       );
-      console.log("Signup response:", response.data);
-    } catch (error : any) {
-      console.error("Signup error:", error?.response?.data || error.message);
+    } catch (error: any) {
+      console.error("Signup error:", error?.response || error.message);
       alert("Signup failed. Please check your input or try again.");
     } finally {
       setSubmitting(false);
@@ -63,40 +65,40 @@ const SignUp = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-[#f1f3fc] h-full">
       <ScrollView>
         <View className="w-full justify-center min-h-[85vh] px-4 my-6">
-          <Image
+          {/* <Image
             source={favicon}
             resizeMode="contain"
             className="w-[115px] h-[35px]"
-          />
+          /> */}
 
-          <View className="flex-row justify-between mt-10 rounded-lg p-2">
+          <View className="flex-row justify-between mt-10 rounded-lg p-2 gap-2">
             <CustomButton
               title="Student"
               handlePress={() => setUserType("Student")}
               containerStyles={`flex-1 p-3 rounded-lg ${
-                userType === "Student" ? "bg-white" : "bg-transparent"
+                userType === "Student" ? "bg-[#4F46E5]" : "bg-transparent"
               }`}
-              textStyles={
-                userType === "Student" ? "text-gray-800" : "text-white"
-              }
+              textStyles={`text-center font-medium ${
+                userType === "Student" ? "text-white" : "text-gray-400"
+              }`}
             />
 
             <CustomButton
               title="Teacher"
               handlePress={() => setUserType("Teacher")}
               containerStyles={`flex-1 p-3 rounded-lg ${
-                userType === "Teacher" ? "bg-white" : "bg-transparent"
+                userType === "Teacher" ? "bg-[#4F46E5]" : "bg-transparent"
               }`}
-              textStyles={
-                userType === "Teacher" ? "text-gray-800" : "text-white"
-              }
+              textStyles={`text-center font-medium ${
+                userType === "Teacher" ? "text-white" : "text-gray-400"
+              }`}
             />
           </View>
 
-          <Text className="text-2xl text-white font-semibold mt-5">
+          <Text className="text-2xl text-gray-800 font-semibold mt-5">
             {userType} Sign Up
           </Text>
 
@@ -164,13 +166,12 @@ const SignUp = () => {
           />
 
           <View className="justify-center pt-5 flex-row gap-2">
-            <Text className="text-lg text-gray-100 font-pregular">
+            <Text className="text-lg text-gray-400 font-pregular">
               Already Have an account?
             </Text>
             <Link
               href="/SignIn"
-              className="text-lg font-pregular text-blue-500"
-            >
+              className="text-lg font-pregular text-blue-500">
               Sign In
             </Link>
           </View>

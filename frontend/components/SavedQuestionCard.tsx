@@ -1,15 +1,15 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import { FC, useState } from "react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
 import { removeSavedQuestion } from "@/redux/savedQuestionsReducer/savedQuestionActions";
 
 interface SavedQuestionCardProps {
   subject: string;
   question: string;
   author: string;
-  id: string; 
+  id: string;
 }
 
 export const SavedQuestionCard: FC<SavedQuestionCardProps> = ({
@@ -19,7 +19,8 @@ export const SavedQuestionCard: FC<SavedQuestionCardProps> = ({
   id,
 }) => {
   const [menuVisible, setMenuVisible] = useState(false);
-   const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
+  const theme = useSelector((state: RootState) => state.theme.mode);
 
   const handleRemove = () => {
     dispatch(removeSavedQuestion(id));
@@ -27,25 +28,64 @@ export const SavedQuestionCard: FC<SavedQuestionCardProps> = ({
   };
 
   return (
-    <View className="bg-card p-6 rounded-xl mb-4 relative">
+    <View
+      className={`w-[99%] p-5 mb-4 rounded-2xl border shadow-xl ${
+        theme === "dark"
+          ? "bg-neutral-800 border-neutral-700"
+          : "bg-gray-50 border-gray-200"
+      }`}
+    >
+      {/* Menu Icon */}
       <TouchableOpacity
-        className="absolute right-4 top-4 z-10"
+        className="absolute top-3 right-3"
         onPress={() => setMenuVisible((prev) => !prev)}
       >
-        <Entypo name="dots-three-vertical" size={16} color="gray" />
+        <Entypo name="dots-three-vertical" size={18} color="#888" />
       </TouchableOpacity>
 
+      {/* Dropdown Menu */}
       {menuVisible && (
-        <View className="absolute right-4 top-10 bg-option rounded-md p-4 z-20 shadow-md">
+        <View
+          className={`absolute top-10 right-3 px-4 py-2 rounded-lg border shadow-lg z-10 ${
+            theme === "dark"
+              ? "bg-neutral-700 border-neutral-600"
+              : "bg-white border-gray-200"
+          }`}
+        >
           <TouchableOpacity onPress={handleRemove}>
-            <Text className="text-gray-400 text-lg font-pregular">Remove</Text>
+            <Text
+              className={`text-sm font-pmedium ${
+                theme === "dark" ? "text-gray-200" : "text-gray-600"
+              }`}
+            >
+              Remove
+            </Text>
           </TouchableOpacity>
         </View>
       )}
 
-      <Text className="text-xl text-gray-300 font-pbold mb-1">{subject}</Text>
-      <Text className="text-lg font-pregular text-gray-400 mb-2">{question}</Text>
-      <Text className="text-lg text-white font-pthin">By {author}</Text>
+      {/* Content */}
+      <Text
+        className={`text-lg font-psemibold mb-1 ${
+          theme === "dark" ? "text-gray-100" : "text-gray-800"
+        }`}
+      >
+        {subject}
+      </Text>
+      <Text
+        className={`text-base font-pregular mb-2 ${
+          theme === "dark" ? "text-gray-300" : "text-gray-700"
+        }`}
+      >
+        {question}
+      </Text>
+      <Text
+        className={`text-sm font-pthin ${
+          theme === "dark" ? "text-gray-400" : "text-gray-500"
+        }`}
+      >
+        By {author}
+      </Text>
     </View>
   );
 };

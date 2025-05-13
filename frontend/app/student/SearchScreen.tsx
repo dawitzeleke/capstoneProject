@@ -11,55 +11,79 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 import { setTeacherData } from "../../redux/teacherReducer/teacherActions";
 import TeacherItem from "@/components/TeacherItem";
-import { RootState, AppDispatch } from "../../redux/store"; // Import RootState and AppDispatch
+import { RootState, AppDispatch } from "../../redux/store";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
-  const dispatch = useDispatch<AppDispatch>(); // Correctly type dispatch with AppDispatch
-
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
-  // Access the teachers from Redux store
+  const currentTheme = useSelector((state: RootState) => state.theme.mode);
   const teachers = useSelector((state: RootState) => state.teacher.teachers);
 
-  // Filter teachers based on the search query
   const filteredTeachers = teachers.filter((teacher) =>
     teacher.name.toLowerCase().includes(query.toLowerCase())
   );
 
-  // Handle teacher selection and dispatch to the store
   const handlePress = (teacher: (typeof teachers)[0]) => {
-    dispatch(setTeacherData(teacher)); // Dispatch the selected teacher
-    console.log(teacher);
+    dispatch(setTeacherData(teacher));
     router.push("/student/(tabs)/TeacherDetail");
   };
 
   return (
-    <View className="flex-1 bg-primary px-4 pt-4">
+    <View
+      className={`flex-1 px-4 pt-4 ${
+        currentTheme === "dark" ? "bg-black" : "bg-[#f1f3fc]"
+      }`}>
       {/* Search Bar */}
-      <View className="flex-row items-center bg-gray-700 p-3 rounded-full mb-5">
-        <Ionicons name="search" size={20} color="white" />
+      <View
+        className={`flex-row items-center p-3 rounded-full mb-5 ${
+          currentTheme === "dark" ? "bg-neutral-800" : "bg-white"
+        }`}>
+        <Ionicons
+          name="search"
+          size={20}
+          color={currentTheme === "dark" ? "white" : "black"}
+        />
         <TextInput
           placeholder="Search teacher"
-          placeholderTextColor="#ccc"
+          placeholderTextColor={currentTheme === "dark" ? "#ccc" : "#888"}
           value={query}
           onChangeText={setQuery}
-          className="flex-1 ml-3 text-white font-pregular"
+          className={`flex-1 ml-3 font-pregular ${
+            currentTheme === "dark" ? "text-white" : "text-black"
+          }`}
         />
       </View>
 
       {/* Toggle Buttons */}
       <View className="flex-row justify-between mb-5">
-        <TouchableOpacity className="bg-cyan-700 px-5 py-3 rounded-xl">
+        <TouchableOpacity
+          className={`px-5 py-3 rounded-xl ${
+            currentTheme === "dark" ? "bg-indigo-700" : "bg-indigo-600"
+          }`}>
           <Text className="text-white font-psemibold text-base">Teacher</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="bg-gray-700 px-5 py-3 rounded-xl">
-          <Text className="text-white font-psemibold text-base">Content</Text>
+        <TouchableOpacity
+          className={`px-5 py-3 rounded-xl ${
+            currentTheme === "dark" ? "bg-neutral-700" : "bg-gray-300"
+          }`}>
+          <Text
+            className={`font-psemibold text-base ${
+              currentTheme === "dark" ? "text-white" : "text-black"
+            }`}>
+            Content
+          </Text>
         </TouchableOpacity>
       </View>
 
       {/* Top Rated Teachers */}
-      <Text className="text-lg font-pbold text-white mb-3">Top Rated</Text>
+      <Text
+        className={`text-lg font-pbold mb-3 ${
+          currentTheme === "dark" ? "text-white" : "text-black"
+        }`}>
+        Top Rated
+      </Text>
       <FlatList
         data={filteredTeachers}
         keyExtractor={(item) => item.id}
@@ -71,11 +95,15 @@ const SearchScreen = () => {
             questions={item.questions}
             imageUrl={item.imageUrl}
             onPress={() => handlePress(item)}
+            theme={currentTheme}
           />
         )}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <Text className="text-center text-gray-400 mt-10">
+          <Text
+            className={`text-center mt-10 ${
+              currentTheme === "dark" ? "text-gray-400" : "text-gray-500"
+            }`}>
             No matching teachers found.
           </Text>
         }

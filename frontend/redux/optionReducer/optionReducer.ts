@@ -22,7 +22,6 @@ const optionReducer = (
 
     case optionsActionTypes.OPEN_OPTION:
       console.log(state.isReportOpen);
-      console.log("hehere");
       return {
         ...state,
         isOptionsOpen: !state.isOptionsOpen,
