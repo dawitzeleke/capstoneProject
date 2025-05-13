@@ -17,4 +17,13 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
     {
         return await _students.Find(user => user.Email == email).FirstOrDefaultAsync();
     }
+    public async Task<bool> UpdateAsync(Student student)
+    {
+        var result = await _students.ReplaceOneAsync(x => x.Id == student.Id, student);
+        return result.IsAcknowledged && result.ModifiedCount > 0;
+    }
+    public async Task<Student> GetByUserNameAsync(string userName)
+    {
+        return await _students.Find(user => user.UserName == userName).FirstOrDefaultAsync();
+    }
 }

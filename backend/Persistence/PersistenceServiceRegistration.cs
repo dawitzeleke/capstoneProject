@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using backend.Domain.Common;
 using backend.Domain.Entities;
 using Domain.Entities;
+using backend.Application.Mappings;
 
 namespace backend.Persistence;
 
@@ -55,9 +56,14 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IPasswordHasher<Student>, PasswordHasher<Student>>();
         services.AddScoped<IPasswordHasher<Teacher>, PasswordHasher<Teacher>>();
         services.AddScoped<IPasswordHasher<Admin>, PasswordHasher<Admin>>();
+        
+        services.AddAutoMapper(typeof(MappingProfile));
+        services.AddScoped<IFollowRepository, FollowRepository>();
         services.AddScoped<IVideoContentRepository, VideoContentRepository>();
         services.AddScoped<IImageContentRepository, ImageContentRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IEmailService, EmailService>();
         return services;
     }
 }

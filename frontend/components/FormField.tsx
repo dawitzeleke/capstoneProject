@@ -27,10 +27,10 @@ const FormField: React.FC<FormFieldProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   return (
     <View className={` space-y-2 ${otherStyles}`}>
-      <Text className="text-base text-gray-100 font-pmedium">{title}</Text>
-      <View className="w-full px-4 h-16 bg-gray-800 rounded-2xl flex-row items-center">
+      <Text className="text-base text-gray-600 font-pmedium">{title}</Text>
+      <View className="w-full px-4 h-16 bg-gray-300 rounded-2xl flex-row items-center">
         <TextInput
-          className="text-base font-psemibold flex-1 text-white bg-transparent"
+          className="text-base font-psemibold flex-1 text-gray-800 bg-transparent"
           placeholder={placeholder}
           placeholderTextColor="#7b7b8b"
           onChangeText={handleChangeText}
