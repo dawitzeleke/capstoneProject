@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -19,7 +20,8 @@ public class StudentsController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
-
+    
+    [Authorize]
     [HttpPut("settings")]
     public async Task<IActionResult> UpdateSettings([FromForm] UpdateStudentSettingsCommand command)
     {

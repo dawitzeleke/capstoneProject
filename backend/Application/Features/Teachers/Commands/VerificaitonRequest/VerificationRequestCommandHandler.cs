@@ -38,9 +38,9 @@ public class VerificationRequestCommandHandler : IRequestHandler<VerificationReq
             throw new Exception("Failed to upload graduation document");
 
         teacher.VerificationStatus = VerificationStatus.Pending;
-        teacher.LicenseDocumentUrl = UploadTeacherLicense.Url;
-        teacher.GraduationDocumentUrl = UploadTeacherGraduation.Url;    
         teacher.VerificationRequestDate = DateTime.UtcNow;
+        teacher.LicenseDocumentUrl = UploadTeacherLicense.Url;
+        teacher.GraduationDocumentUrl = UploadTeacherGraduation.Url;  
 
         await _teacherRepository.UpdateAsync(teacher);
         return true;

@@ -43,4 +43,15 @@ public class TeachersController : ControllerBase
 
         return Ok("Verification request sent successfully.");
     }
+
+    [Authorize]
+    [HttpPut("settings")]
+    public async Task<IActionResult> UpdateSettings([FromForm] UpdateTeacherSettingsCommand request)
+    {
+        var result = await _mediator.Send(request);
+        if (!result)
+            return BadRequest("Failed to update settings.");
+
+        return Ok("Settings updated successfully.");
+    }
 }

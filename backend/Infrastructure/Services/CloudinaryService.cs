@@ -56,7 +56,7 @@ public class CloudinaryService : ICloudinaryService
         };
         return response;
     }
-    
+
     public async Task<UploadResponse> UploadFileAsync(IFormFile file, string folder)
     {
         var uploadParams = new RawUploadParams
@@ -64,6 +64,23 @@ public class CloudinaryService : ICloudinaryService
             File = new FileDescription(file.FileName, file.OpenReadStream()),
             Folder = folder,
             PublicId = file.FileName,
+        };
+
+        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+        var response = new UploadResponse
+        {
+            Url = uploadResult.Url.ToString(),
+            PublicId = uploadResult.PublicId,
+        };
+        return response;
+    }
+    public async Task<UploadResponse> UpdateFileAsync(IFormFile file, string publicId)
+    {
+        var uploadParams = new RawUploadParams
+        {
+            File = new FileDescription(file.FileName, file.OpenReadStream()),
+            PublicId = publicId,
         };
 
         var uploadResult = await _cloudinary.UploadAsync(uploadParams);

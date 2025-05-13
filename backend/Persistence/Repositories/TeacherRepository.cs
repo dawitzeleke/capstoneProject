@@ -5,7 +5,7 @@ using MongoDB.Driver;
 
 namespace backend.Persistence.Repositories;
 
-public class TeacherRepository: GenericRepository<Teacher>, ITeacherRepository
+public class TeacherRepository : GenericRepository<Teacher>, ITeacherRepository
 {
     private readonly IMongoCollection<Teacher> _teachers;
     public TeacherRepository(MongoDbContext context) : base(context)
@@ -22,5 +22,11 @@ public class TeacherRepository: GenericRepository<Teacher>, ITeacherRepository
     {
         var filter = Builders<Teacher>.Filter.In(teacher => teacher.Id, ids);
         return await _teachers.Find(filter).ToListAsync();
+    }
+
+    public async Task<Teacher> GetByUserNameAsync(string userName)
+    {
+        var result = await _collection.Find(x => x.UserName == userName).FirstOrDefaultAsync();
+        return result;
     }
 }

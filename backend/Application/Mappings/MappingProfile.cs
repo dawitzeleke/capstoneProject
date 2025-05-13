@@ -1,6 +1,7 @@
 using AutoMapper;
 using backend.Domain.Common;
 using backend.Domain.Entities;
+using Domain.Entities;
 
 namespace backend.Application.Mappings
 {
@@ -9,6 +10,10 @@ namespace backend.Application.Mappings
         public MappingProfile()
         {
             CreateMap<UpdateStudentSettingsCommand, Student>();
+            CreateMap<UpdateTeacherSettingsCommand, Teacher>()
+            .ForMember(dest => dest.ProfilePictureUrl, opt => opt.Ignore())
+            .ForMember(dest => dest.ProfilePicturePublicId, opt => opt.Ignore())
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
         }
     }
 }

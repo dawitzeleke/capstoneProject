@@ -19,7 +19,9 @@ namespace backend.Domain.Common
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string PhoneNumber { get; set; }
+        public string UserName { get; set; }
         public string ProfilePictureUrl { get; set; }
+        public string ProfilePicturePublicId { get; set; }
         public string NationalId { get; set; }
 
         //public string IsBanned { get; set; }

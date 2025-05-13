@@ -9,4 +9,6 @@ public interface ICloudinaryService
     Task<UploadResponse> UploadVideoAsync(Stream video);
     Task<bool> Delete(string publicId);
 
+    Task<UploadResponse> UpdateFileAsync(IFormFile file, string publicId);
+
 }
