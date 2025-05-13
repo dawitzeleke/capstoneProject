@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   ScrollView,
   Pressable,
-  StyleSheet,
   TextInput,
-  Alert,
+  Modal,
+  ActivityIndicator,
+  useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import AppHeader from "@/components/teacher/Header";
+import SearchFilter from "@/components/teacher/SearchFilter";
 
 interface QuestionItem {
   id: string;
@@ -19,11 +23,29 @@ interface QuestionItem {
 }
 
 const ContentListScreen = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "posted" | "draft">("all");
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredQuestions, setFilteredQuestions] = useState<QuestionItem[]>(
+    []
+  );
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [currentEditItem, setCurrentEditItem] = useState<QuestionItem | null>(
+    null
+  );
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [originalEditItem, setOriginalEditItem] = useState<QuestionItem | null>(
+    null
+  );
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const { width } = useWindowDimensions();
+  const [showSearch, setShowSearch] = useState(false);
   const [questions, setQuestions] = useState<QuestionItem[]>([
     {
       id: "1",
@@ -46,17 +68,19 @@ const ContentListScreen = () => {
     },
   ]);
 
-  const filteredQuestions = questions.filter((item) => {
-    const matchesTab = activeTab === "all" ? true : item.status === activeTab;
-    const matchesSearch =
-      item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.options
-        .join(" ")
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      item.date.includes(searchQuery);
-    return matchesTab && matchesSearch;
-  });
+  const [displayQuestions, setDisplayQuestions] = useState<QuestionItem[]>([]);
+
+  useEffect(() => {
+    setFilteredQuestions(questions);
+  }, [questions]);
+
+  useEffect(() => {
+    const tabFiltered =
+      activeTab === "all"
+        ? filteredQuestions
+        : filteredQuestions.filter((item) => item.status === activeTab);
+    setDisplayQuestions(tabFiltered);
+  }, [activeTab, filteredQuestions]);
 
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) =>
@@ -64,357 +88,132 @@ const ContentListScreen = () => {
     );
   };
 
-  const handleDelete = (id: string) => {
-    Alert.alert(
-      "Delete Question",
-      "Are you sure you want to delete this question?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            setQuestions((prev) =>
-              prev.filter((question) => question.id !== id)
-            );
-            setSelectedIds((prev) => prev.filter((itemId) => itemId !== id));
-          },
-        },
-      ]
-    );
-  };
-
-  const handleBulkDelete = () => {
-    Alert.alert(
-      "Delete Selected",
-      `Are you sure you want to delete ${selectedIds.length} items?`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            setQuestions((prev) =>
-              prev.filter((question) => !selectedIds.includes(question.id))
-            );
-            setSelectedIds([]);
-          },
-        },
-      ]
-    );
-  };
-
-  const handleEdit = (id: string) => {
-    // Implement edit logic
-  };
-
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Content List</Text>
-        <Pressable
-          onPress={() => setShowSearch(!showSearch)}
-          style={styles.searchIcon}
-        >
-          <Ionicons name="search" size={24} color="#4F46E5" />
-        </Pressable>
-      </View>
-
-      {showSearch && (
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search questions, options or dates..."
-            placeholderTextColor="#94a3b8"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            autoFocus
+    <View className="flex-1 bg-slate-50">
+      <ScrollView className="flex-1">
+        <View className="bg-white pb-2 border-b border-gray-200">
+          <AppHeader
+            title="Content Management"
+            onBack={() => router.back()}
+            buttons={[
+              {
+                component: (
+                  <Pressable onPress={() => setShowSearch(!showSearch)}>
+                    <Ionicons
+                      name={showSearch ? "close" : "search"}
+                      size={24}
+                      color="#4F46E5"
+                    />
+                  </Pressable>
+                ),
+                side: "right",
+                onPress: function (): void {
+                  throw new Error("Function not implemented.");
+                },
+              },
+            ]}
           />
         </View>
-      )}
 
-      {selectedIds.length > 0 && (
-        <Pressable style={styles.bulkDeleteButton} onPress={handleBulkDelete}>
-          <Text style={styles.bulkDeleteText}>
-            Delete Selected ({selectedIds.length})
-          </Text>
-        </Pressable>
-      )}
+        {showSearch && (
+          <SearchFilter
+            data={questions}
+            searchKeys={["question", "options", "date"]}
+            onFilter={setFilteredQuestions}
+            onClose={() => setShowSearch(false)}
+            placeholder="Search questions, options or dates..."
+          />
+        )}
 
-      {/* Navigation Tabs */}
-      <View style={styles.navContainer}>
-        <Pressable
-          style={[styles.navButton, activeTab === "all" && styles.activeNav]}
-          onPress={() => setActiveTab("all")}
-        >
-          <Text
-            style={[
-              styles.navText,
-              activeTab === "all" && styles.activeNavText,
-            ]}
-          >
-            All
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[styles.navButton, activeTab === "posted" && styles.activeNav]}
-          onPress={() => setActiveTab("posted")}
-        >
-          <Text
-            style={[
-              styles.navText,
-              activeTab === "posted" && styles.activeNavText,
-            ]}
-          >
-            Posted
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[styles.navButton, activeTab === "draft" && styles.activeNav]}
-          onPress={() => setActiveTab("draft")}
-        >
-          <Text
-            style={[
-              styles.navText,
-              activeTab === "draft" && styles.activeNavText,
-            ]}
-          >
-            Drafts
-          </Text>
-        </Pressable>
-      </View>
-
-      {/* Questions List */}
-      <View style={styles.contentContainer}>
-        {filteredQuestions.map((item) => (
-          <Pressable
-            key={item.id}
-            style={[
-              styles.questionCard,
-              selectedIds.includes(item.id) && styles.selectedCard,
-            ]}
-            onLongPress={() => toggleSelection(item.id)}
-          >
+        <View className="flex-row m-4 bg-white rounded-lg p-1 shadow">
+          {["all", "posted", "draft"].map((tab) => (
             <Pressable
-              style={styles.checkbox}
-              onPress={() => toggleSelection(item.id)}
-            >
-              {selectedIds.includes(item.id) ? (
-                <Ionicons name="checkmark-circle" size={24} color="#4F46E5" />
-              ) : (
-                <Ionicons name="ellipse-outline" size={24} color="#cbd5e1" />
-              )}
-            </Pressable>
-
-            <Text style={styles.dateText}>
-              {new Date(item.date).toLocaleDateString()}
-            </Text>
-
-            <Text style={styles.questionText}>{item.question}</Text>
-
-            <View style={styles.optionsContainer}>
-              {item.options.map((option, index) => (
-                <Text key={`${item.id}-${index}`} style={styles.optionText}>
-                  {option}
-                </Text>
-              ))}
-            </View>
-
-            <View style={styles.actionsContainer}>
-              <Pressable
-                style={styles.actionButton}
-                onPress={() => handleEdit(item.id)}
-              >
-                <Ionicons name="create-outline" size={20} color="#4F46E5" />
-              </Pressable>
-
-              <Pressable
-                style={styles.actionButton}
-                onPress={() => handleDelete(item.id)}
-              >
-                <Ionicons name="trash-outline" size={20} color="#dc2626" />
-              </Pressable>
-            </View>
-
-            <View
-              style={[
-                styles.statusBadge,
-                item.status === "draft"
-                  ? styles.draftBadge
-                  : styles.postedBadge,
-              ]}
-            >
-              <Text style={styles.statusText}>
-                {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+              key={tab}
+              className={`flex-1 py-2 rounded-md items-center ${
+                activeTab === tab ? "bg-indigo-600" : ""
+              }`}
+              onPress={() => setActiveTab(tab as any)}>
+              <Text
+                className={`${
+                  activeTab === tab ? "text-white" : "text-gray-500"
+                } font-pmedium text-sm`}>
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </Text>
-            </View>
-          </Pressable>
-        ))}
-      </View>
-    </ScrollView>
+            </Pressable>
+          ))}
+        </View>
+
+        <View className="px-4 pb-6">
+          {displayQuestions.map((item) => (
+            <Pressable
+              key={item.id}
+              className={`bg-white rounded-lg p-4 mb-3 shadow ${
+                selectedIds.includes(item.id)
+                  ? "border-2 border-indigo-600 bg-indigo-50"
+                  : ""
+              }`}
+              onLongPress={() => toggleSelection(item.id)}>
+              <Pressable
+                className="absolute left-2 top-2 z-10"
+                onPress={() => toggleSelection(item.id)}>
+                <Ionicons
+                  name={
+                    selectedIds.includes(item.id)
+                      ? "checkmark-circle"
+                      : "ellipse-outline"
+                  }
+                  size={24}
+                  color={selectedIds.includes(item.id) ? "#4F46E5" : "#cbd5e1"}
+                />
+              </Pressable>
+
+              <Text className="text-xs text-gray-500 ml-6 mb-1">
+                {new Date(item.date).toLocaleDateString()}
+              </Text>
+              <Text className="text-base font-pmedium text-gray-800 mb-3">
+                {item.question}
+              </Text>
+
+              <View className="mb-4">
+                {item.options.map((option, index) => (
+                  <Text
+                    key={`${item.id}-${index}`}
+                    className="text-sm text-gray-600 mb-1">
+                    {option}
+                  </Text>
+                ))}
+              </View>
+
+              <View className="flex-row justify-between items-center mt-2">
+                <Pressable
+                  className="p-2 rounded-lg bg-indigo-100"
+                  onPress={() => console.log("Edit")}
+                  disabled={loading}>
+                  <Ionicons name="create-outline" size={20} color="#4F46E5" />
+                </Pressable>
+
+                <Pressable
+                  className="p-2 rounded-lg bg-red-200"
+                  onPress={() => console.log("Delete")}
+                  disabled={loading}>
+                  <Ionicons name="trash-outline" size={20} color="#dc2626" />
+                </Pressable>
+              </View>
+
+              <View
+                className={`absolute top-2 right-2 px-2 py-1 rounded ${
+                  item.status === "draft" ? "bg-yellow-100" : "bg-blue-100"
+                }`}>
+                <Text className="text-xs font-pmedium">
+                  {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                </Text>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f3f4f6",
-  },
-  header: {
-    padding: 20,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "600",
-    color: "#1f2937",
-  },
-  navContainer: {
-    flexDirection: "row",
-    margin: 16,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  navButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 6,
-    alignItems: "center",
-  },
-  activeNav: {
-    backgroundColor: "#4F46E5",
-  },
-  navText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#6b7280",
-  },
-  activeNavText: {
-    color: "#fff",
-  },
-  contentContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-  },
-  questionCard: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  questionText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#1f2937",
-    marginBottom: 12,
-  },
-  optionsContainer: {
-    marginBottom: 16,
-  },
-  optionText: {
-    fontSize: 14,
-    color: "#4b5563",
-    marginBottom: 4,
-  },
-  actionsContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 16,
-  },
-  actionButton: {
-    padding: 6,
-  },
-  searchIcon: {
-    position: "absolute",
-    right: 20,
-    top: 20,
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 12,
-  },
-  searchInput: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    color: "#1f2937",
-  },
-  bulkDeleteButton: {
-    backgroundColor: "#dc2626",
-    padding: 16,
-    marginHorizontal: 16,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  bulkDeleteText: {
-    color: "white",
-    fontWeight: "600",
-  },
-  dateText: {
-    fontSize: 12,
-    color: "#64748b",
-    marginBottom: 4,
-  },
-  statusBadge: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  draftBadge: {
-    backgroundColor: "#fef3c7",
-  },
-  postedBadge: {
-    backgroundColor: "#dbeafe",
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  draftText: {
-    color: "#92400e",
-  },
-  postedText: {
-    color: "#1e40af",
-  },
-  checkbox: {
-    position: "absolute",
-    left: 8,
-    top: 8,
-    zIndex: 1,
-  },
-  selectedCard: {
-    borderColor: "#4F46E5",
-    borderWidth: 2,
-    backgroundColor: "#f5f3ff",
-  },
-});
 
 export default ContentListScreen;

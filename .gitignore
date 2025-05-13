@@ -1,6 +1,6 @@
-.vs/
-*.vsidx
+# Ignore build artifacts
 **/bin/
 **/obj/
+backend/.vs/
 backend/Application/obj/
 backend/Application.Tests/obj/

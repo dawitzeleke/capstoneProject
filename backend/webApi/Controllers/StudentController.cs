@@ -26,4 +26,11 @@ public class StudentsController : ControllerBase
         var result = await _mediator.Send(command);
         return result ? Ok() : BadRequest("Update failed");
     }
+
+    [HttpGet("{studentId}/following")]
+    public async Task<IActionResult> GetFollowing(string studentId)
+    {
+        var result = await _mediator.Send(new GetStudentFollowingQuery { StudentId = studentId });
+        return Ok(result);
+    }
 }

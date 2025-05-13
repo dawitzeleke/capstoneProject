@@ -5,16 +5,22 @@ using backend.Application.Features.Questions.Commands.CreateQuestion;
 using backend.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
+using backend.Infrastructure;
+using backend.webApi.ExceptionHandlerMiddleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+DotNetEnv.Env.Load("../.env");
+
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddPersistenceServices(builder.Configuration);
+builder.Services.AddInfrastructureServices();
 
 // builder.Services.AddScoped<AuthService>();
 builder.Services.AddControllers()
@@ -35,7 +41,32 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddHttpContextAccessor();
+
+// Add JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]))
+    };
+});
+
 var app = builder.Build();
+
+// register the exception handler
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 // Validate MongoDB connection
 using (var scope = app.Services.CreateScope())
@@ -43,7 +74,7 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        // Resolve the IMongoDatabase service
+        //E Resolve the IMongoDatabase service
         var mongoDatabase = services.GetRequiredService<IMongoDatabase>();
 
         // Ping the MongoDB server to validate the connection
@@ -67,6 +98,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -2,20 +2,20 @@ import React, { useRef, useState } from "react";
 import {
   View,
   FlatList,
-  ActivityIndicator,
   useWindowDimensions,
   ViewToken,
 } from "react-native";
-import QuestionCard from "./QuestionCard"; // Ensure the correct import path
+import { useSelector } from "react-redux";
+import QuestionCard from "./QuestionCard";
 import QuestionSkeleton from "./QuestionSkeleton";
 
 interface Question {
   id: string;
-  text: string;
+  questionText: string;
   options: string[];
-  correctAttempts: number;
-  questionDetail: string;
-  answer: string;
+  correctOption: string;
+  totalCorrectAnswers: number;
+  description: string;
 }
 
 interface QuestionsListProps {
@@ -32,9 +32,10 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
   isLoading,
 }) => {
   const { height } = useWindowDimensions();
-  const adjustedHeight = height * 0.97; // Adjusted height for devices
+  const adjustedHeight = height * 0.97;
   const flatListRef = useRef<FlatList<Question>>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const currentTheme = useSelector((state: any) => state.theme.mode);
 
   const viewabilityConfig = { itemVisiblePercentThreshold: 50 };
 
@@ -50,14 +51,12 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
     <FlatList
       ref={flatListRef}
       data={questions}
-      className="bg-card"
+      className={`${
+        currentTheme === "dark" ? "bg-black" : "bg-white"
+      }`}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <View
-          style={{
-            height: adjustedHeight, // Consistent height per card
-            width: "100%",
-          }}>
+        <View style={{ height: adjustedHeight, width: "100%" }}>
           <QuestionCard question={item} />
         </View>
       )}
@@ -70,7 +69,9 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
       onEndReachedThreshold={0.1}
       ListFooterComponent={
         isLoading ? (
-          <View className="flex justify-center items-center">
+          <View
+            className="flex justify-center items-center"
+            style={{ height: adjustedHeight, width: "100%" }}>
             <QuestionSkeleton />
           </View>
         ) : null

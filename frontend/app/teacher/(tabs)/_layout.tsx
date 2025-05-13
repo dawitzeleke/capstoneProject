@@ -60,11 +60,11 @@ const TabsLayout: React.FC = () => {
         screenOptions={{
           tabBarShowLabel: false,
           headerShown: false,
-          tabBarActiveTintColor: "cyan",
+          tabBarActiveTintColor: "#4F46E5",
           tabBarInactiveBackgroundColor: "CDCDE0",
           tabBarStyle: {
-            backgroundColor: "#161622",
-            borderTopWidth: 1,
+            backgroundColor: "#f1f3fc",
+            borderTopWidth: 0,
             borderTopColor: "#232533",
             height: 64,
             display: "flex",
@@ -93,62 +93,50 @@ const TabsLayout: React.FC = () => {
           }}
         />
         <Tabs.Screen
-          name="Questions"
+          name="AddQuestion"
           options={{
-            title: "Questions",
+            title: "AddQuestion",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.pencil}
+                icon={icons.upload}
                 color={color}
-                size={{ width: 18, height: 18 }}
-                name="Questions"
+                size={{ width: 22, height: 22}}
+                name="AddQuestion"
                 focused={focused}
               />
             ),
           }}
         />
         <Tabs.Screen
-          name="Leaderboard"
+          name="ContentList"
           options={{
             href: null, 
           }}
         />
         <Tabs.Screen
-          name="Progress"
+          name="Insights"
           options={{
             href: null, 
           }}
         />
         <Tabs.Screen
-          name="SearchScreen"
-          options={{
-            href: null, 
-          }}
-        />
-        <Tabs.Screen
-          name="TeacherDetail"
+          name="UploadOther"
           options={{
             href: null,
           }}
         />
         <Tabs.Screen
-          name="Activity"
-          options={{
-            href: null, 
-          }}
-        />
-        <Tabs.Screen
           name="Notification"
           options={{
-            title: "Notifications",
+            title: "Notification",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.notification}
                 color={color}
                 size={{ width: 18, height: 18 }}
-                name="Notifications"
+                name="Notification"
                 focused={focused}
               />
             ),

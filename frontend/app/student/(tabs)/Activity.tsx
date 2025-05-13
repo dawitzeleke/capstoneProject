@@ -5,10 +5,11 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { BarChart } from "react-native-chart-kit";
-import { Dimensions } from "react-native";
+import { useSelector } from "react-redux";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -20,37 +21,69 @@ const subjectsData = [
 ];
 
 export default function Activity() {
+  const currentTheme = useSelector((state: any) => state.theme.mode);
+  const isDark = currentTheme === "dark";
+
   const progressData = {
-    labels: subjectsData.slice(0, 4).map((s) => s.subject), // Only first 4 subjects
-    datasets: [{ data: subjectsData.slice(0, 4).map((s) => s.correct) }],
+    labels: subjectsData.map((s) => s.subject),
+    datasets: [{ data: subjectsData.map((s) => s.correct) }],
   };
 
   return (
-    <ScrollView className="flex-1 bg-primary p-4">
+    <ScrollView
+      className={`flex-1 px-4 py-6 ${
+        isDark ? "bg-black" : "bg-[#f1f3fc]"
+      }`}>
+      
       {/* Header */}
-      <View className="flex-row justify-between items-center">
-        <Ionicons name="arrow-back" size={24} color="gray" />
-        <Text className="text-xl font-semibold text-gray-100">Activity</Text>
+      <View className="flex-row items-center justify-between mb-4">
+        <Ionicons
+          name="arrow-back"
+          size={24}
+          color={isDark ? "white" : "black"}
+        />
+        <Text
+          className={`text-xl font-pbold ${
+            isDark ? "text-white" : "text-black"
+          }`}>
+          Activity
+        </Text>
+        <View style={{ width: 24 }} />
       </View>
 
       {/* Date */}
-      <View className="flex-row justify-between items-center mt-4">
-        <Text className="text-gray-100 font-pregular">02 Jan 2024</Text>
-      </View>
+      <Text className={`mb-2 font-psemibold ${
+        isDark ? "text-gray-400" : "text-gray-600"
+      }`}>
+        02 Jan 2024
+      </Text>
 
-      {/* Tab Switcher */}
-      <View className="flex-row justify-between align-middle mt-4 bg-card p-2 rounded-xl">
+      {/* Tabs */}
+      <View
+        className={`flex-row justify-between p-2 rounded-xl border shadow-xl ${
+          isDark
+            ? "bg-neutral-800 border-neutral-700"
+            : "bg-gray-50 border-gray-200"
+        }`}>
         {["Daily", "Weekly", "Monthly", "Yearly"].map((label, index) => (
           <TouchableOpacity
-            key={index}
-            className={`${
+            key={label}
+            className={`px-4 py-2 rounded-lg ${
               index === 0
-                ? "bg-white px-4 py-2 rounded-lg justify-center"
-                : "justify-center"
+                ? isDark
+                  ? "bg-white"
+                  : "bg-indigo-100"
+                : ""
             }`}>
             <Text
-              className={`${
-                index === 0 ? "text-gray-700 font-pmedium" : "text-gray-400"
+              className={`font-pmedium ${
+                index === 0
+                  ? isDark
+                    ? "text-black"
+                    : "text-indigo-700"
+                  : isDark
+                  ? "text-gray-300"
+                  : "text-gray-700"
               }`}>
               {label}
             </Text>
@@ -59,63 +92,84 @@ export default function Activity() {
       </View>
 
       {/* Bar Chart */}
-      <View className="bg-card mt-4 p-2 flex justify-center font-pregular align-middle rounded-xl">
+      <View
+        className={`rounded-2xl p-4 mt-6 border shadow-xl ${
+          isDark
+            ? "bg-neutral-800 border-neutral-700"
+            : "bg-gray-50 border-gray-200"
+        }`}>
         <BarChart
           data={progressData}
           width={screenWidth - 40}
           height={220}
-          yAxisLabel=""
-          yAxisSuffix="%"
           fromZero
           withInnerLines={false}
-          chartConfig={{
-            backgroundGradientFromOpacity: 0,
-            backgroundGradientToOpacity: 0,
-            fillShadowGradient: "aqua", // Ensure bars stay colored
-            fillShadowGradientOpacity: 1, // Keep bars fully visible
-            barPercentage: 0.6,
-            color: () => "aqua", // Purple bars
-            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            decimalPlaces: 0,
-            propsForBackgroundLines: { stroke: "transparent" },
-          }}
+          yAxisLabel=""
+          yAxisSuffix="%"
           showBarTops={false}
+          chartConfig={{
+            backgroundGradientFrom: "transparent",
+            backgroundGradientTo: "transparent",
+            decimalPlaces: 0,
+            barPercentage: 0.6,
+            fillShadowGradient: isDark ? "#60A5FA" : "#4F46E5",
+            fillShadowGradientOpacity: 1,
+            color: () => (isDark ? "#60A5FA" : "#4F46E5"),
+            labelColor: () => (isDark ? "#E5E7EB" : "#4B5563"),
+            propsForBackgroundLines: {
+              stroke: "transparent",
+            },
+          }}
         />
       </View>
 
-      {/* Subject Streak - Now Scrollable! */}
-      <View className="bg-card p-4 rounded-xl shadow-md mt-6">
-        <Text className="text-lg font-psemibold text-gray-100">
+      {/* Subject Scores */}
+      <View
+        className={`rounded-2xl p-4 mt-6 border shadow-xl ${
+          isDark
+            ? "bg-neutral-800 border-neutral-700"
+            : "bg-gray-50 border-gray-200"
+        }`}>
+        <Text
+          className={`text-lg font-pbold mb-3 ${
+            isDark ? "text-gray-100" : "text-gray-800"
+          }`}>
           Subject Score
         </Text>
 
-        {/* Make the list scrollable */}
         <FlatList
           data={subjectsData}
           keyExtractor={(item) => item.subject}
+          scrollEnabled={false}
           renderItem={({ item }) => (
-            <View className="flex-row justify-between items-center p-3 bg-gray-800 rounded-lg mt-3">
-              <Text className="text-gray-300 font-pregular">
+            <View
+              className={`flex-row justify-between items-center p-3 rounded-lg mt-3 border shadow ${
+                isDark
+                  ? "bg-neutral-900 border-neutral-700 shadow-black/30"
+                  : "bg-white border-gray-200 shadow-gray-200"
+              }`}>
+              <Text
+                className={`font-pmedium ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}>
                 {item.subject}
               </Text>
-              <View className="flex-row items-center space-x-4">
-                <View className="flex-row items-center">
-                  <Text className="text-green-400 font-psemibold ml-1">
-                    {item.correct}
-                  </Text>
-                </View>
-                <View className="flex-row items-center">
-                  <Text className="text-red-400 font-psemibold ml-1">
-                    {item.missed}
-                  </Text>
-                </View>
+              <View className="flex-row space-x-4">
+                <Text className="text-green-400 font-pbold">
+                  ✅ {item.correct}
+                </Text>
+                <Text className="text-red-400 font-pbold">
+                  ❌ {item.missed}
+                </Text>
               </View>
             </View>
           )}
-          scrollEnabled={false} // Allows the parent ScrollView to handle scrolling
         />
 
-        <Text className="text-gray-400 font-pregular mt-3">
+        <Text
+          className={`mt-4 font-pregular text-sm ${
+            isDark ? "text-gray-400" : "text-gray-500"
+          }`}>
           Keep up the great work!
         </Text>
       </View>

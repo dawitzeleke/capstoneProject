@@ -2,6 +2,7 @@ import React from "react";
 import { View, Image, ImageSourcePropType, Text } from "react-native";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useSelector } from "react-redux";
 import icons from "../../../constants/icons";
 
 interface TabIconProps {
@@ -28,7 +29,7 @@ const TabIcon: React.FC<TabIconProps> = ({
       {isProfile && profileImage ? (
         <View
           className={`w-6 h-6 rounded-full items-center justify-center overflow-hidden 
-            ${focused ? "border-2" : "border-0"} `}
+            ${focused ? "border-2" : "border-0"}`}
           style={{ borderColor: focused ? color : "transparent" }}>
           <Image
             source={profileImage}
@@ -53,19 +54,24 @@ const TabIcon: React.FC<TabIconProps> = ({
 };
 
 const TabsLayout: React.FC = () => {
+  const currentTheme = useSelector((state: any) => state.theme.mode);
+  const isDark = currentTheme === "dark";
+
   return (
     <>
-      <StatusBar backgroundColor="#161622" style="light" />
+      <StatusBar
+        backgroundColor={isDark ? "#161622" : "#ffffff"}
+        style={isDark ? "light" : "dark"}
+      />
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,
           headerShown: false,
-          tabBarActiveTintColor: "cyan",
-          tabBarInactiveBackgroundColor: "CDCDE0",
+          tabBarActiveTintColor: isDark ? "#00FFFF" : "#4F46E5",
+          tabBarInactiveTintColor: isDark ? "#aaa" : "#777",
           tabBarStyle: {
-            backgroundColor: "#101624",
+            backgroundColor: isDark ? "#00000" : "#f1f3fc",
             borderTopWidth: 0,
-            borderTopColor: "#232533",
             height: 64,
             display: "flex",
             justifyContent: "center",
@@ -73,7 +79,7 @@ const TabsLayout: React.FC = () => {
           tabBarItemStyle: {
             marginTop: 15,
             display: "flex",
-            width:30,
+            width: 30,
             alignItems: "center",
           },
         }}>
@@ -109,36 +115,17 @@ const TabsLayout: React.FC = () => {
             ),
           }}
         />
-        <Tabs.Screen
-          name="Leaderboard"
-          options={{
-            href: null, 
-          }}
-        />
-        <Tabs.Screen
-          name="Progress"
-          options={{
-            href: null, 
-          }}
-        />
-        <Tabs.Screen
-          name="SearchScreen"
-          options={{
-            href: null, 
-          }}
-        />
-        <Tabs.Screen
-          name="TeacherDetail"
-          options={{
-            href: null,
-          }}
-        />
-        <Tabs.Screen
-          name="Activity"
-          options={{
-            href: null, 
-          }}
-        />
+        <Tabs.Screen name="Leaderboard" options={{ href: null }} />
+        <Tabs.Screen name="Blog" options={{ href: null }} />
+        <Tabs.Screen name="Exam" options={{ href: null }} />
+        <Tabs.Screen name="Progress" options={{ href: null }} />
+        <Tabs.Screen name="SearchScreen" options={{ href: null }} />
+        <Tabs.Screen name="FollowingList" options={{ href: null }} />
+        <Tabs.Screen name="EditProfileScreen" options={{ href: null }} />
+        <Tabs.Screen name="SavedQuestions" options={{ href: null }} />
+        <Tabs.Screen name="TeacherDetail" options={{ href: null }} />
+        <Tabs.Screen name="Activity" options={{ href: null }} />
+        <Tabs.Screen name="QuestionsDone" options={{ href: null }} />
         <Tabs.Screen
           name="Notification"
           options={{
