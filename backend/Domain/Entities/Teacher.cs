@@ -9,6 +9,8 @@ namespace Domain.Entities
         public VerificationStatus VerificationStatus { get; set; } = VerificationStatus.Pending;
         public string LicenseDocumentUrl { get; set; }
         public List<string> Subjects { get; set; }
+        public DateTime VerifiedAt { get; set; }
+        public string VerifiedBy { get; set; }
 
     }
 }

@@ -24,5 +24,13 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(command);
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpPatch("verify-teacher")]
+        public async Task<IActionResult> VerifyTeacher([FromBody] VerifyTeacherCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
     }
 }
