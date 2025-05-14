@@ -1,12 +1,14 @@
-# Build backend
+# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ./backend ./backend
+# Copy the solution and projects from the correct paths
+COPY . .
+
 RUN dotnet restore "backend/backend.sln"
 RUN dotnet publish "backend/webApi/webApi.csproj" -c Release -o /app/publish
 
-# Runtime image
+# Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
