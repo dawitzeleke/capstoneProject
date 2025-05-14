@@ -7,7 +7,7 @@ WORKDIR /src
 COPY . .
 
 RUN dotnet restore "backend.sln"
-RUN dotnet publish "webApi/webApi.csproj" -c Release -o /app/publish
+RUN dotnet publish "webApi/WebApi.csproj" -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
