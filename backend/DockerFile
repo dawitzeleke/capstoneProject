@@ -5,8 +5,8 @@ WORKDIR /src
 # Copy the solution and projects from the correct paths
 COPY . .
 
-RUN dotnet restore "backend/backend.sln"
-RUN dotnet publish "backend/webApi/webApi.csproj" -c Release -o /app/publish
+RUN dotnet restore "backend.sln"
+RUN dotnet publish "webApi/webApi.csproj" -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
