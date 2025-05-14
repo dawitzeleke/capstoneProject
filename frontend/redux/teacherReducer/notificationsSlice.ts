@@ -1,33 +1,45 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import {
+  createSlice,
+  createAsyncThunk,
+  createEntityAdapter,
+  PayloadAction,
+  createSelector,
+} from '@reduxjs/toolkit';
 
-type NotificationType = 'follower' | 'like' | 'comment' | 'report' | 'rating';
+export type NotificationType =
+  | 'follower'
+  | 'like'
+  | 'comment'
+  | 'report'
+  | 'rating';
 
 export type Notification = {
   id: string;
-  type: 'follower' | 'report' | 'like' | 'comment' | 'rating' | 'invite' | 'mention';
+  type: NotificationType;
   message: string;
-  timestamp: string; 
+  timestamp: string;
   read: boolean;
   meta?: Record<string, unknown>;
 };
 
-interface NotificationsState {
-  items: Notification[];
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  error: string | null;
-}
+// Adapter: no need to specify selectId when your entity has a field called `id`
+const notificationsAdapter = createEntityAdapter<Notification>({
+  sortComparer: (a: Notification, b: Notification) =>
+    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+});
 
-const initialState: NotificationsState = {
-  items: [],
-  status: 'idle',
-  error: null,
-};
+const initialState = notificationsAdapter.getInitialState({
+  status: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+  error: null as string | null,
+});
 
-// Async thunks
-export const fetchNotifications = createAsyncThunk(
+export const fetchNotifications = createAsyncThunk<
+  Notification[], // return type
+  string // teacherId
+>(
   'notifications/fetchAll',
   async (teacherId: string) => {
-    // Actual API call would go here
+    // Simulated API call
     const mockNotifications: Notification[] = [
       {
         id: '1',
@@ -53,12 +65,8 @@ export const fetchNotifications = createAsyncThunk(
       },
     ];
 
-    // Sort notifications by timestamp in descending order (latest first)
-    return mockNotifications.sort((a, b) => {
-      const dateA = new Date(a.timestamp);
-      const dateB = new Date(b.timestamp);
-      return dateB.getTime() - dateA.getTime();
-    });
+    await new Promise((res) => setTimeout(res, 800)); // Simulate delay
+    return mockNotifications;
   }
 );
 
@@ -66,33 +74,37 @@ const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-    markAsRead: (state, action: PayloadAction<string>) => {
-      const notification = state.items.find(n => n.id === action.payload);
+    markAsRead(state, action: PayloadAction<string>) {
+      const notification = state.entities[action.payload];
       if (notification) notification.read = true;
     },
-    clearAll: (state) => {
-      state.items = [];
+    markAllAsRead(state) {
+      Object.values(state.entities).forEach((n) => {
+        if (n) n.read = true;
+      });
     },
-    removeNotification: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter(n => n.id !== action.payload);
+    removeNotification(state, action: PayloadAction<string>) {
+      notificationsAdapter.removeOne(state, action.payload);
     },
-    removeMultipleNotifications: (state, action: PayloadAction<string[]>) => {
-      state.items = state.items.filter(n => !action.payload.includes(n.id));
+    removeMultipleNotifications(state, action: PayloadAction<string[]>) {
+      notificationsAdapter.removeMany(state, action.payload);
+    },
+    clearAll(state) {
+      notificationsAdapter.removeAll(state);
+    },
+    receiveNotification(state, action: PayloadAction<Notification>) {
+      notificationsAdapter.upsertOne(state, action.payload);
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchNotifications.pending, (state) => {
         state.status = 'loading';
+        state.error = null;
       })
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // Sort the received notifications by timestamp in descending order
-        state.items = action.payload.sort((a, b) => {
-          const dateA = new Date(a.timestamp);
-          const dateB = new Date(b.timestamp);
-          return dateB.getTime() - dateA.getTime();
-        });
+        notificationsAdapter.setAll(state, action.payload);
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.status = 'failed';
@@ -101,5 +113,36 @@ const notificationsSlice = createSlice({
   },
 });
 
-export const { markAsRead, clearAll, removeMultipleNotifications, removeNotification } = notificationsSlice.actions;
+export const {
+  markAsRead,
+  markAllAsRead,
+  clearAll,
+  removeNotification,
+  removeMultipleNotifications,
+  receiveNotification,
+} = notificationsSlice.actions;
+
 export default notificationsSlice.reducer;
+
+// === Selectors ===
+export const {
+  selectAll: selectAllNotifications,
+  selectById: selectNotificationById,
+  selectIds: selectNotificationIds,
+} = notificationsAdapter.getSelectors((state: any) => state.notifications);
+
+/**
+ * selectFilteredNotifications
+ * @param state  Redux state
+ * @param filter one of NotificationType or 'all'
+ */
+export const selectFilteredNotifications = createSelector(
+  [
+    selectAllNotifications,
+    (_: any, filter: NotificationType | 'all') => filter,
+  ],
+  (notifications, filter) =>
+    filter === 'all'
+      ? notifications
+      : notifications.filter((n) => n.type === filter)
+);
