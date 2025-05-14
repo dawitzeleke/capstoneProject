@@ -10,20 +10,20 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copy and restore
-COPY ["webApi/webApi.csproj", "webApi/"]
-RUN dotnet restore "webApi/webApi.csproj"
+COPY ["webApi/WebApi.csproj", "webApi/"]
+RUN dotnet restore "webApi/WebApi.csproj"
 
 # Copy the rest of the source
 COPY . .
 
 # Build
 WORKDIR "/src/webApi"
-RUN dotnet build "webApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publish
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "webApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Final runtime image
 FROM base AS final
