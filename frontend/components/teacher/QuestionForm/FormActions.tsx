@@ -10,7 +10,6 @@ type FormActionsProps = {
     question: boolean;
     options: boolean[];
     explanation: boolean;
-    tags: boolean;
     correctAnswer: boolean;
   };
 };

@@ -76,8 +76,8 @@ const TagsInput = ({
   return (
     <View className="bg-white rounded-xl shadow p-4 mb-6">
       <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-base font-psemibold text-slate-800">
-          Tags<Text className="text-red-500">*</Text>
+        <Text className="text-lg font-psemibold text-slate-800">
+          Tags<Text className="text-red-500 m-1 text-lg">*</Text>
         </Text>
         {submitted && error && (
           <Text className="text-red-500 text-xs">At least one tag required</Text>
@@ -86,12 +86,12 @@ const TagsInput = ({
 
       <View className="flex-row items-center justify-between">
         <TextInput
-          placeholder={placeholder}
+          placeholder={"Use space/comma to separate tags"}
           placeholderTextColor="#94a3b8"
-          className={`flex-1 border-b text-sm py-1 ${
+          className={`flex-1 border-b text-sm py-1  ${
             (submitted && error) || localError
               ? "border-red-200 bg-red-50 rounded" 
-              : "border-slate-200 text-slate-700"
+              : "border-slate-200 text-black font-pregular"
           }`}
           value={inputText}
           onChangeText={handleInputChange}
@@ -101,7 +101,7 @@ const TagsInput = ({
       </View>
 
       {errorMessage && (
-        <Text className="text-red-500 text-xs mt-2">
+        <Text className="text-red-500 text-sm font-plight mt-2">
           {errorMessage}
         </Text>
       )}
@@ -113,7 +113,7 @@ const TagsInput = ({
             className="bg-indigo-100 px-3 py-1 rounded-full flex-row items-center"
           >
             <Text 
-              className="text-indigo-700 text-xs mr-1 max-w-[100px]" 
+              className="text-indigo-700 font-pregular text-sm mr-1 max-w-[100px]" 
               numberOfLines={1} 
               ellipsizeMode="tail"
             >
