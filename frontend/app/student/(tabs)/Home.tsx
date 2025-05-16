@@ -35,7 +35,7 @@ export default function Home() {
               Mon, 19 2025
             </Text>
             <Text className="text-3xl font-pbold text-white mt-1">
-              H user 👋
+              Hello user 👋
             </Text>
             <Text className="text-xs text-white font-pregular mt-1">
               happy session!
@@ -97,10 +97,10 @@ export default function Home() {
                 onPress={() => {
                   switch (item.label) {
                     case "Customize":
-                      handleCustomize();
+                      router.push("/student/Game");
                       break;
                     case "Exam":
-                      router.push("../(tabs)/Exam");
+                      router.push("../CreateExam");
                       break;
                     case "News":
                       router.push("../(tabs)/Blog");

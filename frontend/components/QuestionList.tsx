@@ -14,8 +14,8 @@ interface Question {
   questionText: string;
   options: string[];
   correctOption: string;
-  totalCorrectAnswers: number;
   description: string;
+  TotalCorrectAnswers: number;
 }
 
 interface QuestionsListProps {
