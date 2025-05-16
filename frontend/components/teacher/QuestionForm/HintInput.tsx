@@ -7,14 +7,14 @@ type HintInputProps = {
 
 const HintInput = ({ value, onChange }: HintInputProps) => (
   <View className="bg-white rounded-xl shadow p-4 mb-4">
-    <Text className="text-base font-psemibold text-slate-800 mb-2">
+    <Text className="text-lg font-psemibold text-slate-800 mb-2">
       Hint (Optional)
     </Text>
     <TextInput
       multiline
       placeholder="You can add a hint to help students"
       placeholderTextColor="#94a3b8"
-      className="min-h-[80px] text-sm text-slate-700"
+      className="min-h-[80px] text-base text-black font-pregular"
       value={value}
       onChangeText={onChange}
     />
