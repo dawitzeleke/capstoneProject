@@ -4,6 +4,7 @@ import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSelector } from "react-redux";
 import icons from "../../../constants/icons";
+import LoadingOverlay from "../../../components/AnimationOverlay"; // Import your loading overlay component
 
 interface TabIconProps {
   icon?: ImageSourcePropType;
@@ -56,6 +57,7 @@ const TabIcon: React.FC<TabIconProps> = ({
 const TabsLayout: React.FC = () => {
   const currentTheme = useSelector((state: any) => state.theme.mode);
   const isDark = currentTheme === "dark";
+  const loading = useSelector((state: any) => state.animation.loading); // Get loading state from Redux
 
   return (
     <>
@@ -117,6 +119,8 @@ const TabsLayout: React.FC = () => {
         />
         <Tabs.Screen name="Leaderboard" options={{ href: null }} />
         <Tabs.Screen name="Blog" options={{ href: null }} />
+        <Tabs.Screen name="Game" options={{ href: null }} />
+        <Tabs.Screen name="CreateExam" options={{ href: null }} />
         <Tabs.Screen name="Exam" options={{ href: null }} />
         <Tabs.Screen name="Progress" options={{ href: null }} />
         <Tabs.Screen name="SearchScreen" options={{ href: null }} />
@@ -159,6 +163,9 @@ const TabsLayout: React.FC = () => {
           }}
         />
       </Tabs>
+
+      {/* Show loading overlay if loading is true */}
+      {loading && <LoadingOverlay />}
     </>
   );
 };

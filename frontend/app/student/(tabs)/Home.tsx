@@ -97,10 +97,10 @@ export default function Home() {
                 onPress={() => {
                   switch (item.label) {
                     case "Customize":
-                      handleCustomize();
+                      router.push("/student/Game");
                       break;
                     case "Exam":
-                      router.push("../(tabs)/Exam");
+                      router.push("../CreateExam");
                       break;
                     case "News":
                       router.push("../(tabs)/Blog");
