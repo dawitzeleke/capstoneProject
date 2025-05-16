@@ -64,7 +64,6 @@ const SignUp = () => {
 
     if (userType === "Student") {
       if (!form.grade) newErrors.grade = "Grade is required.";
-      if (!form.subject) newErrors.subject = "Subject is required.";
     }
 
     setErrors(newErrors);
@@ -73,7 +72,7 @@ const SignUp = () => {
 
   const submitForm = async () => {
     if (!validate()) return;
-
+console.log("here")
     setSubmitting(true);
     try {
       const formData = new FormData();

@@ -11,6 +11,7 @@ const SettingsScreen = () => {
   const currentTheme = useSelector((state: any) => state.theme.mode); // get current theme from Redux
   const [isPermissionsEnabled, setIsPermissionsEnabled] = useState(true);
   const [isPlayInBackground, setIsPlayInBackground] = useState(false);
+  const [isSeen, setIsSeen] = useState(false);
   const [isWifiOnly, setIsWifiOnly] = useState(true);
   const router = useRouter();
 
@@ -56,7 +57,7 @@ const SettingsScreen = () => {
             className={`ml-4 font-pregular ${
               currentTheme === "dark" ? "text-[#a5a1f7]" : "text-primary"
             }`}>
-            About Application
+            Edit Profile
           </Text>
         </View>
         <Ionicons
@@ -127,6 +128,24 @@ const SettingsScreen = () => {
           value={isPlayInBackground}
           onValueChange={setIsPlayInBackground}
         />
+      </View>
+
+      {/* Display Rank */}
+      <View className="flex-row items-center justify-between py-4 border-b border-gray-300">
+        <View className="flex-row items-center">
+          <MaterialIcons
+            name="people-outline"
+            size={20}
+            color={currentTheme === "dark" ? "#d6ddff" : "#4F46E5"}
+          />
+          <Text
+            className={`ml-4 font-pregular ${
+              currentTheme === "dark" ? "text-[#a5a1f7]" : "text-primary"
+            }`}>
+            Display Rank
+          </Text>
+        </View>
+        <Switch value={isSeen} onValueChange={setIsSeen} />
       </View>
 
       {/* Only Wi-Fi Toggle */}

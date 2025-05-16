@@ -8,9 +8,10 @@ import {
   Platform,
   UIManager,
   Modal,
+  TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native"; // ✅ Lottie
 import { useRef } from "react";
 import { useRouter } from "expo-router";
@@ -72,7 +73,16 @@ export default function CreateCustomExamScreen() {
       {/* Header */}
       <View className="mb-6">
         <Pressable className="mb-4">
-          <FontAwesome name="arrow-left" size={20} color="#111827" />
+          <View className="flex-row items-center mb-6">
+            <TouchableOpacity
+              onPress={() => router.push("/student/(tabs)/Profile")}>
+              <Ionicons
+                name="chevron-back"
+                size={20}
+                // color={currentTheme === "dark" ? "#d6ddff" : "#4F46E5"} // Pritext-[#a5a1f7] color for icons
+              />
+            </TouchableOpacity>
+          </View>
         </Pressable>
         <Text className="text-center text-lg font-psemibold text-gray-800">
           Custom Exam
@@ -150,7 +160,7 @@ export default function CreateCustomExamScreen() {
 
       {/* Submit Button */}
       <CustomButton
-        title="Generate Exam"
+        title="Preparing Exam"
         handlePress={handleSubmit}
         containerStyles="mt-6 bg-indigo-600"
         textStyles="text-white text-base font-semibold"
