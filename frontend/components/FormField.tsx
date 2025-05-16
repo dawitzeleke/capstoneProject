@@ -3,7 +3,6 @@ import {
   Text,
   TextInput,
   TextInputProps,
-  Touchable,
   Image,
   TouchableOpacity,
 } from "react-native";
@@ -15,20 +14,28 @@ interface FormFieldProps extends TextInputProps {
   title: string;
   otherStyles?: string;
   handleChangeText: (text: string) => void;
+  errorMessage?: string;
+  placeholder?: string;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
   title,
+  errorMessage,
   otherStyles,
   handleChangeText,
   placeholder,
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <View className={` space-y-2 ${otherStyles}`}>
+    <View className={`space-y-2 ${otherStyles}`}>
       <Text className="text-base text-gray-600 font-pmedium">{title}</Text>
-      <View className="w-full px-4 h-16 bg-gray-300 rounded-2xl flex-row items-center">
+      <View
+        className={`w-full px-4 h-16 rounded-2xl flex-row items-center ${
+          errorMessage ? "bg-red-100 border border-red-400" : "bg-gray-300"
+        }`}
+      >
         <TextInput
           className="text-base font-psemibold flex-1 text-gray-800 bg-transparent"
           placeholder={placeholder}
@@ -47,6 +54,9 @@ const FormField: React.FC<FormFieldProps> = ({
           </TouchableOpacity>
         )}
       </View>
+      {errorMessage ? (
+        <Text className="text-sm text-red-600 font-pmedium">{errorMessage}</Text>
+      ) : null}
     </View>
   );
 };

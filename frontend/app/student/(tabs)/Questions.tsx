@@ -3,11 +3,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../redux/store";
 import ReportOption from "../../../components/ReportOptions";
 import OptionsMenu from "../../../components/CardOptions";
-import {View} from "react-native";
+import { View } from "react-native";
 import QuestionsList from "../../../components/QuestionList";
 import { Pressable, Text, SafeAreaView, Dimensions } from "react-native";
 import { closeOption } from "@/redux/optionReducer/optionActions";
-import { setQuestions, setLoading } from "@/redux/questionsReducer/questionAction";
+import {
+  setQuestions,
+  setLoading,
+} from "@/redux/questionsReducer/questionAction";
 import httpRequest from "@/util/httpRequest";
 import QuestionSkeleton from "@/components/QuestionSkeleton";
 
@@ -16,43 +19,45 @@ const { height } = Dimensions.get("window"); // Get device height
 const Questions = () => {
   const dispatch = useDispatch();
 
-    // Dispatch loadQuestions when component mounts
-    useEffect(() => {
-      const loadQuest = async () => {
-        dispatch(
-          setLoading(),
-        );
-        try {
-          const response = await httpRequest("/api/Questions", null, "GET");
-          console.log(response)
-          dispatch(
-            setQuestions(response), 
-          );
-        } catch (err) {
-          console.error("Failed to load user", err);
-        } finally {
-          dispatch(
-            setLoading(),
-          );
-        }}
-        loadQuest()
-    }, [dispatch]);
-   
+  // Dispatch loadQuestions when component mounts
+  useEffect(() => {
+    const loadQuest = async () => {
+      dispatch(setLoading());
+      try {
+        const response = await httpRequest("/api/Questions", null, "GET");
+        console.log(response);
+        dispatch(setQuestions(response));
+      } catch (err) {
+        console.error("Failed to load user", err);
+        console.log(err);
+      } finally {
+        dispatch(setLoading());
+      }
+    };
+    loadQuest();
+  }, [dispatch]);
+
   const questions = useSelector((state: RootState) => state.questions.data);
-  const isLoading = useSelector((state: RootState) => state.questions.isLoading);
-  const hasMoreQuestions = useSelector((state: RootState) => state.questions.hasMore);
+  const isLoading = useSelector(
+    (state: RootState) => state.questions.isLoading
+  );
+  const hasMoreQuestions = useSelector(
+    (state: RootState) => state.questions.hasMore
+  );
 
   // Function to load more questions (dispatch an action)
   const loadMoreQuestions = () => {
     dispatch({ type: "LOAD_MORE_QUESTIONS" });
   };
 
-  const displayOption = useSelector((state: RootState) => state.option.isOptionsOpen);
-  const displayReport = useSelector((state: RootState) => state.option.isReportOpen);
+  const displayOption = useSelector(
+    (state: RootState) => state.option.isOptionsOpen
+  );
+  const displayReport = useSelector(
+    (state: RootState) => state.option.isReportOpen
+  );
 
-
-    
- console.log(questions)
+  console.log(questions);
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {displayOption && (
@@ -63,7 +68,7 @@ const Questions = () => {
           <OptionsMenu />
         </Pressable>
       )}
-      
+
       {displayReport && (
         <Pressable
           onPress={() => dispatch(closeOption())}
@@ -83,8 +88,8 @@ const Questions = () => {
         />
       ) : (
         <View className="flex justify-center items-center">
-        <QuestionSkeleton />
-      </View>
+          <QuestionSkeleton />
+        </View>
       )}
     </SafeAreaView>
   );

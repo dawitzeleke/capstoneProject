@@ -23,7 +23,7 @@ interface QuestionProps {
     questionText: string;
     options: string[];
     correctOption: string;
-    totalCorrectAnswers: number;
+    TotalCorrectAnswers: number;
     description: string;
   };
 }
@@ -212,7 +212,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
             currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
           }`}>
           <Text className="font-psemibold">
-            {formatNumber(question.totalCorrectAnswers)}
+            {formatNumber(question.TotalCorrectAnswers)}
           </Text>
           {"  "}Correct attempts
         </Text>
