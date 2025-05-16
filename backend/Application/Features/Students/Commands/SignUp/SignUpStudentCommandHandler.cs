@@ -53,7 +53,7 @@ public class SignUpStudentCommandHandler : IRequestHandler<SignUpStudentCommand,
         Console.WriteLine($"Student created:{newStudent.Id}");
         Console.WriteLine($"Student created:{newStudent.Email}");
 
-        var token = _jwtTokenGenerator.GenerateToken(newStudent.Id, newStudent.Email);
+        var token = _jwtTokenGenerator.GenerateToken(newStudent.Id, newStudent.Email, UserRole.Student.ToString());
 
         return new AuthResponseDto
         {

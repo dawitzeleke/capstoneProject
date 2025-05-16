@@ -17,7 +17,7 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
-        [Authorize]
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPost("invite-admin")]
         public async Task<IActionResult> InviteAdmin([FromBody] InviteAdminCommand command)
         {
@@ -25,7 +25,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "SuperAdmin, Admin")]
         [HttpPatch("verify-teacher")]
         public async Task<IActionResult> VerifyTeacher([FromBody] VerifyTeacherCommand command)
         {
@@ -33,7 +33,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "SuperAdmin, Admin")]
         [HttpPatch("ban-teacher")]
         public async Task<IActionResult> BanTeacher([FromBody] BanTeacherCommand command)
         {
