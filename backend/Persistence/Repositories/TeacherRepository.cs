@@ -17,4 +17,10 @@ public class TeacherRepository: GenericRepository<Teacher>, ITeacherRepository
     {
         return await _teachers.Find(teacher => teacher.Email == email).FirstOrDefaultAsync();
     }
+
+    public async Task<List<Teacher>> GetByIdsAsync(List<string> ids)
+    {
+        var filter = Builders<Teacher>.Filter.In(teacher => teacher.Id, ids);
+        return await _teachers.Find(filter).ToListAsync();
+    }
 }
