@@ -80,26 +80,17 @@ public class SignInQueryHandler : IRequestHandler<SignInQuery, AuthResponseDto>
 
             if (result == PasswordVerificationResult.Success)
             {
-                if (admin.IsSuperAdmin)
-                {
-                    return new AuthResponseDto
-                    {
-                        Email = admin.Email,
-                        Token = _jwtTokenGenerator.GenerateToken(admin.Id, admin.Email, UserRole.SuperAdmin.ToString()),
-                        Role = UserRole.SuperAdmin
-                    };
-                }
-            }
-            else
-            {
+                var role = admin.IsSuperAdmin ? UserRole.SuperAdmin : UserRole.Admin;
                 return new AuthResponseDto
                 {
                     Email = admin.Email,
-                    Token = _jwtTokenGenerator.GenerateToken(admin.Id, admin.Email, UserRole.Admin.ToString()),
-                    Role = UserRole.Admin
+                    Token = _jwtTokenGenerator.GenerateToken(admin.Id, admin.Email, role.ToString()),
+                    Role = role
                 };
             }
         }
+
+    
         throw new UnauthorizedAccessException("Invalid credentials.");
-    }
+}
 }
