@@ -13,8 +13,9 @@ public class GetQuestionDetailDto
         public int Grade { get; set; }
         public DifficultyLevel Difficulty { get; set; }
         public int Point { get; set; }
-        public int totalCorrectAnswers { get; set; }
+        public int TotalCorrectAnswers { get; set; }
         public int[] Feedbacks { get; set;}
         public string CreatedBy { get; set; }
+        public string Report { get; set; }
     }
     

@@ -33,14 +33,26 @@ namespace backend.Persistence.Repositories
             return entity;
         }
 
-        public async Task UpdateAsync(T entity)
+        public async Task<T> UpdateAsync(T entity)
         {
-            await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity);
+            var response = await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity);
+            if (response.IsAcknowledged)
+            {
+                return entity;
+            }
+            return null;
+
         }
 
-        public async Task DeleteAsync(T entity)
+        public async Task<bool> DeleteAsync(T entity)
         {
-            await _collection.DeleteOneAsync(x => x.Id == entity.Id);
+            var response = await _collection.DeleteOneAsync(x => x.Id == entity.Id);
+            if (!response.IsAcknowledged)
+            {
+                return false;
+            }
+            return true;
         }
+       
     }
 }

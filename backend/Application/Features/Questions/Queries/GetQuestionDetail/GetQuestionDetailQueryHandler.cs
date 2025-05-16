@@ -38,7 +38,8 @@ public class GetQuestionDetailQueryHandler: IRequestHandler<GetQuestionDetailQue
             Difficulty = question.Difficulty,
             Point = question.Point,
             CreatedBy = question.CreatedBy,
-            totalCorrectAnswers= question.totalCorrectAnswers
+            TotalCorrectAnswers= question.TotalCorrectAnswers,
+            Report = question.Report,
         };
         return questionDetailDto;
     }   
