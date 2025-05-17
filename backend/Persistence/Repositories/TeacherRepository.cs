@@ -33,4 +33,25 @@ public class TeacherRepository : GenericRepository<Teacher>, ITeacherRepository
     {
         return await _teachers.Find(teacher => teacher.PhoneNumber == phoneNumber).FirstOrDefaultAsync();
     }
+    public async Task<List<Teacher>> GetTeachersAsync(string? searchTerm, int pageNumber, int pageSize)
+    {
+        var filter = Builders<Teacher>.Filter.Empty;
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filter = Builders<Teacher>.Filter.Or(
+                Builders<Teacher>.Filter.Regex(t => t.FirstName, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                Builders<Teacher>.Filter.Regex(t => t.LastName, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                Builders<Teacher>.Filter.Regex(t => t.Email, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i"))
+            );
+        }
+
+        return await _teachers
+            .Find(filter)
+            .SortBy(t => t.FirstName)
+            .Skip((pageNumber - 1) * pageSize)
+            .Limit(pageSize)
+            .ToListAsync();
+    }
+
 }
