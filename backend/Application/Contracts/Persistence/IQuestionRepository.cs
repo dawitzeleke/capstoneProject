@@ -1,6 +1,9 @@
 using backend.Domain.Entities;
 
 namespace backend.Application.Contracts.Persistence;
-public interface IQuestionRepository:IGenericRepository<Question>{
+
+public interface IQuestionRepository : IGenericRepository<Question>
+{
     Task<int> GetQuestionFeedbacks(string id);
+    Task<int> CountAsync();
 }

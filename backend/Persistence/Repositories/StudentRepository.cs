@@ -30,4 +30,9 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
     {
         return await _students.Find(user => user.PhoneNumber == phoneNumber).FirstOrDefaultAsync();
     }
+
+    public async Task<int> CountAsync()
+    {
+        return (int)await _students.CountDocumentsAsync(new BsonDocument());
+    }
 }

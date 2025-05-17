@@ -45,7 +45,14 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetTeachers([FromQuery] GetTeachersQuery query)
         {
             var result = await _mediator.Send(query);
-            return Ok(result);  
+            return Ok(result);
+        }
+        [Authorize(Roles = "SuperAdmin, Admin")]
+        [HttpGet("get-dashboard-stats")]
+        public async Task<IActionResult> GetDashboardStats()
+        {
+            var result = await _mediator.Send(new GetDashboardStatsQuery());
+            return Ok(result);
         }
     }
 }

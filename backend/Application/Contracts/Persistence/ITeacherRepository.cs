@@ -9,5 +9,6 @@ public interface ITeacherRepository : IGenericRepository<Teacher>
     Task<Teacher> GetByUserNameAsync(string userName);
     Task<Teacher> GetByPhoneAsync(string phoneNumber);
     Task<List<Teacher>> GetTeachersAsync(string? searchTerm, int pageNumber, int pageSize);
+    Task<int> CountAsync();
 
 }

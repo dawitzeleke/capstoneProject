@@ -1,6 +1,7 @@
 using backend.Application.Contracts.Persistence;
 using backend.Persistence.DatabaseContext;
 using Domain.Entities;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace backend.Persistence.Repositories;
@@ -52,6 +53,10 @@ public class TeacherRepository : GenericRepository<Teacher>, ITeacherRepository
             .Skip((pageNumber - 1) * pageSize)
             .Limit(pageSize)
             .ToListAsync();
+    }
+    public async Task<int> CountAsync()
+    {
+        return (int)await _teachers.CountDocumentsAsync(new BsonDocument());
     }
 
 }
