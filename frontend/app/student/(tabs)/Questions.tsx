@@ -25,7 +25,10 @@ const Questions = () => {
       dispatch(setLoading());
       try {
         const response = await httpRequest("/api/Questions", null, "GET");
-        console.log(response);
+        const resonse2 = await httpRequest("/api/Video", null, "GET");
+        const resonse3 = await httpRequest("/api/imagecontent", null, "GET");
+        console.log(resonse2.data, "herey");
+        console.log(resonse3.data); 
         dispatch(setQuestions(response));
       } catch (err) {
         console.error("Failed to load user", err);
