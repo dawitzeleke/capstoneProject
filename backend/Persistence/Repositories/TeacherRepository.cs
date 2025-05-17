@@ -29,4 +29,8 @@ public class TeacherRepository : GenericRepository<Teacher>, ITeacherRepository
         var result = await _collection.Find(x => x.UserName == userName).FirstOrDefaultAsync();
         return result;
     }
+    public async Task<Teacher> GetByPhoneAsync(string phoneNumber)
+    {
+        return await _teachers.Find(teacher => teacher.PhoneNumber == phoneNumber).FirstOrDefaultAsync();
+    }
 }

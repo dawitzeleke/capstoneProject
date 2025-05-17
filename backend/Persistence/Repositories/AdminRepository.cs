@@ -18,4 +18,9 @@ public class AdminRepository : GenericRepository<Admin>, IAdminRepository
     {
         return await _admins.Find(admin => admin.Email == email).FirstOrDefaultAsync();
     }
+    public async Task<Admin> GetByPhoneAsync(string phoneNumber)
+    {
+        return await _admins.Find(admin => admin.PhoneNumber == phoneNumber).FirstOrDefaultAsync();
+    }
+
 }

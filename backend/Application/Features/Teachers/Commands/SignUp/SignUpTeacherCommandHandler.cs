@@ -1,12 +1,10 @@
 using Application.Contracts.Persistence;
 using Application.Dtos.AuthDtos;
 using backend.Application.Contracts.Persistence;
-using backend.Domain.Common;
 using backend.Domain.Entities;
 using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,44 +12,53 @@ using System.Threading.Tasks;
 public class SignUpTeacherCommandHandler : IRequestHandler<SignUpTeacherCommand, AuthResponseDto>
 {
     private readonly ITeacherRepository _teacherRepository;
+    private readonly IStudentRepository _studentRepository;
+    private readonly IAdminRepository _adminRepository;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IPasswordHasher<Teacher> _passwordHasher;
 
     public SignUpTeacherCommandHandler(
         ITeacherRepository teacherRepository,
+        IStudentRepository studentRepository,
+        IAdminRepository adminRepository,
         IJwtTokenGenerator jwtTokenGenerator,
         IPasswordHasher<Teacher> passwordHasher)  
     {
         _teacherRepository = teacherRepository;
+        _studentRepository = studentRepository;
+        _adminRepository = adminRepository;
         _jwtTokenGenerator = jwtTokenGenerator;
         _passwordHasher = passwordHasher;
     }
 
     public async Task<AuthResponseDto> Handle(SignUpTeacherCommand request, CancellationToken cancellationToken)
     {
-        
-        var existingTeacher = await _teacherRepository.GetByEmailAsync(request.Email);
-        if (existingTeacher != null)
+        if (await _teacherRepository.GetByEmailAsync(request.Email) != null ||
+            await _studentRepository.GetByEmailAsync(request.Email) != null ||
+            await _adminRepository.GetByEmailAsync(request.Email) != null)
         {
-            throw new Exception("Teacher with this email already exists");
+            throw new Exception("Email already exists");
         }
+
         
-       
+        if (await _teacherRepository.GetByPhoneAsync(request.PhoneNumber) != null ||
+            await _studentRepository.GetByPhoneAsync(request.PhoneNumber) != null ||
+            await _adminRepository.GetByPhoneAsync(request.PhoneNumber) != null)
+        {
+            throw new Exception("Phone number already exists");
+        }
+
         var newTeacher = new Teacher
         {
             Email = request.Email,
             FirstName = request.FirstName,
             LastName = request.LastName,
             PhoneNumber = request.PhoneNumber,
-            CreatedAt = DateTime.Now,
+            CreatedAt = DateTime.UtcNow,
         };
-        Console.WriteLine($"Teacher created:{request.Email}");
-        newTeacher.PasswordHash = _passwordHasher.HashPassword(newTeacher, request.Password);
 
-      
+        newTeacher.PasswordHash = _passwordHasher.HashPassword(newTeacher, request.Password);
         await _teacherRepository.CreateAsync(newTeacher);
-        Console.WriteLine($"Teacher created:{newTeacher.Id}");
-        Console.WriteLine($"Teacher created:{newTeacher.Email}");
 
         var token = _jwtTokenGenerator.GenerateToken(newTeacher.Id, newTeacher.Email, UserRole.Teacher.ToString());
 

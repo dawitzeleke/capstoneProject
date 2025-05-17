@@ -24,7 +24,6 @@ public class InviteAdminCommandHandler : IRequestHandler<InviteAdminCommand, Aut
 
     public async Task<AuthResponseDto> Handle(InviteAdminCommand request, CancellationToken cancellationToken){
         var superAdmin = await _adminRepository.GetByIdAsync(_currentUserService.UserId.ToString());
-        Console.WriteLine($"Current admin: {superAdmin.Id}");
       
         var existingAdmin = await _adminRepository.GetByEmailAsync(request.Email);
         if (existingAdmin != null)

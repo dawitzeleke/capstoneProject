@@ -26,4 +26,8 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
     {
         return await _students.Find(user => user.UserName == userName).FirstOrDefaultAsync();
     }
+    public async Task<Student> GetByPhoneAsync(string phoneNumber)
+    {
+        return await _students.Find(user => user.PhoneNumber == phoneNumber).FirstOrDefaultAsync();
+    }
 }
