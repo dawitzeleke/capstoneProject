@@ -30,7 +30,27 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
     {
         return await _students.Find(user => user.PhoneNumber == phoneNumber).FirstOrDefaultAsync();
     }
+    public async Task<List<Student>> GetStudentsAsync(string? searchTerm, int pageNumber, int pageSize)
+    {
+        var filter = Builders<Student>.Filter.Empty;
 
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filter = Builders<Student>.Filter.Or(
+                Builders<Student>.Filter.Regex(t => t.FirstName, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                Builders<Student>.Filter.Regex(t => t.LastName, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                Builders<Student>.Filter.Regex(t => t.Email, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i"))
+            );
+        }
+
+        return await _students
+            .Find(filter)
+            .SortBy(t => t.FirstName)
+            .Skip((pageNumber - 1) * pageSize)
+            .Limit(pageSize)
+            .ToListAsync();
+    }
+    
     public async Task<int> CountAsync()
     {
         return (int)await _students.CountDocumentsAsync(new BsonDocument());

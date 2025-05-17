@@ -8,5 +8,6 @@ public interface IStudentRepository : IGenericRepository<Student>
     Task<bool> UpdateAsync(Student student);
     Task<Student> GetByUserNameAsync(string userName);
     Task<Student> GetByPhoneAsync(string phoneNumber);
+    Task<List<Student>> GetStudentsAsync(string? searchTerm, int pageNumber, int pageSize);
     Task<int> CountAsync();
 }
