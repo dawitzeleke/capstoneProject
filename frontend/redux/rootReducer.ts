@@ -6,6 +6,7 @@ import teacherReducer from "@/redux/teacherReducer/teacherReducer";
 import contentReducer from "@/redux/teacherReducer/contentSlice";
 import mediaReducer from "@/redux/teacherReducer/mediaSlice";
 import notificationsReducer from "@/redux/teacherReducer/notificationsSlice"
+import themeReducer from "./themeReducer/themeReducer";
 
 const rootReducer = combineReducers({
   option: optionReducer,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   content: contentReducer,
   media: mediaReducer,
   notifications: notificationsReducer,
+   theme:   themeReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

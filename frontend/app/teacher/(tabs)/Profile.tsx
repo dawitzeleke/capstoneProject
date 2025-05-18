@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/redux/rootReducer";
-import { View, ScrollView, useWindowDimensions, Text } from "react-native";
-import ProfileCard from '@/components/teacher/ProfileCard';
-import ScreenButtons from '@/components/teacher/ScreenButtons';
-import SummarySection from '@/components/teacher//SummarySection';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/redux/rootReducer';
+import { ScrollView, useWindowDimensions, View, Text, TouchableOpacity } from 'react-native';
 import Toast from 'react-native-toast-message';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { Link, useRouter } from 'expo-router';
+import ProfileCard from '@/components/teacher/Profile/ProfileCard';
+import ScreenButtons from '@/components/teacher/Profile/ScreenButtons';
+import DashboardSummary from '@/components/teacher/Profile/DashboardSummary';
+import { TeacherProfile } from '@/types/teacherTypes';
 
 type Metric = {
   id: string;
@@ -13,54 +17,81 @@ type Metric = {
   label: string;
 };
 
-const TeacherDashboard = () => {
+const TeacherDashboard: React.FC = () => {
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375;
   const isVerySmallScreen = width < 340;
 
-  const teacherData = useSelector((state: RootState) => state.teacher.teacherData);
   const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const router = useRouter();
+  const teacherData = useSelector((state: RootState) => state.teacher.teacherData);
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [profileImage, setProfileImage] = useState(teacherData?.imageUrl ?? null);
-
-  const fullName = teacherData?.name ?? "Full Name";
-  const schoolName = teacherData?.title ?? "School Name";
-  const followers = teacherData?.followers ?? "32 Followers";
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const metrics: Metric[] = [
-    { id: "engagement", value: "0K", label: "Engagement" },
-    { id: "views", value: "10K", label: "Views" },
-    { id: "shares", value: "1K", label: "Shares" },
+    { id: 'engagement', value: '0K', label: 'Engagement' },
+    { id: 'views', value: '10K', label: 'Views' },
+    { id: 'shares', value: '1K', label: 'Shares' },
   ];
 
+  const dummyProfile: TeacherProfile = {
+    id: '1',
+    firstName: 'Jane',
+    lastName: 'Doe',
+    email: 'jane.doe@example.com',
+    school: 'Bright Future Academy',
+    profilePictureUrl: '@/assets/images/avatar',
+    followersCount: 1234,
+    postsCount: 56,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
   return (
-    <ScrollView className="flex-1 bg-[#f1f3fc] px-3 pt-6">
+    <ScrollView
+      className="flex-1 bg-[#f1f3fc]  pt-3"
+      contentContainerStyle={{ paddingBottom: 24 }}
+      showsVerticalScrollIndicator={false}
+    >
+      <View className="space-y-6">
+        {/* Styled Header */}
+         <View className="flex-row justify-between items-center bg-white px-5 py-4 ">
+          <Text className="text-3xl font-pbold text-[#4F46E5] tracking-tight">Dashboard</Text>
+          <Link href="../Settings" asChild>
+            <Ionicons name="menu" size={28} color="#4F46E5" />
+          </Link>
+        </View>
+     
+
       {/* Profile Section */}
-      <View className="mb-4">
-        <Text className="text-2xl font-pbold text-gray-900 mb-3">Dashboard</Text>
-        <ProfileCard
-          profileImage={profileImage}
-          fullName={fullName}
-          schoolName={schoolName}
-          followers={followers}
-          onImageChange={(imageUri: string) => setProfileImage(imageUri)}
-          isVerySmallScreen={isVerySmallScreen}
-        />
-      </View>
-
-      {/* Action Buttons */}
-      <ScreenButtons isVerySmallScreen={isVerySmallScreen} />
-
-      {/* Summary Section */}
-      <SummarySection
-        isSmallScreen={isSmallScreen}
-        isVerySmallScreen={isVerySmallScreen}
-        metrics={metrics}
+      <ProfileCard
+        profile={dummyProfile}
+        onChangeImage={(uri: string) => setProfileImage(uri)}
+        uploadingImage={false}
       />
 
-      <Toast />
-    </ScrollView>
+      {/* Quick Actions */}
+      <View className="flex-row justify-center">
+        <ScreenButtons isVerySmallScreen={isVerySmallScreen} />
+      </View>
+
+      {/* Summary Section */}
+      <DashboardSummary
+        isSmallScreen={isSmallScreen}
+        isVerySmallScreen={isVerySmallScreen}
+        activity={{
+          totalPosts: 32,
+          totalStudents: 120,
+          totalComments: 87,
+        }}
+        metrics={metrics}
+      />
+    </View>
+
+      {/* Toast Notification */ }
+  <Toast />
+    </ScrollView >
   );
 };
 

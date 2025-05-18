@@ -13,6 +13,16 @@ interface Teacher {
 
 // Define the initial state with the list of teachers
 interface TeacherState {
+  loading: any;
+  errors: any;
+  profile: any;
+  loadingProfile: any;
+  errorProfile: any;
+  stats: any;
+  loadingStats: any;
+  errorStats: any;
+  uploadingImage: any;
+  errorUpload: any;
   teacherData: TeacherData | null;
   teachers: Teacher[];
 }
