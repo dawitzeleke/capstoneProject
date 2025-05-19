@@ -65,7 +65,7 @@ public static class PersistenceServiceRegistration
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IUserActivityRepository, UserActivityRepository>();
-        
+        services.AddScoped<IBlogRepository, BlogRepository>();
         return services;
     }
 }
