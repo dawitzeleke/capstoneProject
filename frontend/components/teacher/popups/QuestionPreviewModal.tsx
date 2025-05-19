@@ -1,7 +1,8 @@
 import React from "react";
 import { Modal, View, Text, Pressable, ScrollView, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { type QuestionItem } from "@/redux/teacherReducer/teacherQuestionSlice";
+import { QuestionItem } from "@/redux/teacherReducer/teacherQuestionSlice";
+import { QuestionTypeEnum } from "@/types/questionTypes";
 
 interface QuestionPreviewModalProps {
     visible: boolean;
@@ -25,6 +26,10 @@ const QuestionPreviewModal = ({
     mode = 'preview'
 }: QuestionPreviewModalProps) => {
     if (!question) return null;
+
+    const isMCQ = question.questionType === QuestionTypeEnum.MultipleChoice;
+    const isTrueFalse = question.questionType === QuestionTypeEnum.TrueFalse;
+    const isCodeProblem = [QuestionTypeEnum.Code, QuestionTypeEnum.ProblemSolving].includes(question.questionType);
 
     return (
         <Modal
@@ -86,28 +91,50 @@ const QuestionPreviewModal = ({
                             </View>
                         </View>
 
-
                         {/* Question */}
                         <View className="mb-4">
                             <Text className="text-base font-pmedium text-gray-600 mb-2">Question</Text>
-                            <Text className="text-base font-psemibold text-black">{question.questionText}</Text>
+                            <Text className="text-lg font-psemibold text-black">{question.questionText}</Text>
                         </View>
 
-                        {/* Options */}
-                        <View className="mb-4">
-                            <Text className="text-base font-pmedium text-gray-600 mb-2">Options</Text>
-                            {question.options.map((option: string, index: number) => (
-                                <View key={index} className="flex-row items-center mb-2">
-                                    <Text className="w-6 text-base font-pmedium text-indigo-700">
-                                        {String.fromCharCode(65 + index)}.
-                                    </Text>
-                                    <Text className="text-base text-black ml-2 font-pregular">{option}</Text>
-                                    {question.correctOption === index && (
-                                        <Ionicons name="checkmark-circle" size={18} color="#22c55e" className="ml-2" />
-                                    )}
-                                </View>
-                            ))}
-                        </View>
+                        {/* Options/Correct Answer Section */}
+                        {(isMCQ || isTrueFalse) && (
+                            <View className="mb-4">
+                                <Text className="text-base font-pmedium text-gray-600 mb-2">
+                                    {isMCQ ? 'Options' : 'Correct Answer'}
+                                </Text>
+                                {isMCQ ? (
+                                    question.options.map((option: string, index: number) => (
+                                        <View key={index} className="flex-row items-center mb-2">
+                                            <Text className="w-6 text-base font-pmedium text-indigo-700">
+                                                {String.fromCharCode(65 + index)}.
+                                            </Text>
+                                            <Text className="text-base text-black ml-2 font-pregular">{option}</Text>
+                                            {question.correctOption === option && (
+                                                <Ionicons name="checkmark-circle" size={18} color="#22c55e" className="ml-2" />
+                                            )}
+                                        </View>
+                                    ))
+                                ) : (
+                                    <View className="flex-row items-center">
+                                        <Ionicons name="checkmark-circle" size={18} color="#22c55e" />
+                                        <Text className="text-base text-black ml-2 font-pregular">
+                                            {question.correctOption}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        )}
+
+                        {/* Code/Problem Solving Correct Answer */}
+                        {isCodeProblem && (
+                            <View className="mb-4">
+                                <Text className="text-base font-pmedium text-gray-600 mb-2">Correct Answer</Text>
+                                <Text className="text-base text-black font-pregular">
+                                    {question.correctOption}
+                                </Text>
+                            </View>
+                        )}
 
                         {/* Hint */}
                         {!!question.hint && (
@@ -140,7 +167,6 @@ const QuestionPreviewModal = ({
                         )}
                     </ScrollView>
 
-                    {/* Action Buttons */}
                     {/* Action Buttons */}
                     <View className="flex-row justify-between p-4 border-t border-gray-200 gap-2">
                         {/* Edit Button - Always shown */}
