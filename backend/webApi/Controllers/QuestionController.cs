@@ -7,6 +7,7 @@ using backend.Application.Features.Questions.Queries.GetQuestionDetail;
 using backend.Application.Features.Questions.Queries.GetQuestionList;
 using backend.Application.Features.Questions.Commands.DeleteQuestion;
 using backend.Application.Features.Questions.Commands.UpdateQuestion;
+using backend.Domain.Enums; 
 
 namespace backend.webApi.Controllers;
 
@@ -23,10 +24,25 @@ public class QuestionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllQuestions()
+    public async Task<IActionResult> GetAllQuestions(
+        [FromQuery] int? grade,
+        [FromQuery] StreamEnum? stream,
+        [FromQuery] string? courseName)
     {
+
+        // additional logics will be added here like filtering and personalizing
+        var filter = new GetQuestionListQuery
+            {
+                Grade = grade,
+                Stream = stream,
+                CourseName = courseName,
+                // CreatorId = creatorId,
+                // StudentId = studentId
+            };
         var questions = await _mediator.Send(new GetQuestionListQuery(){});
         return Ok(questions);
+
+
     }
 
     [HttpGet("{id}")]
