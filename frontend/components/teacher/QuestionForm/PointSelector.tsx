@@ -8,7 +8,7 @@ type PointSelectorProps = {
 };
 
 const PointSelector = ({ value, onChange, error, submitted }: PointSelectorProps) => {
-  const points = [5, 10, 15, 20];
+  const points = [1, 2, 3, 5, 10, 15, 20];
 
   return (
     <View className="bg-white rounded-xl shadow p-4 mb-4">
