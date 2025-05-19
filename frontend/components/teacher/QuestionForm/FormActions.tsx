@@ -7,10 +7,17 @@ type FormActionsProps = {
   isSavingDraft: boolean;
   isPosting: boolean;
   validationErrors: {
-    question: boolean;
+    questionText: boolean;
+    courseName: boolean;
+    description: boolean;
+    grade: boolean;
+    difficulty: boolean;
+    questionType: boolean;
+    point: boolean;
     options: boolean[];
     explanation: boolean;
-    correctAnswer: boolean;
+    tags: boolean;
+    correctOption: boolean;
   };
 };
 
@@ -22,7 +29,7 @@ const FormActions = ({
   isPosting,
   validationErrors
 }: FormActionsProps) => {
-  const canSaveDraft = !validationErrors.question;
+  const canSaveDraft = !validationErrors.questionText;
   const canPost = !Object.values(validationErrors).some(error => 
     Array.isArray(error) ? error.some(e => e) : error
   );
