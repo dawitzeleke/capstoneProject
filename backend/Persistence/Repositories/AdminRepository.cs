@@ -27,5 +27,9 @@ public class AdminRepository : GenericRepository<Admin>, IAdminRepository
     {
         return (int)await _admins.CountDocumentsAsync(new BsonDocument());
     }
-
+    public async Task<Admin> GetByUserNameAsync(string userName)
+    {
+        var result = await _collection.Find(x => x.UserName == userName).FirstOrDefaultAsync();
+        return result;
+    }
 }

@@ -58,9 +58,27 @@ namespace WebApi.Controllers
         [Authorize(Roles = "SuperAdmin, Admin")]
         [HttpGet("get-students")]
         public async Task<IActionResult> GetStudents([FromQuery] GetStudentsQuery query)
-        {   
+        {
             var result = await _mediator.Send(query);
             return Ok(result);
         }
+
+        [Authorize(Roles = "SuperAdmin, Admin")]
+
+        [HttpGet("get-admin-profile")]
+        public async Task<IActionResult> GetAdminProfile()
+        {
+            var result = await _mediator.Send(new GetAdminProfileQuery());
+            return Ok(result);
+        }
+        [Authorize(Roles = "SuperAdmin, Admin")]
+        [HttpPatch("update-admin-profile")]
+        public async Task<IActionResult> UpdateAdminProfile([FromForm] UpdateAdminProfileCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        
     }
 }
