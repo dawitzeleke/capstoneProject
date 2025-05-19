@@ -55,6 +55,16 @@ const initialState: TeacherState = {
       imageUrl: "https://i.pravatar.cc/150?img=33",
     },
   ],
+  loading: undefined,
+  errors: undefined,
+  profile: undefined,
+  loadingProfile: undefined,
+  errorProfile: undefined,
+  stats: undefined,
+  loadingStats: undefined,
+  errorStats: undefined,
+  uploadingImage: undefined,
+  errorUpload: undefined
 };
 
 const teacherReducer = (
