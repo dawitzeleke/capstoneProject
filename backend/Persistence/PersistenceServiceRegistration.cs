@@ -58,6 +58,10 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IVideoContentRepository, VideoContentRepository>();
         services.AddScoped<IImageContentRepository, ImageContentRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<IStudentProgressRepository, StudentProgressRepository>();
+        services.AddScoped<IMonthlyProgressRepository, MonthlyProgressRepository>();
+        services.AddScoped<IStudentSolvedQuestionsRepository, StudentSolvedQuestionsRepository>();
+        services.AddScoped<IStudentQuestionAttemptsRepository, StudentQuestionAttemptsRepository>();
         return services;
     }
 }
