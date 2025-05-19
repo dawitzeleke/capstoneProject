@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import React from "react";
-import type { QuestionItem } from "@/types";
+import type { QuestionItem } from "@/types/questionTypes";
 import type { MediaItem } from "@/types/mediaTypes";
 import ManageQuestionCard from "@/components/teacher/ManageQuestionCard";
 import MediaCard from "@/components/teacher/MediaCard";
