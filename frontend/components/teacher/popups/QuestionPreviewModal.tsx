@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, View, Text, Pressable, ScrollView, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { type QuestionItem } from "@/redux/teacherReducer/contentSlice";
+import { type QuestionItem } from "@/redux/teacherReducer/teacherQuestionSlice";
 
 interface QuestionPreviewModalProps {
     visible: boolean;
@@ -11,7 +11,7 @@ interface QuestionPreviewModalProps {
     onConfirm?: () => void;
     onDelete?: () => void;
     loading: boolean;
-    mode: 'add' | 'edit';
+    mode: 'preview' | 'edit';
 }
 
 const QuestionPreviewModal = ({
@@ -22,7 +22,7 @@ const QuestionPreviewModal = ({
     onConfirm,
     onDelete,
     loading,
-    mode = 'add'
+    mode = 'preview'
 }: QuestionPreviewModalProps) => {
     if (!question) return null;
 
@@ -47,12 +47,18 @@ const QuestionPreviewModal = ({
                     <ScrollView className="p-4">
                         {/* Course Info */}
                         <View className="mb-4">
-                            <View className="flex-row gap-4 mt-2 mb-4 border-b  border-gray-200">
-                                <View className="flex-1">
+                            <View className="flex-row mt-2 mb-4 border-b border-gray-200 relative">
+                                {/* Left Content */}
+                                <View className="flex-1 pr-4">
                                     <Text className="text-base text-gray-600 font-pmedium mb-2">Course Name</Text>
                                     <Text className="text-base text-black font-pregular mb-2">{question.courseName}</Text>
                                 </View>
-                                <View className="flex-1">
+
+                                {/* Centered Divider */}
+                                <View className="absolute left-1/2 top-0 bottom-3 w-px bg-gray-200 transform -translate-x-1/2"></View>
+
+                                {/* Right Content */}
+                                <View className="flex-1 pl-4">
                                     <Text className="text-base text-gray-600 font-pmedium mb-2">Grade Level</Text>
                                     <Text className="text-base text-black font-pregular mb-2">Grade {question.grade}</Text>
                                 </View>
@@ -60,23 +66,31 @@ const QuestionPreviewModal = ({
                         </View>
 
                         {/* Difficulty & Type */}
-                        <View className="mb-5 flex-row gap-4 border-b border-gray-200">
-                            <View className="flex-1">
-                                <Text className="text-base text-gray-600 font-pmedium mb-2">Difficulty</Text>
-                                <Text className="text-base text-black font-pregular mb-2">{question.difficulty}</Text>
-                            </View>
-                            <View className="flex-1">
-                                <Text className="text-base text-gray-600 font-pmedium mb-2">Question Type</Text>
-                                <Text className="text-base text-black font-pregular mb-2">
-                                    {question.questionType.replace(/([A-Z])/g, ' $1').trim()}
-                                </Text>
+                        <View className="mb-4">
+                            <View className="flex-row mt-2 mb-4 border-b border-gray-200 relative">
+                                {/* Left Content */}
+                                <View className="flex-1 pr-4">
+                                    <Text className="text-base text-gray-600 font-pmedium mb-2">Difficulty</Text>
+                                    <Text className="text-base text-black font-pregular mb-2">{question.difficulty}</Text>
+                                </View>
+                                {/* Centered Divider */}
+                                <View className="absolute left-1/2 top-0 bottom-3 w-px bg-gray-200 transform -translate-x-1/2"></View>
+
+                                {/* Right Content */}
+                                <View className="flex-1 pl-4">
+                                    <Text className="text-base text-gray-600 font-pmedium mb-2">Question Type</Text>
+                                    <Text className="text-base text-black font-pregular mb-2">
+                                        {question.questionType.replace(/([A-Z])/g, ' $1').trim()}
+                                    </Text>
+                                </View>
                             </View>
                         </View>
+
 
                         {/* Question */}
                         <View className="mb-4">
                             <Text className="text-base font-pmedium text-gray-600 mb-2">Question</Text>
-                            <Text className="text-base font-psemibold text-black">{question.question}</Text>
+                            <Text className="text-base font-psemibold text-black">{question.questionText}</Text>
                         </View>
 
                         {/* Options */}
@@ -88,7 +102,7 @@ const QuestionPreviewModal = ({
                                         {String.fromCharCode(65 + index)}.
                                     </Text>
                                     <Text className="text-base text-black ml-2 font-pregular">{option}</Text>
-                                    {question.correctAnswer === index && (
+                                    {question.correctOption === index && (
                                         <Ionicons name="checkmark-circle" size={18} color="#22c55e" className="ml-2" />
                                     )}
                                 </View>
@@ -99,7 +113,7 @@ const QuestionPreviewModal = ({
                         {!!question.hint && (
                             <View className="mb-4">
                                 <Text className="text-base font-pmedium text-gray-600 mb-2">Hint</Text>
-                                <Text className="text-base text-black">{question.hint}</Text>
+                                <Text className="text-base text-black font-pregular">{question.hint}</Text>
                             </View>
                         )}
 
@@ -127,8 +141,9 @@ const QuestionPreviewModal = ({
                     </ScrollView>
 
                     {/* Action Buttons */}
+                    {/* Action Buttons */}
                     <View className="flex-row justify-between p-4 border-t border-gray-200 gap-2">
-                        {/* Edit Button */}
+                        {/* Edit Button - Always shown */}
                         <Pressable
                             className="flex-2 flex-row items-center justify-center px-4 py-2 bg-indigo-100 rounded-lg"
                             onPress={onEdit}
@@ -139,22 +154,8 @@ const QuestionPreviewModal = ({
                         </Pressable>
 
                         {/* Conditional Action Button */}
-                        {mode === 'add' ? (
-                            <Pressable
-                                className="flex-2 flex-row items-center justify-center px-4 py-2 bg-[#dcfce7] rounded-lg"
-                                onPress={onConfirm}
-                                disabled={loading}
-                            >
-                                {loading ? (
-                                    <ActivityIndicator color="#16a34a" />
-                                ) : (
-                                    <>
-                                        <Ionicons name="checkmark" size={18} color="#16a34a" />
-                                        <Text className="ml-2 text-[#16a34a] font-pmedium">Confirm</Text>
-                                    </>
-                                )}
-                            </Pressable>
-                        ) : (
+                        {mode === 'preview' ? (
+                            // Delete button for existing questions
                             <Pressable
                                 className="flex-2 flex-row items-center justify-center px-4 py-2 bg-red-100 rounded-lg"
                                 onPress={onDelete}
@@ -166,6 +167,22 @@ const QuestionPreviewModal = ({
                                     <>
                                         <Ionicons name="trash" size={18} color="#DC2626" />
                                         <Text className="ml-2 text-red-600 font-pmedium">Delete</Text>
+                                    </>
+                                )}
+                            </Pressable>
+                        ) : (
+                            // Confirm button for new questions
+                            <Pressable
+                                className="flex-2 flex-row items-center justify-center px-4 py-2 bg-[#dcfce7] rounded-lg"
+                                onPress={onConfirm}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <ActivityIndicator color="#16a34a" />
+                                ) : (
+                                    <>
+                                        <Ionicons name="checkmark" size={18} color="#16a34a" />
+                                        <Text className="ml-2 text-[#16a34a] font-pmedium">Confirm</Text>
                                     </>
                                 )}
                             </Pressable>
