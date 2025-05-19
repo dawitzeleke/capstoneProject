@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { ScrollView, useWindowDimensions, View, Text } from "react-native";
+import { ScrollView, View, Text } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
+import { Ionicons } from "@expo/vector-icons";
 import ContentTypeSelector from "@/components/teacher/ContentTypeSelector";
 import AppHeader from "@/components/teacher/Header";
 import TagsInput from '@/components/teacher/QuestionForm/TagsInput';
@@ -9,33 +10,54 @@ import { SuccessModal } from '@/components/teacher/popups/SuccessModal';
 import { ErrorModal } from '@/components/teacher/popups/ErrorModal';
 import { CancelModal } from '@/components/teacher/popups/CancelModal';
 import { RootState } from "@/redux/store";
-import { updateQuestion, clearEditingQuestion, QuestionItem, addQuestion } from "@/redux/teacherReducer/contentSlice";
-import { QuestionFormState } from "@/types";
+import {
+  addQuestion,
+  updateQuestion,
+  clearEditingQuestion
+} from "@/redux/teacherReducer/teacherQuestionSlice";
+import {
+  QuestionFormState,
+  QuestionItem,
+  ContentStatus,
+  DifficultyLevel,
+  QuestionTypeEnum
+} from "@/types/questionTypes";
 import QuestionInputSection from "@/components/teacher/QuestionForm/QuestionInputSection";
 import OptionsGrid from "@/components/teacher/QuestionForm/OptionsGrid";
 import HintInput from "@/components/teacher/QuestionForm/HintInput";
 import ExplanationInput from "@/components/teacher/QuestionForm/ExplanationInput";
 import FormActions from "@/components/teacher/QuestionForm/FormActions";
-import { Ionicons } from "@expo/vector-icons";
+import DescriptionInput from "@/components/teacher/QuestionForm/DescriptionInput";
+import QuestionTypeDropdown from "@/components/teacher/QuestionForm/QuestionTypeDropdown";
+import DifficultySelector from "@/components/teacher/QuestionForm/DifficultySelector";
+import GradeSelector from "@/components/teacher/QuestionForm/GradeSelector";
+import PointSelector from "@/components/teacher/QuestionForm/PointSelector";
+import QuestionPreviewModal from "@/components/teacher/popups/QuestionPreviewModal";
+import CourseNameInput from '@/components/teacher/QuestionForm/CourseNameInput ';
 
 const AddQuestion = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { width } = useWindowDimensions();
   const [submitted, setSubmitted] = useState(false);
-  const { questions, editingQuestionId } = useSelector((state: RootState) => state.content);
+  const { questions, editingQuestionId } = useSelector((state: RootState) => state.teacherQuestions);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Form state
   const [formState, setFormState] = useState<QuestionFormState>({
     id: "",
-    question: "",
+    questionText: "",
+    courseName: "",
+    description: "",
+    grade: 1,
+    difficulty: DifficultyLevel.Easy,
+    questionType: QuestionTypeEnum.MultipleChoice,
+    point: 5,
     options: ["", "", "", ""],
     tags: [],
     hint: "",
     explanation: "",
-    correctAnswer: -1,
-    status: "draft",
-    date: new Date().toISOString()
+    correctOption: "",
+    status: ContentStatus.Draft,
   });
 
   // Modal and loading states
@@ -48,32 +70,32 @@ const AddQuestion = () => {
   });
 
   const [validationErrors, setValidationErrors] = useState({
-    question: false,
+    questionText: false,
+    courseName: false,
+    description: false,
+    grade: false,
+    difficulty: false,
+    questionType: false,
+    point: false,
     options: [false, false, false, false],
     explanation: false,
     tags: false,
-    correctAnswer: false,
+    correctOption: false,
   });
 
   const [isPosting, setIsPosting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
 
-  // Single source of truth for form state management
+  // Form initialization and reset
   useFocusEffect(
     useCallback(() => {
       if (editingQuestionId) {
         const questionToEdit = questions.find(q => q.id === editingQuestionId);
         if (questionToEdit) {
           setFormState({
-            id: questionToEdit.id,
-            question: questionToEdit.question,
-            options: [...questionToEdit.options] as [string, string, string, string],
-            tags: questionToEdit.tags,
-            hint: questionToEdit.hint,
-            explanation: questionToEdit.explanation,
-            correctAnswer: questionToEdit.correctAnswer,
-            status: questionToEdit.status,
-            date: questionToEdit.date
+            ...questionToEdit,
+            correctOption: questionToEdit.correctOption,
+            options: [...questionToEdit.options],
           });
         }
       } else {
@@ -90,35 +112,64 @@ const AddQuestion = () => {
   );
 
   // Form handlers
+  const handleDifficultyChange = (value: DifficultyLevel) => {
+    setFormState(prev => ({
+      ...prev,
+      difficulty: value
+    }));
+  };
+
+  const handleQuestionTypeChange = (value: QuestionTypeEnum) => {
+    setFormState(prev => ({
+      ...prev,
+      questionType: value
+    }));
+  };
+
   const handleOptionChange = useCallback((text: string, index: number) => {
     setFormState(prev => ({
       ...prev,
       options: prev.options.map((opt, i) =>
         i === index ? text.trim() : opt
-      ) as [string, string, string, string]
+      )
     }));
   }, []);
 
   const handleCorrectAnswer = useCallback((index: number) => {
-    setFormState(prev => ({ ...prev, correctAnswer: index }));
+    setFormState(prev => ({
+      ...prev,
+      correctOption: prev.options[index]
+    }));
   }, []);
 
   // Validation
   const validateForm = useCallback(() => {
     const errors = {
-      question: formState.question.trim() === "",
+      questionText: formState.questionText.trim() === "",
+      courseName: formState.courseName.trim() === "",
+      description: formState.description.trim() === "",
+      grade: !formState.grade,
+      difficulty: !formState.difficulty,
+      questionType: !formState.questionType,
+      point: !formState.point,
       options: formState.options.map(opt => opt.trim() === ""),
       explanation: formState.explanation.trim() === "",
       tags: formState.tags.length === 0,
-      correctAnswer: formState.correctAnswer === -1,
+      correctOption: formState.correctOption === "",
     };
 
     setValidationErrors({
-      question: submitted && errors.question,
+      questionText: submitted && errors.questionText,
+      courseName: submitted && errors.courseName,
+      description: submitted && errors.description,
+      grade: submitted && errors.grade,
+      difficulty: submitted && errors.difficulty,
+      questionType: submitted && errors.questionType,
+      point: submitted && errors.point,
       options: submitted ? errors.options : [false, false, false, false],
       explanation: submitted && errors.explanation,
       tags: submitted && errors.tags,
-      correctAnswer: submitted && errors.correctAnswer,
+      correctOption: submitted && errors.correctOption,
     });
 
     return !Object.values(errors).some(error =>
@@ -130,7 +181,7 @@ const AddQuestion = () => {
   const handlePost = useCallback(async () => {
     setSubmitted(true);
     const isValid = validateForm();
-    
+
     if (!isValid) {
       setModalState(prev => ({
         ...prev,
@@ -140,31 +191,26 @@ const AddQuestion = () => {
       return;
     }
 
-    const questionData: QuestionItem = {
-      id: editingQuestionId ?? Date.now().toString(),
-      question: formState.question.trim(),
-      options: formState.options.map(opt => opt.trim()),
-      tags: formState.tags,
-      hint: formState.hint.trim(),
-      explanation: formState.explanation.trim(),
-      correctAnswer: formState.correctAnswer,
-      status: "posted",
-      date: new Date().toISOString(),
-    };
+    setShowPreviewModal(true);
+  }, [validateForm]);
 
+  const handleConfirmPost = useCallback(async () => {
+    setShowPreviewModal(false);
     setIsPosting(true);
 
     try {
+      const questionData: QuestionItem = {
+        ...formState,
+        id: editingQuestionId || Date.now().toString(),
+        status: ContentStatus.Posted,
+        createdAt: editingQuestionId ? formState.createdAt : new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: ""        // Update with actual user ID if available
+      };
+
       if (editingQuestionId) {
         dispatch(updateQuestion(questionData));
       } else {
-        await new Promise((resolve, reject) => {
-          setTimeout(() => {
-            Math.random() > 0.1 
-              ? resolve(true) 
-              : reject(new Error("Simulated API failure"));
-          }, 1500);
-        });
         dispatch(addQuestion(questionData));
       }
 
@@ -183,15 +229,15 @@ const AddQuestion = () => {
         error: true,
         draftSuccess: false,
         cancel: false,
-        message: error instanceof Error ? error.message : "Posting failed. Please try again."
+        message: "Posting failed. Please try again."
       });
     } finally {
       setIsPosting(false);
     }
-  }, [formState, editingQuestionId, dispatch, validateForm]);
+  }, [formState, editingQuestionId, dispatch]);
 
   const handleSaveDraft = useCallback(async () => {
-    if (formState.question.trim() === "") {
+    if (formState.questionText.trim() === "") {
       setSubmitted(true);
       setModalState(prev => ({
         ...prev,
@@ -205,24 +251,13 @@ const AddQuestion = () => {
 
     try {
       const draftQuestion: QuestionItem = {
+        ...formState,
         id: Date.now().toString(),
-        question: formState.question.trim(),
-        options: formState.options.map(opt => opt.trim()),
-        tags: formState.tags,
-        hint: formState.hint.trim(),
-        explanation: formState.explanation.trim(),
-        correctAnswer: formState.correctAnswer,
-        status: "draft",
-        date: new Date().toISOString(),
+        status: ContentStatus.Draft,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: "",
       };
-
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          Math.random() > 0.1 
-            ? resolve(true) 
-            : reject(new Error("Simulated save failure"));
-        }, 1000);
-      });
 
       dispatch(addQuestion(draftQuestion));
       setModalState(prev => ({
@@ -235,7 +270,7 @@ const AddQuestion = () => {
       setModalState(prev => ({
         ...prev,
         error: true,
-        message: error instanceof Error ? error.message : "Saving draft failed"
+        message: "Saving draft failed"
       }));
     } finally {
       setIsSavingDraft(false);
@@ -246,21 +281,32 @@ const AddQuestion = () => {
   const resetForm = useCallback(() => {
     setFormState({
       id: "",
-      question: "",
+      questionText: "",
+      courseName: "",
+      description: "",
+      grade: 1,
+      difficulty: DifficultyLevel.Easy,
+      questionType: QuestionTypeEnum.MultipleChoice,
+      point: 1,
       options: ["", "", "", ""],
       tags: [],
       hint: "",
       explanation: "",
-      correctAnswer: -1,
-      status: "draft",
-      date: new Date().toISOString()
+      correctOption: "",
+      status: ContentStatus.Draft,
     });
     setValidationErrors({
-      question: false,
+      questionText: false,
+      courseName: false,
+      description: false,
+      grade: false,
+      difficulty: false,
+      questionType: false,
+      point: false,
       options: [false, false, false, false],
       explanation: false,
       tags: false,
-      correctAnswer: false,
+      correctOption: false,
     });
     setSubmitted(false);
   }, []);
@@ -273,7 +319,7 @@ const AddQuestion = () => {
   // Success state cleanup
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-  
+
     if (modalState.success || modalState.draftSuccess) {
       timeoutId = setTimeout(() => {
         router.navigate("/teacher/ContentList");
@@ -285,25 +331,23 @@ const AddQuestion = () => {
         dispatch(clearEditingQuestion());
       }, 2000);
     }
-  
+
     if (modalState.error) {
       timeoutId = setTimeout(() => {
         setModalState(prev => ({ ...prev, error: false }));
-        setSubmitted(false); // Reset submitted state to clear validation errors
+        setSubmitted(false);
       }, 3000);
     }
-  
+
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [modalState, router, dispatch]);
 
-
   return (
     <View className="flex-1 bg-slate-50">
       <ScrollView className="pb-10" showsVerticalScrollIndicator={false}>
         <AppHeader title="Upload Content" onBack={router.back} />
-
         <ContentTypeSelector currentScreen="AddQuestion" />
 
         {submitted && Object.values(validationErrors).some(error =>
@@ -313,27 +357,71 @@ const AddQuestion = () => {
               <View className="flex flex-row items-center">
                 <Ionicons name="warning" size={20} color="#f59e0b" />
                 <Text className="ml-2 text-sm font-pmedium text-yellow-700">
-                  Please fill all required fields (*) and select correct answer
+                  Please fill all required fields (*)
                 </Text>
               </View>
             </View>
           )}
 
         <View className="px-4 pt-4">
+          <CourseNameInput
+            value={formState.courseName}
+            onChange={(text: string) => setFormState(prev => ({ ...prev, courseName: text }))}
+            error={validationErrors.courseName}
+            submitted={submitted}
+          />
+
+          <DifficultySelector
+            value={formState.difficulty}
+            onChange={(value) => setFormState(prev => ({ ...prev, difficulty: value }))}
+            error={validationErrors.difficulty}
+            submitted={submitted}
+          />
+
+          <GradeSelector
+            value={formState.grade}
+            onChange={(value) => setFormState(prev => ({ ...prev, grade: value }))}
+            error={validationErrors.grade}
+            submitted={submitted}
+          />
+
+          <QuestionTypeDropdown
+            value={formState.questionType}
+            onChange={(value) => setFormState(prev => ({ ...prev, questionType: value }))}
+            error={validationErrors.questionType}
+            submitted={submitted}
+          />
+
+          <PointSelector
+            value={formState.point}
+            onChange={(value) => setFormState(prev => ({ ...prev, point: value }))}
+            error={validationErrors.point}
+            submitted={submitted}
+          />
+
+          <DescriptionInput
+            value={formState.description}
+            onChange={(text) => setFormState(prev => ({ ...prev, description: text }))}
+            error={validationErrors.description}
+            submitted={submitted}
+          />
+
           <QuestionInputSection
-            value={formState.question}
-            onChange={(text) => setFormState(prev => ({ ...prev, question: text }))}
-            error={validationErrors.question}
-            submitted={submitted} />
+            value={formState.questionText}
+            onChange={(text) => setFormState(prev => ({ ...prev, questionText: text }))}
+            error={validationErrors.questionText}
+            submitted={submitted}
+          />
 
           <OptionsGrid
             options={formState.options}
-            correctAnswer={formState.correctAnswer}
+            correctAnswer={formState.options.indexOf(formState.correctOption)}
             onOptionChange={handleOptionChange}
             onCorrectAnswer={handleCorrectAnswer}
             errors={validationErrors.options}
-            correctAnswerError={validationErrors.correctAnswer}
-            submitted={submitted} />
+            correctAnswerError={validationErrors.correctOption}
+            submitted={submitted}
+          />
 
           <HintInput
             value={formState.hint}
@@ -344,7 +432,8 @@ const AddQuestion = () => {
             value={formState.explanation}
             onChange={(text) => setFormState(prev => ({ ...prev, explanation: text }))}
             error={validationErrors.explanation}
-            submitted={submitted} />
+            submitted={submitted}
+          />
 
           <TagsInput
             value={formState.tags}
@@ -393,6 +482,16 @@ const AddQuestion = () => {
           isVisible={modalState.error}
           message={modalState.message}
           onDismiss={() => setModalState(prev => ({ ...prev, error: false }))}
+        />
+
+        <QuestionPreviewModal
+          visible={showPreviewModal}
+          question={{ ...formState, id: 'preview' } as QuestionItem}
+          onClose={() => setShowPreviewModal(false)}
+          onEdit={() => setShowPreviewModal(false)}
+          onConfirm={handleConfirmPost}
+          loading={isPosting}
+          mode="edit"
         />
       </ScrollView>
     </View>
