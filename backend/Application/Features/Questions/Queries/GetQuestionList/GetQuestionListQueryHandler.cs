@@ -1,38 +1,70 @@
 using MediatR;
 using backend.Application.Contracts.Persistence;
 using backend.Application.Dtos.QuestionDtos;
+using backend.Domain.Entities;
 
 namespace backend.Application.Features.Questions.Queries.GetQuestionList;
 
-public class GetQuestionListQueryHandler : IRequestHandler<GetQuestionListQuery, List<GetQuestionDetailDto>>
+public class GetQuestionListQueryHandler : IRequestHandler<GetQuestionListQuery, List<Question>>
 {
     private readonly IQuestionRepository _questionRepository;
+    private readonly IStudentSolvedQuestionsRepository _studentSolvedQuestionsRepository;
+    private readonly IStudentQuestionAttemptsRepository _studentQuestionAttemptsRepository;
+    private readonly Random _random;
 
-    public GetQuestionListQueryHandler(IQuestionRepository questionRepository)
+    public GetQuestionListQueryHandler(IQuestionRepository questionRepository, IStudentQuestionAttemptsRepository studentQuestionAttemptsRepository, IStudentSolvedQuestionsRepository studentSolvedQuestionsRepository)
     {
         _questionRepository = questionRepository;
+        _studentSolvedQuestionsRepository = studentSolvedQuestionsRepository;
+        _studentQuestionAttemptsRepository = studentQuestionAttemptsRepository;
+        _random = new Random();
     }
 
-    public async Task<List<GetQuestionDetailDto>> Handle(GetQuestionListQuery request, CancellationToken cancellationToken)
+    public async Task<List<Question>> Handle(GetQuestionListQuery request, CancellationToken cancellationToken)
     {
-        var allQuestions = (await _questionRepository.GetAllAsync()).OrderBy(x => x.CourseName);
-        var questionDtos = allQuestions.Select(q => new GetQuestionDetailDto
+        var questionFilter = new QuestionFilterDto
             {
-                Id = q.Id,
-                QuestionText = q.QuestionText,
-                Description = q.Description,
-                Options = q.Options,
-                CorrectOption = q.CorrectOption,
-                Grade = q.Grade,
-                CourseName = q.CourseName,
-                Point = q.Point,
-                Difficulty = q.Difficulty,
-                Feedbacks = q.Feedbacks,
-                QuestionType = q.QuestionType,
-                CreatedBy = q.CreatedBy,
-                Report=q.Report
-            }).ToList();
+                StudentId = request.StudentId,
+                Grade = request.Grade,
+                Stream = request.Stream,
+                CourseName = request.CourseName,
+                CreatorId = request.CreatorId
+            };
+        var allQuestions = await _questionRepository.GetFilteredQuestions(questionFilter);
 
-        return questionDtos;
+        if (string.IsNullOrEmpty(request.StudentId))
+        {
+            return allQuestions;
+        }
+        // return cusomized question list for the student
+       
+
+        var solveCount = 4;
+        var unsolvedCount = 10;
+        var attemptedCount = 6;
+
+        // Get solved questionIDs and get those questions
+        var solved_questionIds = await _studentSolvedQuestionsRepository.GetSolvedQuestions(questionFilter,solveCount);
+        var solvedQuestions = await _questionRepository.GetQuestionByIdList(solved_questionIds);
+
+        // Get attempted questionIDs and get those questions
+        var attempted_questionIds = await _studentQuestionAttemptsRepository.GetAttemptedQuestions(questionFilter,attemptedCount);
+        var attemptedQuestions = await _questionRepository.GetQuestionByIdList(attempted_questionIds);
+        
+        // get unsolved questions
+        var unsolved_questions = allQuestions.Where(q => !solved_questionIds.Contains(q.Id));
+
+        
+        
+        var selectedUnsolved = unsolved_questions.OrderBy(_ => _random.Next()).Take(unsolvedCount).ToList();
+
+        // Combine and shuffle the final list
+        var mixedQuestions = solvedQuestions
+            .Concat(selectedUnsolved)
+            .Concat(attemptedQuestions)
+            .OrderBy(_ => _random.Next())
+            .ToList();
+
+        return mixedQuestions;   
     }
 }
