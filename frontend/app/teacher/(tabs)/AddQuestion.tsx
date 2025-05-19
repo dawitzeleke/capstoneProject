@@ -23,7 +23,7 @@ import {
   QuestionTypeEnum
 } from "@/types/questionTypes";
 import QuestionInputSection from "@/components/teacher/QuestionForm/QuestionInputSection";
-import OptionsGrid from "@/components/teacher/QuestionForm/OptionsGrid";
+import AnswerInput from "@/components/teacher/QuestionForm/AnswerInput";
 import HintInput from "@/components/teacher/QuestionForm/HintInput";
 import ExplanationInput from "@/components/teacher/QuestionForm/ExplanationInput";
 import FormActions from "@/components/teacher/QuestionForm/FormActions";
@@ -122,7 +122,9 @@ const AddQuestion = () => {
   const handleQuestionTypeChange = (value: QuestionTypeEnum) => {
     setFormState(prev => ({
       ...prev,
-      questionType: value
+      questionType: value,
+      options: value === QuestionTypeEnum.TrueFalse ? ['True', 'False'] : prev.options,
+      correctOption: value === QuestionTypeEnum.TrueFalse ? '' : prev.correctOption
     }));
   };
 
@@ -155,7 +157,11 @@ const AddQuestion = () => {
       options: formState.options.map(opt => opt.trim() === ""),
       explanation: formState.explanation.trim() === "",
       tags: formState.tags.length === 0,
-      correctOption: formState.correctOption === "",
+correctOption: (
+      (QuestionTypeEnum === QuestionTypeEnum.MultipleChoice && !correctOption) ||
+      (QuestionTypeEnum === QuestionTypeEnum.TrueFalse && !correctOption) ||
+      ([QuestionTypeEnum.Code, QuestionTypeEnum.ProblemSolving].includes(QuestionTypeEnum) && !correctOption)
+)
     };
 
     setValidationErrors({
@@ -413,11 +419,12 @@ const AddQuestion = () => {
             submitted={submitted}
           />
 
-          <OptionsGrid
+          <AnswerInput
+            questionType={formState.questionType}
             options={formState.options}
-            correctAnswer={formState.options.indexOf(formState.correctOption)}
+            correctOption={formState.correctOption}
             onOptionChange={handleOptionChange}
-            onCorrectAnswer={handleCorrectAnswer}
+            onCorrectAnswer={(value) => setFormState(prev => ({ ...prev, correctOption: value }))}
             errors={validationErrors.options}
             correctAnswerError={validationErrors.correctOption}
             submitted={submitted}
