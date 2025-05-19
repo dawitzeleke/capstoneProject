@@ -3,14 +3,70 @@ import { questionsActionTypes } from "./questionActionTypes"; // Assuming the fi
 // Define the structure of the state
 interface QuestionState {
   data: any[]; // List of questions (you can define the exact shape of each question in your application)
-  isLoading: boolean;
+  isLoading: boolean; // A flag to indicate if questions are being loaded
   hasMore: boolean; // A flag to check if more questions are available for loading
 }
 
 // Initial state for the reducer
 
 const initialState: QuestionState = {
-  data: [],
+  data: [
+    {
+      id: "q1",
+      questionText: "What is the capital of France?",
+      options: ["Berlin", "Madrid", "Paris", "Rome"],
+      correctOption: "Paris",
+      description: "Paris is the capital and most populous city of France.",
+      TotalCorrectAnswers: 120,
+      courseName: "Geography 101",
+      createdBy: "teacher_001",
+      difficulty: "Easy",
+      feedbacks: [],
+      grade: 9,
+      point: 5,
+      questionType: "Multiple Choice",
+      report: null,
+    },
+    {
+      id: "q2",
+      questionText: "Which planet is known as the Red Planet?",
+      options: ["Earth", "Venus", "Mars", "Jupiter"],
+      correctOption: "Mars",
+      description:
+        "Mars is called the Red Planet due to its reddish appearance.",
+      TotalCorrectAnswers: 98,
+      courseName: "Astronomy Basics",
+      createdBy: "teacher_002",
+      difficulty: "Medium",
+      feedbacks: [],
+      grade: 8,
+      point: 5,
+      questionType: "Multiple Choice",
+      report: null,
+    },
+    {
+      id: "q3",
+      questionText: "Who wrote 'Romeo and Juliet'?",
+      options: [
+        "William Shakespeare",
+        "Charles Dickens",
+        "Jane Austen",
+        "Leo Tolstoy",
+      ],
+      correctOption: "William Shakespeare",
+      description:
+        "Shakespeare is widely regarded as the greatest writer in the English language.",
+      TotalCorrectAnswers: 105,
+      courseName: "English Literature",
+      createdBy: "teacher_003",
+      difficulty: "Medium",
+      feedbacks: [],
+      grade: 10,
+      point: 6,
+      questionType: "Multiple Choice",
+      report: null,
+    },
+  ],
   isLoading: false,
   hasMore: true,
 };

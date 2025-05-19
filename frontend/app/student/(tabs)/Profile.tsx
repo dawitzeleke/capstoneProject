@@ -145,7 +145,7 @@ export default function Dashboard() {
             }`}>
             <View className="flex justify-center items-center">
               <View
-                className={`p-3 rounded-full mb-3 ${card.bg} shadow-md shadow-black/20`}>
+                className={`p-3 rounded-full mb-3 ${card.bg} shadow-md`}>
                 {card.icon}
               </View>
               <Text

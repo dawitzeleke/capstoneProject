@@ -117,7 +117,7 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
       onEndReached={hasMoreQuestions ? loadMoreQuestions : undefined}
       onEndReachedThreshold={0.1}
       ListFooterComponent={
-        isLoading ? (
+        !isLoading ? (
           <View
             className="flex justify-center items-center"
             style={{ height: adjustedHeight, width: "100%" }}>

@@ -1,8 +1,15 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import { useWindowDimensions } from "react-native";
-import { Ionicons, Feather } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialIcons,
+  FontAwesome,
+  AntDesign,
+  Feather,
+} from "@expo/vector-icons";
+import { useSelector } from "react-redux";
 
 interface VideoCardProps {
   videoUrl: string;
@@ -32,6 +39,10 @@ const VideoCard: React.FC<VideoCardProps> = ({
 }) => {
   const videoRef = useRef<Video>(null);
   const { width, height } = useWindowDimensions();
+  const currentTheme = useSelector((state: any) => state.theme.mode);
+
+  const [liked, setLiked] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (isVisible && videoRef.current) {
@@ -41,8 +52,15 @@ const VideoCard: React.FC<VideoCardProps> = ({
     }
   }, [isVisible]);
 
+  const formatCount = (num: number) => {
+    if (num >= 1_000_000) return `+${(num / 1_000_000).toFixed(1)}M`;
+    if (num >= 1_000) return `+${(num / 1_000).toFixed(1)}k`;
+    return `+${num}`;
+  };
+
   return (
-    <View className="relative w-full h-full bg-black">
+    <View className="relative w-full h-full bg-black mt-3">
+      {/* Background Video */}
       <Video
         ref={videoRef}
         source={{ uri: videoUrl }}
@@ -55,10 +73,10 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
       {/* Reels Badge */}
       <View className="absolute top-4 left-4 mt-6 bg-black/50 px-3 py-1 rounded-full">
-        <Text className="text-white text-xs font-psemibold">Reels</Text>
+        <Text className="text-white text-base font-pregular">BrainBits</Text>
       </View>
 
-      {/* Profile + Caption */}
+      {/* Profile and Caption */}
       <View className="absolute bottom-10 left-4 right-20">
         <View className="flex-row items-center mb-2">
           <Image
@@ -76,25 +94,46 @@ const VideoCard: React.FC<VideoCardProps> = ({
           </View>
         </View>
         <Text className="text-white font-psemibold">{title}</Text>
-        <Text className="text-white font-pregular text-sm w-26">{description}</Text>
+        <Text className="text-white font-pregular text-sm w-26">
+          {description}
+        </Text>
       </View>
 
-      {/* Actions (Like, Comment, More) */}
-      <View className="absolute bottom-10 right-4 items-center space-y-5">
-        <TouchableOpacity className="items-center mb-2">
-          <Ionicons name="heart" size={28} color="white" />
-          <Text className="text-white text-sm">{likes || "0"}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="items-center mb-2">
-          <Ionicons
-            name="chatbubble-ellipses-outline"
-            size={28}
-            color="white"
+      {/* Social Actions */}
+      <View className="absolute w-12 right-6 top-2/3 transform -translate-y-5 items-center">
+        {/* Like */}
+        <TouchableOpacity className="mb-4" onPress={() => setLiked(!liked)}>
+          <AntDesign
+            name={liked ? "heart" : "hearto"}
+            size={26}
+            color={liked ? "red" : "white"}
           />
-          <Text className="text-white font-pregular text-sm">Comment</Text>
+          <Text
+            className={`text-xs text-center font-pmedium ${
+              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}>
+            {formatCount(liked ? 1201 : 1200)}
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="items-center">
-          <Feather name="more-vertical" size={24} color="white" />
+
+        {/* Save */}
+        <TouchableOpacity className="mb-4" onPress={() => setSaved(!saved)}>
+          <Feather
+            name="bookmark"
+            size={26}
+            color={saved ? "#ffd700" : "white"}
+          />
+          <Text
+            className={`text-xs text-center font-pmedium ${
+              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}>
+            {formatCount(saved ? 800 : 799)}
+          </Text>
+        </TouchableOpacity>
+
+        {/* More Options */}
+        <TouchableOpacity>
+          <Feather name="more-vertical" size={22} color="white" />
         </TouchableOpacity>
       </View>
     </View>

@@ -64,7 +64,7 @@ export default function CreateCustomExamScreen() {
       setShowOverlay(false);
       console.log("Form:", { ...form, stream });
       // Your submission logic here
-      router.push("../../../student/Exam");
+      router.replace("../../../student/Exam");
     }, 7000);
   };
 
@@ -74,8 +74,7 @@ export default function CreateCustomExamScreen() {
       <View className="mb-6">
         <Pressable className="mb-4">
           <View className="flex-row items-center mb-6">
-            <TouchableOpacity
-              onPress={() => router.push("/student/(tabs)/Profile")}>
+            <TouchableOpacity onPress={() => router.back()}>
               <Ionicons
                 name="chevron-back"
                 size={20}
@@ -114,14 +113,19 @@ export default function CreateCustomExamScreen() {
 
       {/* Difficulty Toggle */}
       <Text className="text-gray-600 mt-6 mb-2 font-pregular">Difficulty</Text>
-      <View className="flex-row justify-between bg-gray-100 rounded-xl px-3 py-2 mb-4">
+      <View className="space-y-2 flex-row flex-wrap justify-between w-full">
         {difficultyLevels.map((level) => (
           <Pressable
             key={level}
             onPress={() => setForm({ ...form, difficulty: level })}
-            className={`flex-1 items-center py-3 rounded-xl ${
-              form.difficulty === level ? "bg-white shadow" : ""
-            }`}>
+            className="flex-row items-center space-x-3 px-4 py-3 bg-gray-100 rounded-xl">
+            <View
+              className={`w-4 h-4 rounded-full border-2 ${
+                form.difficulty === level
+                  ? "bg-indigo-600 border-indigo-600"
+                  : "border-gray-400"
+              }`}
+            />
             <Text className="text-gray-800 font-pregular">{level}</Text>
           </Pressable>
         ))}
@@ -176,7 +180,9 @@ export default function CreateCustomExamScreen() {
           <View
             className="flex-1 justify-center items-center bg-black opacity-80"
             style={{ zIndex: 999 }}>
-            <View className="rounded-xl justify-center items-center p-6 shadow-lg" style={{ zIndex: 1000 }}>
+            <View
+              className="rounded-xl justify-center items-center p-6 shadow-lg"
+              style={{ zIndex: 1000 }}>
               <LottieView
                 ref={animationRef}
                 source={require("../../assets/animations/generating.json")}
@@ -189,9 +195,9 @@ export default function CreateCustomExamScreen() {
                 }}
               />
             </View>
-              <Text className="mt-6 text-lg text-center font-semibold text-gray-100">
-                Preparing Exam...
-              </Text>
+            <Text className="mt-6 text-lg text-center font-semibold text-gray-100">
+              Preparing Exam...
+            </Text>
           </View>
         </Modal>
       )}

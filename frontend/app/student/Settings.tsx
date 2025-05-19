@@ -28,7 +28,7 @@ const SettingsScreen = () => {
       {/* Profile Section */}
       <View className="flex-row items-center mb-6">
         <TouchableOpacity
-          onPress={() => router.push("/student/(tabs)/Profile")}>
+          onPress={() => router.back()}>
           <Ionicons
             name="chevron-back"
             size={20}
