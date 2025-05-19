@@ -12,7 +12,7 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
     private readonly IMongoCollection<Question> _questions;
     public QuestionRepository(MongoDbContext context) : base(context)
     {
-        _questions= context.GetCollection<Question>(typeof(Question).Name);
+        _questions = context.GetCollection<Question>(typeof(Question).Name);
     }
     
 

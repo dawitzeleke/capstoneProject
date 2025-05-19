@@ -1,5 +1,6 @@
 ﻿using backend.Domain.Common;
 using Domain.Enums;
+using MongoDB.Bson.Serialization;
 
 namespace Domain.Entities
 {
@@ -17,5 +18,9 @@ namespace Domain.Entities
         public string GraduationDocumentUrl { get; set; }
 
         public string SchoolName { get; set; }
+
+        public StatusTypeEnum Status { get; set; } = StatusTypeEnum.Active;
+
+        public BanInfo? BanDetails { get; set; }
     }
 }

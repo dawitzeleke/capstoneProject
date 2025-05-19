@@ -9,18 +9,24 @@ public class UpdateStudentSettingsCommandHandler : IRequestHandler<UpdateStudent
     private readonly ICurrentUserService _currentUserService;
     private readonly IStudentRepository _studentRepository;
     private readonly ICloudinaryService _cloudinaryService;
+    private readonly ITeacherRepository _teacherRepository;
+    private readonly IAdminRepository _adminRepository;
     private readonly IMapper _mapper;
 
     public UpdateStudentSettingsCommandHandler(
         IStudentRepository studentRepository,
         IMapper mapper,
         ICurrentUserService currentUserService,
-        ICloudinaryService cloudinaryService)
+        ICloudinaryService cloudinaryService,
+        ITeacherRepository teacherRepository,
+        IAdminRepository adminRepository)
     {
         _studentRepository = studentRepository;
         _mapper = mapper;
         _currentUserService = currentUserService;
         _cloudinaryService = cloudinaryService;
+        _teacherRepository = teacherRepository; 
+        _adminRepository = adminRepository;
     }
 
     public async Task<bool> Handle(UpdateStudentSettingsCommand request, CancellationToken cancellationToken)
@@ -30,48 +36,44 @@ public class UpdateStudentSettingsCommandHandler : IRequestHandler<UpdateStudent
             throw new Exception("Student not found");
 
         Console.WriteLine($"Student found: {student.Id}");
-
         if (!string.IsNullOrWhiteSpace(request.UserName))
         {
-            var existingUser = await _studentRepository.GetByUserNameAsync(request.UserName);
-            if (existingUser != null && existingUser.Id != student.Id)
+            var existingStudent = await _studentRepository.GetByUserNameAsync(request.UserName);
+            var existingTeacher = await _teacherRepository.GetByUserNameAsync(request.UserName);
+
+            if ((existingStudent != null && existingStudent.Id != student.Id) || existingTeacher != null)
+            {
                 throw new Exception("Username already exists");
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(request.Email))
         {
-            var existingUser = await _studentRepository.GetByEmailAsync(request.Email);
-            if (existingUser != null && existingUser.Id != student.Id)
+            var emailTakenByStudent = await _studentRepository.GetByEmailAsync(request.Email);
+            var emailTakenByTeacher = await _teacherRepository.GetByEmailAsync(request.Email);
+            var emailTakenByAdmin = await _adminRepository.GetByEmailAsync(request.Email);
+
+            if ((emailTakenByStudent != null && emailTakenByStudent.Id != student.Id) ||
+                emailTakenByTeacher != null || emailTakenByAdmin != null)
+            {
                 throw new Exception("Email already exists");
-        }
-
-        if (request.RemoveProfilePicture)
-        {
-            if (!string.IsNullOrEmpty(student.ProfilePicturePublicId))
-            {
-                await _cloudinaryService.Delete(student.ProfilePicturePublicId);
             }
-
-            student.ProfilePictureUrl = null;
-            student.ProfilePicturePublicId = null;
         }
 
-        if (request.ProfilePicture != null)
+        if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
         {
-            if (!string.IsNullOrEmpty(student.ProfilePicturePublicId))
+            var phoneTakenByStudent = await _studentRepository.GetByPhoneAsync(request.PhoneNumber);
+            var phoneTakenByTeacher = await _teacherRepository.GetByPhoneAsync(request.PhoneNumber);
+            var phoneTakenByAdmin = await _adminRepository.GetByPhoneAsync(request.PhoneNumber);
+
+            if ((phoneTakenByStudent != null && phoneTakenByStudent.Id != student.Id) ||
+                phoneTakenByTeacher != null || phoneTakenByAdmin != null)
             {
-                await _cloudinaryService.Delete(student.ProfilePicturePublicId);
+                throw new Exception("Phone number already exists");
             }
-
-            var uploadResult = await _cloudinaryService.UploadFileAsync(request.ProfilePicture, "ProfilePictures");
-
-            if (uploadResult == null || string.IsNullOrWhiteSpace(uploadResult.Url))
-                throw new Exception("Failed to upload profile picture");
-
-            student.ProfilePictureUrl = uploadResult.Url;
-            student.ProfilePicturePublicId = uploadResult.PublicId;
         }
 
+       
         if (!string.IsNullOrWhiteSpace(request.FirstName))
             student.FirstName = request.FirstName;
 
@@ -93,12 +95,8 @@ public class UpdateStudentSettingsCommandHandler : IRequestHandler<UpdateStudent
         if (request.Grade.HasValue)
             student.Grade = request.Grade.Value;
 
-        Console.WriteLine($"Mapping completed for student: {student.Id}");
-
         await _studentRepository.UpdateAsync(student);
-
-        Console.WriteLine(student.ProfilePictureUrl);
-
         return true;
     }
+
 }

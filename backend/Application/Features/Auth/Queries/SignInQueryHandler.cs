@@ -1,6 +1,7 @@
 using Application.Contracts.Persistence;
 using Application.Dtos.AuthDtos;
 using backend.Application.Contracts.Persistence;
+using backend.Domain.Common;
 using backend.Domain.Entities;
 using Domain.Entities;
 using MediatR;
@@ -49,7 +50,7 @@ public class SignInQueryHandler : IRequestHandler<SignInQuery, AuthResponseDto>
                 return new AuthResponseDto
                 {
                     Email = student.Email,
-                    Token = _jwtTokenGenerator.GenerateToken(student.Id, student.Email),
+                    Token = _jwtTokenGenerator.GenerateToken(student.Id, student.Email, UserRole.Student.ToString()),
                     Role = UserRole.Student
                 };
             }
@@ -65,7 +66,7 @@ public class SignInQueryHandler : IRequestHandler<SignInQuery, AuthResponseDto>
                 return new AuthResponseDto
                 {
                     Email = teacher.Email,
-                    Token = _jwtTokenGenerator.GenerateToken(teacher.Id, teacher.Email),
+                    Token = _jwtTokenGenerator.GenerateToken(teacher.Id, teacher.Email, UserRole.Teacher.ToString()),
                     Role = UserRole.Teacher
                 };
             }
@@ -76,18 +77,20 @@ public class SignInQueryHandler : IRequestHandler<SignInQuery, AuthResponseDto>
         if (admin != null)
         {
             var result = _adminPasswordHasher.VerifyHashedPassword(admin, admin.PasswordHash, request.Password);
+
             if (result == PasswordVerificationResult.Success)
             {
+                var role = admin.IsSuperAdmin ? UserRole.SuperAdmin : UserRole.Admin;
                 return new AuthResponseDto
                 {
                     Email = admin.Email,
-                    Token = _jwtTokenGenerator.GenerateToken(admin.Id, admin.Email),
-                    Role = UserRole.Admin
+                    Token = _jwtTokenGenerator.GenerateToken(admin.Id, admin.Email, role.ToString()),
+                    Role = role
                 };
             }
         }
 
-        // 4. If none matched
+    
         throw new UnauthorizedAccessException("Invalid credentials.");
-    }
+}
 }

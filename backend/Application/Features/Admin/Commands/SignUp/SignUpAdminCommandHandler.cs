@@ -53,7 +53,7 @@ public class SignUpAdminCommandHandler : IRequestHandler<SignUpAdminCommand, Aut
         Console.WriteLine($"Admin created:{newAdmin.Id}");
         Console.WriteLine($"Admin created:{newAdmin.Email}");
 
-        var token = _jwtTokenGenerator.GenerateToken(newAdmin.Id, newAdmin.Email);
+        var token = _jwtTokenGenerator.GenerateToken(newAdmin.Id, newAdmin.Email, UserRole.Admin.ToString());
 
         return new AuthResponseDto
         {

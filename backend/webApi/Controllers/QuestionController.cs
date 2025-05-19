@@ -48,17 +48,17 @@ public class QuestionsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetQuestionById(string id)
     {
-        var question = await _mediator.Send(new GetQuestionDetailQuery{ Id = id });
+        var question = await _mediator.Send(new GetQuestionDetailQuery { Id = id });
         return Ok(question);
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateQuestion([FromForm] CreateQuestionCommand question)
     {
-        var response= await _mediator.Send(question);
+        var response = await _mediator.Send(question);
         return Ok(response);
     }
-    
+
     [HttpPut]
     public async Task<IActionResult> UpdateQuestion([FromBody] UpdateQuestionCommand question)
     {
@@ -73,11 +73,12 @@ public class QuestionsController : ControllerBase
     [HttpDelete]
     public async Task<IActionResult> DeleteQuestion(DeleteQuestionCommand request)
     {
-        var response= await _mediator.Send(request);
+        var response = await _mediator.Send(request);
         if (response)
         {
             return Ok();
         }
         return NotFound();
     }
+    
 }

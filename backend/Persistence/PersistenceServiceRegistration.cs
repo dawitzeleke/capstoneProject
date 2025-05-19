@@ -64,6 +64,8 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IUserActivityRepository, UserActivityRepository>();
+        
         services.AddScoped<IStudentProgressRepository, StudentProgressRepository>();
         services.AddScoped<IMonthlyProgressRepository, MonthlyProgressRepository>();
         services.AddScoped<IStudentSolvedQuestionsRepository, StudentSolvedQuestionsRepository>();

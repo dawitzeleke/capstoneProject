@@ -11,8 +11,8 @@ public class EmailService : IEmailService
             Credentials = new NetworkCredential("736480b01f9d1b", "aa53e9299852fb"),
             EnableSsl = true
         };
-
-        var mail = new MailMessage("no-reply@example.com", to, subject, body);
+        var from = "736480b01f9d1b@smtp.mailtrap.io";
+        var mail = new MailMessage(from, to, subject, body);
         await smtp.SendMailAsync(mail); 
     }
 }

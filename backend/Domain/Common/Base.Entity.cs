@@ -7,7 +7,7 @@ public abstract class BaseEntity
         [BsonId] 
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public string? UpdatedBy { get; set; }
+        public virtual DateTime? CreatedAt { get; set; }
+        public virtual DateTime? UpdatedAt { get; set; }
+        public virtual string? UpdatedBy { get; set; }
     }

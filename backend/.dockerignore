@@ -28,3 +28,16 @@ README.md
 !.git/config
 !.git/packed-refs
 !.git/refs/heads/**
+**/.classpath
+**/.dockerignore
+**/.env
+**/.git
+**/.gitignore
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/bin
+**/obj
+Dockerfile
+frontend/

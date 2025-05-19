@@ -22,15 +22,9 @@ public class InviteAdminCommandHandler : IRequestHandler<InviteAdminCommand, Aut
         _currentUserService = currentUserService;
     }
 
-    public async Task<AuthResponseDto> Handle(InviteAdminCommand request, CancellationToken cancellationToken)
-    {
-        Console.WriteLine($"Handling InviteAdminCommand for email: {request}");
-        var currentAdmin = await _adminRepository.GetByIdAsync(_currentUserService.UserId.ToString());
-        Console.WriteLine($"Current admin: {currentAdmin.Id}");
-        if (currentAdmin == null || !currentAdmin.IsSuperAdmin)
-            throw new UnauthorizedAccessException("Only Super Admins can invite new admins.");
-
-       
+    public async Task<AuthResponseDto> Handle(InviteAdminCommand request, CancellationToken cancellationToken){
+        var superAdmin = await _adminRepository.GetByIdAsync(_currentUserService.UserId.ToString());
+      
         var existingAdmin = await _adminRepository.GetByEmailAsync(request.Email);
         if (existingAdmin != null)
             throw new Exception("Admin with this email already exists");

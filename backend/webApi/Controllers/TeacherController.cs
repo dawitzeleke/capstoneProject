@@ -44,7 +44,7 @@ public class TeachersController : ControllerBase
         return Ok("Verification request sent successfully.");
     }
 
-    [Authorize]
+    [Authorize(Roles = "Teacher")]
     [HttpPatch("settings")]
     public async Task<IActionResult> UpdateSettings([FromForm] UpdateTeacherSettingsCommand request)
     {

@@ -1,5 +1,7 @@
-public enum UserRole {
+public enum UserRole
+{
     Student,
     Teacher,
-    Admin
+    Admin,
+    SuperAdmin
 }

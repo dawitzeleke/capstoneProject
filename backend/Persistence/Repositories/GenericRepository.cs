@@ -35,14 +35,16 @@ namespace backend.Persistence.Repositories
 
         public async Task<T> UpdateAsync(T entity)
         {
-            var response = await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity);
-            if (response.IsAcknowledged)
+            var result = await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity);
+
+            if (result.IsAcknowledged && result.ModifiedCount > 0)
             {
                 return entity;
             }
-            return null;
 
+            throw new Exception($"Update failed. Entity with Id {entity.Id} may not exist.");
         }
+
 
         public async Task<bool> DeleteAsync(T entity)
         {
@@ -53,6 +55,6 @@ namespace backend.Persistence.Repositories
             }
             return true;
         }
-       
+
     }
 }

@@ -35,12 +35,32 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(query);
             return Ok(result);
         }
-        
+
 
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn([FromForm] SignInQuery query)
         {
             var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [HttpPost("send-reset-code")]
+        public async Task<IActionResult> SendResetCode([FromBody] SendResetCodeCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+        [HttpPost("verify-reset-code")]
+        public async Task<IActionResult> VerifyResetCode([FromBody] VerifyResetCodeQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+        
+        [HttpPost("reset-password")]    
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
+        {
+            var result = await _mediator.Send(command);
             return Ok(result);
         }
     }

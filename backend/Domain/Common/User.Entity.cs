@@ -23,6 +23,8 @@ namespace backend.Domain.Common
         public string ProfilePictureUrl { get; set; }
         public string ProfilePicturePublicId { get; set; }
         public string NationalId { get; set; }
+        public string PasswordResetCode { get; set; }
+        public DateTime? PasswordResetCodeExpiresAt { get; set; }
 
         //public string IsBanned { get; set; }
     }
