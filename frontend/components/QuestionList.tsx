@@ -2,10 +2,10 @@ import React, { useRef, useState } from "react";
 import {
   View,
   FlatList,
-  ActivityIndicator,
   useWindowDimensions,
   ViewToken,
 } from "react-native";
+import { useSelector } from "react-redux";
 import QuestionCard from "./QuestionCard";
 import QuestionSkeleton from "./QuestionSkeleton";
 
@@ -35,6 +35,7 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
   const adjustedHeight = height * 0.97;
   const flatListRef = useRef<FlatList<Question>>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const currentTheme = useSelector((state: any) => state.theme.mode);
 
   const viewabilityConfig = { itemVisiblePercentThreshold: 50 };
 
@@ -50,7 +51,9 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
     <FlatList
       ref={flatListRef}
       data={questions}
-      className="bg-card"
+      className={`${
+        currentTheme === "dark" ? "bg-black" : "bg-white"
+      }`}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <View style={{ height: adjustedHeight, width: "100%" }}>
@@ -66,7 +69,9 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
       onEndReachedThreshold={0.1}
       ListFooterComponent={
         isLoading ? (
-          <View className="flex justify-center items-center">
+          <View
+            className="flex justify-center items-center"
+            style={{ height: adjustedHeight, width: "100%" }}>
             <QuestionSkeleton />
           </View>
         ) : null

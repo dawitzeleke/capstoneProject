@@ -5,7 +5,10 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CLOUDINARY_CLOUD_NAME": "dgdarlmkm",
+        "CLOUDINARY_API_KEY": "575516194255779",
+        "CLOUDINARY_API_SECRET": "ZkiASH06Z4EvctEhFm_ks_zmZU4"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5019"
@@ -15,7 +18,10 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CLOUDINARY_CLOUD_NAME": "your-cloud-name",
+        "CLOUDINARY_API_KEY": "your-api-key",
+        "CLOUDINARY_API_SECRET": "your-api-secret"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7007;http://localhost:5019"
@@ -25,7 +31,10 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CLOUDINARY_CLOUD_NAME": "your-cloud-name",
+        "CLOUDINARY_API_KEY": "your-api-key",
+        "CLOUDINARY_API_SECRET": "your-api-secret"
       }
     },
     "Container (Dockerfile)": {
@@ -34,7 +43,10 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
         "ASPNETCORE_HTTPS_PORTS": "8081",
-        "ASPNETCORE_HTTP_PORTS": "8080"
+        "ASPNETCORE_HTTP_PORTS": "8080",
+        "CLOUDINARY_CLOUD_NAME": "your-cloud-name",
+        "CLOUDINARY_API_KEY": "your-api-key",
+        "CLOUDINARY_API_SECRET": "your-api-secret"
       },
       "publishAllPorts": true,
       "useSSL": true

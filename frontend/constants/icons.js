@@ -12,12 +12,16 @@ import eyeHide from "../assets/icons/eye-hide.png";
 import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
 import pencil from "../assets/icons/pencil.png";
+import Cognify from "../assets/icons/cognify.png";
+import CognifyLogo from "../assets/icons/cognifyLogo.png";
 import notification from "../assets/icons/notification.png";
 
 export default {
   play,
   bookmark,
   home,
+  Cognify,
+  CognifyLogo,
   plus,
   profile,
   leftArrow,

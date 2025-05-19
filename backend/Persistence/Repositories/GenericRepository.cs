@@ -41,7 +41,7 @@ namespace backend.Persistence.Repositories
                 return entity;
             }
             return null;
-    
+
         }
 
         public async Task<bool> DeleteAsync(T entity)
@@ -53,5 +53,6 @@ namespace backend.Persistence.Repositories
             }
             return true;
         }
+       
     }
 }

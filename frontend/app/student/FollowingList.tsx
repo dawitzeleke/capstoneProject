@@ -21,6 +21,7 @@ const FollowingList = () => {
   const followingTeachers = useSelector(
     (state: RootState) => state.teacher.teachers
   );
+  const currentTheme = useSelector((state: RootState) => state.theme.mode); // Get the current theme
 
   const filteredTeachers = followingTeachers.filter((teacher) =>
     teacher.name.toLowerCase().includes(query.toLowerCase())
@@ -32,25 +33,53 @@ const FollowingList = () => {
   };
 
   return (
-    <View className="flex-1 bg-primary px-4 pt-6">
-      <View className="flex-row justify-between items-center mb-4">
+    <View
+      className={`flex-1 ${
+        currentTheme === "dark" ? "bg-black" : "bg-[#f1f3fc]"
+      } px-4 pt-6`}>
+      <View
+        className={`flex-row justify-between items-center mb-4 ${
+          currentTheme === "dark" ? "text-white" : "text-gray-800"
+        }`}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color="gray" />
+          <Ionicons
+            name="chevron-back"
+            size={24}
+            color={currentTheme === "dark" ? "white" : "gray"}
+          />
         </TouchableOpacity>
-        <Text className="text-white text-2xl font-pbold">Following</Text>
-        <Ionicons name="people-circle" size={28} color="white" />
+        <Text
+          className={`text-2xl font-pbold ${
+            currentTheme === "dark" ? "text-white" : "text-gray-800"
+          }`}>
+          Following
+        </Text>
+        <Ionicons
+          name="people-circle"
+          size={28}
+          color={currentTheme === "dark" ? "white" : "gray"}
+        />
       </View>
 
-      <View className="flex-row items-center bg-gray-700 p-3 rounded-full mb-4">
+      <View
+        className={`flex-row items-center ${
+          currentTheme === "dark" ? "bg-gray-700" : "bg-gray-200"
+        } p-3 rounded-full mb-4`}>
         <TextInput
           placeholder="Search followed teachers"
-          placeholderTextColor="#ccc"
+          placeholderTextColor={currentTheme === "dark" ? "#ccc" : "#888"}
           value={query}
           onChangeText={setQuery}
-          className="flex-1 ml-2 text-white pl-4 font-pregular"
+          className={`flex-1 ml-2 ${
+            currentTheme === "dark" ? "text-white" : "text-black"
+          } pl-4 font-pregular`}
         />
         <TouchableOpacity className="p-2">
-          <Ionicons name="search" size={20} color="white" />
+          <Ionicons
+            name="search"
+            size={20}
+            color={currentTheme === "dark" ? "white" : "gray"}
+          />
         </TouchableOpacity>
       </View>
 
@@ -66,10 +95,14 @@ const FollowingList = () => {
             questions={item.questions}
             imageUrl={item.imageUrl}
             onPress={() => handlePress(item)}
+            theme={currentTheme} // Pass the theme to TeacherItem
           />
         )}
         ListEmptyComponent={
-          <Text className="text-center text-gray-400 mt-10">
+          <Text
+            className={`text-center ${
+              currentTheme === "dark" ? "text-gray-400" : "text-gray-600"
+            } mt-10`}>
             You are not following any teacher.
           </Text>
         }
