@@ -8,4 +8,5 @@ public interface IQuestionRepository : IGenericRepository<Question>
     Task<int> GetQuestionFeedbacks(string id);
     Task<List<Question>> GetFilteredQuestions(QuestionFilterDto filter);
     Task<List<Question>> GetQuestionByIdList(IEnumerable<string> questionIds);
+    Task<int> CountAsync();
 }
