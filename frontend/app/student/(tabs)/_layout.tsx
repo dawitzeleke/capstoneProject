@@ -72,7 +72,7 @@ const TabsLayout: React.FC = () => {
           tabBarActiveTintColor: isDark ? "#00FFFF" : "#4F46E5",
           tabBarInactiveTintColor: isDark ? "#aaa" : "#777",
           tabBarStyle: {
-            backgroundColor: isDark ? "#00000" : "#f1f3fc",
+            backgroundColor: isDark ? "#000000" : "#f1f3fc",
             borderTopWidth: 0,
             height: 64,
             display: "flex",
@@ -130,6 +130,7 @@ const TabsLayout: React.FC = () => {
         <Tabs.Screen name="TeacherDetail" options={{ href: null }} />
         <Tabs.Screen name="Activity" options={{ href: null }} />
         <Tabs.Screen name="QuestionsDone" options={{ href: null }} />
+        <Tabs.Screen name="Settings" options={{ href: null }} />
         <Tabs.Screen
           name="Notification"
           options={{
