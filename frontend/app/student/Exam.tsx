@@ -14,6 +14,7 @@ import ExamCard from "../../components/ExamCard";
 import ExamHeader from "../../components/ExamHeader";
 import CountdownOverlay from "../../components/CountdownOverlay";
 import ResultModal from "../../components/ResultModal";
+import { Link, useRouter } from "expo-router";
 
 if (
   Platform.OS === "android" &&
@@ -44,6 +45,7 @@ export default function ExamScreen() {
   const [score, setScore] = useState<number | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const router = useRouter();
 
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60)
@@ -173,6 +175,13 @@ export default function ExamScreen() {
               mode="review"
             />
           ))}
+          <View className="flex-row justify-between items-center mt-4 mb-8">
+            <Pressable
+              className="bg-indigo-600 rounded-full py-3 px-6"
+              onPress={() => router.replace("/student/CreateExam")}>
+              <Text className="text-white">Return</Text>
+            </Pressable>
+          </View>
         </ScrollView>
       )}
     </View>

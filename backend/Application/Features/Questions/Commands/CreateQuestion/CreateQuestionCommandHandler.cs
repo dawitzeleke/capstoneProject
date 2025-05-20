@@ -33,6 +33,7 @@ public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand
             QuestionType = request.QuestionType,
             CreatedBy = request.CreatedBy,
             Report = null,
+            Stream = request.Stream,
         };
         // System.Console.WriteLine(question);
         var newQuestion = await _questionRepository.CreateAsync(question);

@@ -21,64 +21,63 @@ const SignIn = () => {
   });
 
   const [submiting, setsubmiting] = useState(false);
-const submitForm = async () => {
-  setsubmiting(true);
+  const submitForm = async () => {
+    setsubmiting(true);
 
-  const newErrors: any = {};
+    const newErrors: any = {};
 
-  // Email validation
-  if (!form.Email.trim()) {
-    newErrors.Email = "Email is required.";
-  } else if (
-    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(form.Email.trim())
-  ) {
-    newErrors.Email = "Enter a valid email address.";
-  }
-
-  // Password validation
-  if (!form.Password.trim()) {
-    newErrors.Password = "Password is required.";
-  } else if (form.Password.trim().length < 6) {
-    newErrors.Password = "Password must be at least 6 characters.";
-  }
-
-  // Show errors if any
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    setsubmiting(false);
-    return;
-  }
-
-  setErrors({ Email: "", Password: "" });
-
-  try {
-    const formData = new FormData();
-    formData.append("email", form.Email);
-    formData.append("password", form.Password);
-
-    const endpoint = "/api/auth/signin";
-    const response = await httpRequest(endpoint, formData, "POST", {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    await saveToken(response.token);
-
-    if (response.role === "Student") {
-      router.replace("/student/(tabs)/Home");
-    } else {
-      router.replace("/teacher/TeacherVerification");
+    // Email validation
+    if (!form.Email.trim()) {
+      newErrors.Email = "Email is required.";
+    } else if (
+      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(form.Email.trim())
+    ) {
+      newErrors.Email = "Enter a valid email address.";
     }
-  } catch (error: any) {
-    const serverError =
-      error?.response?.data?.message || "Login failed. Please try again.";
-    setErrors({ ...newErrors, Email: serverError, Password: "" });
-  }
 
-  setsubmiting(false);
-};
+    // Password validation
+    if (!form.Password.trim()) {
+      newErrors.Password = "Password is required.";
+    } else if (form.Password.trim().length < 6) {
+      newErrors.Password = "Password must be at least 6 characters.";
+    }
 
+    // Show errors if any
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setsubmiting(false);
+      return;
+    }
+
+    setErrors({ Email: "", Password: "" });
+
+    try {
+      const formData = new FormData();
+      formData.append("email", form.Email);
+      formData.append("password", form.Password);
+
+      const endpoint = "/api/auth/signin";
+      const response = await httpRequest(endpoint, formData, "POST", {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      await saveToken(response.token);
+
+      if (response.role === "Student") {
+        router.replace("/student/(tabs)/Home");
+      } else {
+        router.replace("/teacher/TeacherVerification");
+      }
+    } catch (error: any) {
+      const serverError =
+        error?.response?.data?.message || "Login failed. Please try again.";
+      setErrors({ ...newErrors, Email: serverError, Password: "" });
+    }
+
+    setsubmiting(false);
+  };
 
   return (
     <SafeAreaView className="bg-[#f1f3fc] h-full">
@@ -126,7 +125,9 @@ const submitForm = async () => {
             <Text className="text-lg text-gray-400 font-pregular">
               Don't Have an account?
             </Text>
-            <Link href="/SignUp" className="text-lg font-pregular text-blue-500">
+            <Link
+              href="/SignUp"
+              className="text-lg font-pregular text-blue-500">
               Sign Up
             </Link>
           </View>

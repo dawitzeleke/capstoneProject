@@ -1,11 +1,7 @@
-using MediatR;
-using backend.Domain.Entities;
-using backend.Application.Dtos.QuestionDtos;
 using backend.Domain.Enums;
+namespace backend.Application.Dtos.QuestionDtos;
 
-namespace backend.Application.Features.Questions.Queries.GetQuestionList;
-
-public class GetQuestionListQuery : IRequest<List<Question>>
+public class QuestionFilterDto
 {
     public int? Grade { get; set; }
     public StreamEnum? Stream { get; set; }

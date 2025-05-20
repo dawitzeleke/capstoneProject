@@ -25,7 +25,11 @@ const Questions = () => {
       dispatch(setLoading());
       try {
         const response = await httpRequest("/api/Questions", null, "GET");
-        console.log(response);
+        console.log("here",response)
+        // const resonse2 = await httpRequest("/api/Video", null, "GET");
+        const resonse3 = await httpRequest("/api/imagecontent", null, "GET");
+        // console.log(resonse2.data, "herey");
+        // console.log(resonse3.data);
         dispatch(setQuestions(response));
       } catch (err) {
         console.error("Failed to load user", err);
@@ -38,6 +42,59 @@ const Questions = () => {
   }, [dispatch]);
 
   const questions = useSelector((state: RootState) => state.questions.data);
+  type VideoItem = {
+    id: string;
+    type: "video"; // Literal type
+    videoUrl: string;
+    title: string;
+    description: string;
+    likes: string;
+    isLike: boolean;
+  };
+  const videos: VideoItem[] = [
+    {
+      id: "v1",
+      type: "video",
+      videoUrl:
+        "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+      title: "Explore Nature",
+      description:
+        "Beautiful scenes from the forest and riverside with peaceful sounds of nature.",
+      likes: "134k",
+      isLike: false,
+    },
+    {
+      id: "v2",
+      type: "video",
+      videoUrl: "https://media.w3.org/2010/05/sintel/trailer.mp4",
+      title: "Tech Innovations",
+      description:
+        "Latest inventions and breakthroughs in modern technology, AI, and robotics.",
+      likes: "256k",
+      isLike: false,
+    },
+    {
+      id: "v3",
+      type: "video",
+      videoUrl: "https://media.w3.org/2010/05/bunny/trailer.mp4",
+      title: "Ocean Life",
+      description:
+        "Dive into the mysteries of the sea and discover stunning marine creatures.",
+      likes: "87k",
+      isLike: true,
+    },
+    {
+      id: "v4",
+      type: "video",
+      videoUrl: "https://media.w3.org/2010/05/video/movie_300.mp4",
+      title: "Wildlife Moments",
+      description:
+        "Close encounters with majestic animals in their natural habitats.",
+      likes: "412k",
+      isLike: false,
+    },
+  ];
+
   const isLoading = useSelector(
     (state: RootState) => state.questions.isLoading
   );
@@ -85,6 +142,7 @@ const Questions = () => {
           loadMoreQuestions={loadMoreQuestions}
           hasMoreQuestions={hasMoreQuestions}
           isLoading={isLoading}
+          videos={videos}
         />
       ) : (
         <View className="flex justify-center items-center">
