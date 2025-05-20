@@ -12,7 +12,7 @@ interface TagsInputProps {
 }
 
 const TagsInput = ({ 
-  value, 
+  value = [], 
   onChange, 
   placeholder, 
   error, 
@@ -80,7 +80,7 @@ const TagsInput = ({
           Tags<Text className="text-red-500 m-1 text-lg">*</Text>
         </Text>
         {submitted && error && (
-          <Text className="text-red-500 text-xs">At least one tag required</Text>
+          <Text className="text-red-500 text-xs">At least one tag required.</Text>
         )}
       </View>
 

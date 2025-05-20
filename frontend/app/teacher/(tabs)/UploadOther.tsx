@@ -1,20 +1,28 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, Pressable, ScrollView, Image } from 'react-native';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { View, ScrollView, Pressable, Text, Alert } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
+import { v4 as uuidv4 } from 'uuid';
+
+// Components
 import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
 import AppHeader from '@/components/teacher/Header';
 import TagsInput from '@/components/teacher/QuestionForm/TagsInput';
+import FormActions from '@/components/teacher/QuestionForm/FormActions';
+import FilePicker, { FileData } from '@/components/teacher/ContentForm/FilePicker';
+import MediaPreviewModal from '@/components/teacher/popups/MediaPreviewModal';
 import { SuccessModal } from '@/components/teacher/popups/SuccessModal';
 import { ErrorModal } from '@/components/teacher/popups/ErrorModal';
 import { CancelModal } from '@/components/teacher/popups/CancelModal';
+import TitleInput from '@/components/teacher/ContentForm/TitleInput';
+import DescriptionInput from '@/components/teacher/ContentForm/DescriptionInput';
+
+// Redux and Types
 import { RootState } from '@/redux/store';
-import { addMedia, updateMedia, clearEditingMedia } from '@/redux/teacherReducer/mediaSlice';
-import FilePicker, { FileData } from '@/components/teacher/ContentForm/FilePicker';
+import { createMediaContent, updateMediaContent, setEditingMedia } from '@/redux/teacherReducer/mediaSlice';
 import { MediaItem, MediaType, MediaStatus } from '@/types/mediaTypes';
-import FormActions from '@/components/teacher/QuestionForm/FormActions';
-import Video from 'react-native-video';
-import { Ionicons } from '@expo/vector-icons';
 
 const FILE_TYPES = {
     image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
@@ -24,30 +32,26 @@ const FILE_TYPES = {
 const UploadOtherScreen = () => {
     const router = useRouter();
     const dispatch = useDispatch();
-    const [submitted, setSubmitted] = useState(false);
-    const { media, editingMediaId } = useSelector((state: RootState) => state.media);
+    const { editingMedia } = useSelector((state: RootState) => state.media);
+    const videoRef = useRef(null);
 
     // Form state
     const [formState, setFormState] = useState({
-        id: '',
+        id: uuidv4(),
+        title: '',
+        description: '',
         type: 'image' as MediaType,
-        uri: '',
-        name: '',
+        file: null as FileData | null,
+        thumbnail: null as FileData | null,
         tags: [] as string[],
         status: 'draft' as MediaStatus,
-        date: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
     });
 
-    // File picker state
-    const [file, setFile] = useState<FileData | null>(null);
-    const [selectedFileType, setSelectedFileType] = useState<keyof typeof FILE_TYPES>('image');
-
-    // Video controls state
-    const [isVideoPaused, setIsVideoPaused] = useState(true);
-    const [isVideoEnded, setIsVideoEnded] = useState(false);
-    const videoRef = useRef<Video>(null);
-
-    // Modal and loading states
+    // UI state
+    const [submitted, setSubmitted] = useState(false);
+    const [showPreviewModal, setShowPreviewModal] = useState(false);
     const [modalState, setModalState] = useState({
         success: false,
         error: false,
@@ -56,381 +60,329 @@ const UploadOtherScreen = () => {
         message: '',
     });
 
+    // Validation
     const [validationErrors, setValidationErrors] = useState({
+        title: false,
         file: false,
         tags: false,
+        thumbnail: false,
     });
 
+    // Loading states
     const [isPosting, setIsPosting] = useState(false);
     const [isSavingDraft, setIsSavingDraft] = useState(false);
 
     useFocusEffect(
         useCallback(() => {
-            if (editingMediaId) {
-                const mediaToEdit = media.find(m => m.id === editingMediaId);
-                if (mediaToEdit) {
-                    setFormState({
-                        id: mediaToEdit.id,
-                        type: mediaToEdit.type,
-                        uri: mediaToEdit.uri,
-                        name: mediaToEdit.name,
-                        tags: mediaToEdit.tags,
-                        status: mediaToEdit.status,
-                        date: mediaToEdit.date,
-                    });
-                    setSelectedFileType(mediaToEdit.type);
-                    setFile({
-                        uri: mediaToEdit.uri,
-                        name: mediaToEdit.name,
-                        type: mediaToEdit.type,
-                        size: 0, // Placeholder for size
-                    });
-                }
-            } else {
-                resetForm();
+            if (editingMedia) {
+                setFormState(prev => ({
+                    ...prev,
+                    ...editingMedia,
+                    file: {
+                        uri: editingMedia.url,
+                        name: editingMedia.title,
+                        type: editingMedia.type,
+                        size: 0
+                    },
+                    thumbnail: editingMedia.thumbnailUrl ? {
+                        uri: editingMedia.thumbnailUrl,
+                        name: 'thumbnail',
+                        type: 'image',
+                        size: 0
+                    } : null,
+                    tags: editingMedia.tags || [],
+                    status: editingMedia.status,
+                }));
             }
-
             return () => {
-                if (!editingMediaId) {
-                    dispatch(clearEditingMedia());
+                if (!editingMedia) {
                     resetForm();
+                    dispatch(setEditingMedia(null));
                 }
             };
-        }, [editingMediaId, media, dispatch])
+        }, [editingMedia, dispatch])
     );
+
+    useEffect(() => {
+        if (submitted) validateForm();
+    }, [formState, submitted]);
 
     const validateForm = useCallback(() => {
         const errors = {
-            file: !file,
+            title: !formState.title.trim(),
+            file: !formState.file,
             tags: formState.tags.length === 0,
+            thumbnail: formState.type === 'video' && !formState.thumbnail,
         };
 
         setValidationErrors(errors);
-        return !Object.values(errors).some(error => error);
-    }, [file, formState.tags]);
+        return !Object.values(errors).some(Boolean);
+    }, [formState]);
 
-    const handlePost = useCallback(async () => {
+    const handleFilePick = useCallback(async (type: 'file' | 'thumbnail') => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: type === 'file' ? FILE_TYPES[formState.type] : ['image/*'],
+                copyToCacheDirectory: true,
+            });
+
+            if (result.assets?.[0]) {
+                const asset = result.assets[0];
+                const newFile = {
+                    uri: asset.uri,
+                    name: asset.name || 'unnamed_file',
+                    type: asset.mimeType || (type === 'thumbnail' ? 'image/*' : FILE_TYPES[formState.type][0]),
+                    size: asset.size || 0,
+                };
+
+                setFormState(prev => ({
+                    ...prev,
+                    [type]: newFile,
+                    ...(type === 'file' && formState.type === 'video' ? { thumbnail: null } : {})
+                }));
+            }
+        } catch (error) {
+            console.error('File pick error:', error);
+        }
+    }, [formState.type]);
+
+    const handleSubmit = useCallback(async (status: MediaStatus) => {
         setSubmitted(true);
-        const isValid = validateForm();
+        setModalState(prev => ({ ...prev, error: false }));
 
-        if (!isValid) {
+        if (!validateForm()) {
             setModalState(prev => ({
                 ...prev,
                 error: true,
-                message: 'Please select a valid file and add tags',
+                message: 'Please complete all required fields (*)'
             }));
             return;
         }
 
-        const mediaData: MediaItem = {
-            id: editingMediaId ?? Date.now().toString(),
-            type: selectedFileType,
-            uri: file?.uri || '',
-            name: file?.name || '',
-            tags: formState.tags,
-            status: 'posted',
-            date: new Date().toISOString(),
-        };
-
-        setIsPosting(true);
-
         try {
-            if (editingMediaId) {
-                dispatch(updateMedia(mediaData));
+            status === 'posted' ? setIsPosting(true) : setIsSavingDraft(true);
+
+            const mediaPayload: MediaItem = {
+                ...formState,
+                id: editingMedia?.id || uuidv4(),
+                url: formState.file?.uri || '',
+                thumbnailUrl: formState.thumbnail?.uri || null,
+                status,
+                createdAt: editingMedia?.createdAt || new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+
+            if (editingMedia) {
+                await dispatch(updateMediaContent(mediaPayload)).unwrap();
             } else {
-                dispatch(addMedia(mediaData));
+                await dispatch(createMediaContent(mediaPayload)).unwrap();
             }
 
             setModalState({
-                success: true,
+                success: status === 'posted',
                 error: false,
-                draftSuccess: false,
+                draftSuccess: status === 'draft',
                 cancel: false,
-                message: 'Upload Successful!',
+                message: status === 'draft'
+                    ? 'Draft saved successfully!'
+                    : 'Media uploaded successfully!',
             });
-            resetForm();
-            setSubmitted(false);
-        } catch (error) {
+
+            if (!editingMedia) resetForm();
+        } catch (error: any) {
             setModalState({
                 success: false,
                 error: true,
                 draftSuccess: false,
                 cancel: false,
-                message: error instanceof Error ? error.message : 'Upload failed',
+                message: error.message || 'Submission failed. Please try again.',
             });
         } finally {
             setIsPosting(false);
-        }
-    }, [editingMediaId, file, formState.tags, selectedFileType, dispatch, validateForm]);
-
-    const handleSaveDraft = useCallback(async () => {
-        if (formState.tags.length === 0) {
-            setSubmitted(true);
-            setModalState(prev => ({
-                ...prev,
-                error: true,
-                message: 'Please add at least one tag for the draft',
-            }));
-            return;
-        }
-
-        setIsSavingDraft(true);
-
-        try {
-            const draftMedia: MediaItem = {
-                id: Date.now().toString(),
-                type: selectedFileType,
-                uri: file?.uri || '',
-                name: file?.name || '',
-                tags: formState.tags,
-                status: 'draft',
-                date: new Date().toISOString(),
-            };
-
-            dispatch(addMedia(draftMedia));
-            setModalState(prev => ({
-                ...prev,
-                draftSuccess: true,
-                message: 'Saved as Draft!',
-            }));
-            resetForm();
-        } catch (error) {
-            setModalState(prev => ({
-                ...prev,
-                error: true,
-                message: error instanceof Error ? error.message : 'Saving draft failed',
-            }));
-        } finally {
             setIsSavingDraft(false);
         }
-    }, [file, formState.tags, selectedFileType, dispatch]);
+    }, [formState, validateForm, dispatch, editingMedia]);
 
     const resetForm = useCallback(() => {
         setFormState({
-            id: '',
+            id: uuidv4(),
+            title: '',
+            description: '',
             type: 'image',
-            uri: '',
-            name: '',
+            file: null,
+            thumbnail: null,
             tags: [],
             status: 'draft',
-            date: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
         });
-        setSelectedFileType('image');
-        setFile(null);
-        setValidationErrors({
-            file: false,
-            tags: false,
-        });
+        setValidationErrors({ title: false, file: false, tags: false, thumbnail: false });
         setSubmitted(false);
-        setIsVideoPaused(true);
-        setIsVideoEnded(false);
-    }, []);
-
-    useEffect(() => {
-        validateForm();
-    }, [formState, validateForm]);
+        dispatch(setEditingMedia(null));
+    }, [dispatch]);
 
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
 
         if (modalState.success || modalState.draftSuccess) {
             timeoutId = setTimeout(() => {
-                router.push("/teacher/ContentList");
+                router.push('/teacher/ContentList');
                 setModalState(prev => ({
                     ...prev,
                     success: false,
-                    draftSuccess: false,
+                    draftSuccess: false
                 }));
-                dispatch(clearEditingMedia());
             }, 2000);
         }
 
         if (modalState.error) {
             timeoutId = setTimeout(() => {
                 setModalState(prev => ({ ...prev, error: false }));
-                setSubmitted(false);
             }, 3000);
         }
 
-        return () => {
-            if (timeoutId) clearTimeout(timeoutId);
-        };
-    }, [modalState, router, dispatch]);
+        return () => timeoutId && clearTimeout(timeoutId);
+    }, [modalState, router]);
 
     return (
         <View className="flex-1 bg-slate-50">
             <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-                <AppHeader title="Upload Content" onBack={() => router.push("../ContentList")} />
+                <AppHeader title="Upload Media" onBack={() => router.back()} />
                 <ContentTypeSelector currentScreen="UploadOther" />
-                
+
                 <View className="px-4 pt-4">
-                    {/* File Type Selection */}
-                    <View className="bg-white mb-4 p-4 rounded-lg shadow">
-                        <Text className="text-slate-800 text-base font-psemibold mb-3">File Type</Text>
-                        
-                        <View className="flex-row flex-wrap gap-2 justify-center items-center mb-4">
+                    {/* Media Type Selection */}
+                    <View className="bg-white p-4 rounded-lg shadow mb-4">
+                        <Text className="text-lg font-psemibold mb-2">Media Type</Text>
+                        <View className="flex-row gap-2">
                             {Object.keys(FILE_TYPES).map((type) => (
                                 <Pressable
                                     key={type}
-                                    className={`py-2 px-4 rounded-full border ${
-                                        selectedFileType === type 
-                                            ? 'bg-indigo-600 border-indigo-600' 
-                                            : 'bg-slate-50 border-slate-200'
-                                    }`}
-                                    onPress={() => setSelectedFileType(type as keyof typeof FILE_TYPES)}
+                                    className={`px-4 py-2 rounded-full ${formState.type === type ? 'bg-indigo-600' : 'bg-slate-100'
+                                        }`}
+                                    onPress={() => setFormState(prev => ({
+                                        ...prev,
+                                        type: type as MediaType,
+                                        file: null,
+                                        thumbnail: null
+                                    }))}
                                 >
-                                    <Text className={`text-sm font-pmedium ${
-                                        selectedFileType === type ? 'text-white' : 'text-slate-500'
-                                    }`}>
+                                    <Text className={`font-pmedium ${formState.type === type ? 'text-white' : 'text-slate-600'
+                                        }`}>
                                         {type.toUpperCase()}
                                     </Text>
                                 </Pressable>
                             ))}
                         </View>
+                    </View>
 
-                        {/* File Picker */}
+                    {/* File Upload Section */}
+                    <View className="bg-white p-4 rounded-lg shadow mb-4">
+                        <Text className="text-lg font-psemibold mb-2">Media File</Text>
                         <FilePicker
-                            allowedTypes={FILE_TYPES[selectedFileType]}
-                            fileTypeLabel={selectedFileType}
-                            onFilePicked={(file) => {
-                                setFile(file);
-                                setValidationErrors(prev => ({ ...prev, file: false }));
-                                setIsVideoPaused(true);
-                                setIsVideoEnded(false);
-                            }}
-                            error={validationErrors.file}
+                            allowedTypes={FILE_TYPES[formState.type]}
+                            fileTypeLabel={formState.type}
+                            onFilePicked={file => setFormState(prev => ({ ...prev, file }))}
+                            error={submitted && validationErrors.file}
                         />
 
-                        {/* Selected File Preview */}
-                        {file && (
-                            <View className="mt-4 p-3 bg-indigo-50 rounded-lg">
-                                <Text className="text-indigo-800 font-pmedium">
-                                    Selected: {file.name} ({Math.round(file.size / 1024)}KB)
-                                </Text>
-                                {/* Media Preview */}
-                                <View className="mt-4">
-                                    {FILE_TYPES.image.includes(file.type) && (
-                                        <Image
-                                            source={{ uri: file.uri }}
-                                            className="w-full h-48 rounded-lg object-cover"
-                                            resizeMode="cover"
-                                        />
-                                    )}
-                                    {FILE_TYPES.video.includes(file.type) && (
-                                        <View className="w-full h-48 rounded-lg overflow-hidden">
-                                            <Video
-                                                ref={videoRef}
-                                                source={{ uri: file.uri }}
-                                                style={{ width: '100%', height: '100%' }}
-                                                resizeMode="cover"
-                                                controls={false}
-                                                paused={isVideoPaused}
-                                                onError={(error) => console.error("Video error:", error)}
-                                                onReadyForDisplay={() => {
-                                                    // Video is ready to play
-                                                }}
-                                                onEnd={() => {
-                                                    setIsVideoEnded(true);
-                                                    setIsVideoPaused(true);
-                                                }}
-                                            />
-                                            {/* Video Controls */}
-                                            <View className="absolute bottom-0 left-0 right-0 flex items-center justify-center p-2">
-                                                {isVideoEnded && (
-                                                    <Pressable
-                                                        className="flex items-center justify-center bg-black/50 rounded-lg"
-                                                        onPress={() => {
-                                                            setIsVideoEnded(false);
-                                                            setIsVideoPaused(false);
-                                                        }}
-                                                    >
-                                                        <Ionicons 
-                                                            name="repeat" 
-                                                            size={24} 
-                                                            color="#4F46E5" 
-                                                        />
-                                                    </Pressable>
-                                                )}
-                                                {!isVideoEnded && (
-                                                    <Pressable
-                                                        className="flex items-center justify-center bg-black/50 rounded-lg"
-                                                        onPress={() => {
-                                                            setIsVideoPaused(!isVideoPaused);
-                                                        }}
-                                                    >
-                                                        <Ionicons 
-                                                            name={isVideoPaused ? "play-circle" : "pause-circle"} 
-                                                            size={48} 
-                                                            color="#4F46E5" 
-                                                        />
-                                                    </Pressable>
-                                                )}
-                                            </View>
-                                        </View>
-                                    )}
-                                </View>
-                            </View>
+                        {formState.type === 'video' && (
+                            <>
+                                <Text className="text-lg font-psemibold mt-4 mb-2">Thumbnail</Text>
+                                <FilePicker
+                                    allowedTypes={FILE_TYPES.image}
+                                    fileTypeLabel="image"
+                                    onFilePicked={thumbnail => setFormState(prev => ({ ...prev, thumbnail }))}
+                                    error={submitted && validationErrors.thumbnail}
+                                />
+                            </>
                         )}
                     </View>
 
-                    {/* Tags Input */}
-                    <TagsInput
-                        value={formState.tags}
-                        onChange={(newTags) => {
-                            setFormState(prev => ({ ...prev, tags: newTags }));
-                            setValidationErrors(prev => ({ ...prev, tags: false }));
-                        }}
-                        placeholder="Add tags separated by comma or space"
-                        error={validationErrors.tags}
-                        maxLength={20}
-                    />
+                    {/* Media Details */}
+                    <View className="bg-white p-4 rounded-lg shadow mb-4">
+                        <Text className="text-lg font-psemibold mb-2">Details</Text>
 
-                    {/* Form Actions */}
+                        <TitleInput
+                            value={formState.title}
+                            onChange={(text) => setFormState(prev => ({ ...prev, title: text }))}
+                            error={validationErrors.title}
+                            submitted={submitted}
+                            placeholder="Enter media title"
+                        />
+
+                        <DescriptionInput
+                            value={formState.description}
+                            onChange={(text) => setFormState(prev => ({ ...prev, description: text }))}
+                            placeholder="Enter media description"
+                            error={false}
+                            submitted={false}
+                        />
+
+                        <TagsInput
+                            value={formState.tags || []}
+                            onChange={tags => setFormState(prev => ({ ...prev, tags }))}
+                            error={validationErrors.tags}
+                            submitted={submitted}
+                        />
+                    </View>
+
                     <FormActions
-                        onSaveDraft={handleSaveDraft}
-                        onPost={handlePost}
+                        onSaveDraft={() => handleSubmit('draft')}
+                        onPost={() => {
+                            setSubmitted(true);
+                            if (validateForm()) setShowPreviewModal(true);
+                        }}
                         onCancel={() => setModalState(prev => ({ ...prev, cancel: true }))}
                         isSavingDraft={isSavingDraft}
                         isPosting={isPosting}
-                        validationErrors={{
-                            file: validationErrors.file,
-                            tags: validationErrors.tags,
-                        }}
+                        validationErrors={validationErrors}
                     />
                 </View>
             </ScrollView>
 
             {/* Modals */}
-            <CancelModal
-                isVisible={modalState.cancel}
-                onConfirm={() => {
-                    setModalState(prev => ({ ...prev, cancel: false }));
-                    resetForm();
-                    router.push("/teacher/ContentList");
+            <MediaPreviewModal
+                visible={showPreviewModal}
+                media={{
+                    ...formState,
+                    url: formState.file?.uri || '',
+                    thumbnailUrl: formState.thumbnail?.uri || '',
                 }}
-                onCancel={() => setModalState(prev => ({ ...prev, cancel: false }))}
+                onClose={() => setShowPreviewModal(false)}
+                onConfirm={() => handleSubmit('posted')}
+                loading={isPosting}
+                mode={editingMedia ? 'edit' : 'create'}
+                status="posted"
             />
 
             <SuccessModal
                 isVisible={modalState.success}
                 onDismiss={() => setModalState(prev => ({ ...prev, success: false }))}
-                icon="cloud-done"
                 message={modalState.message}
-                color="#22c55e"
+                icon={formState.type === 'image' ? 'image' : 'videocam'}
             />
 
             <SuccessModal
                 isVisible={modalState.draftSuccess}
                 onDismiss={() => setModalState(prev => ({ ...prev, draftSuccess: false }))}
-                icon="checkmark-circle"
                 message={modalState.message}
-                color="#3b82f6"
+                icon="save"
             />
 
             <ErrorModal
                 isVisible={modalState.error}
                 message={modalState.message}
                 onDismiss={() => setModalState(prev => ({ ...prev, error: false }))}
+            />
+
+            <CancelModal
+                isVisible={modalState.cancel}
+                onConfirm={() => {
+                    resetForm();
+                    router.push('/teacher/ContentList');
+                }}
+                onCancel={() => setModalState(prev => ({ ...prev, cancel: false }))}
             />
         </View>
     );
