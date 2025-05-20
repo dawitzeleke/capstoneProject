@@ -101,7 +101,7 @@ const NotificationScreen = () => {
       } shadow-sm`}
     >
       <View className="flex-row items-start space-x-4">
-        <View className={`p-3 mr-4y
+        <View className={`p-3 mr-4
           rounded-lg ${
           currentTheme === "dark" ? "bg-gray-700" : "bg-gray-100"
         }`}>
@@ -176,7 +176,7 @@ const NotificationScreen = () => {
         <View className="flex-row space-x-3">
           <TouchableOpacity
             onPress={() => setActiveFilter("all")}
-            className={`flex-1 py-3 rounded-xl border ${
+            className={`flex-1 py-3 mr-2 rounded-xl border ${
               activeFilter === "all"
                 ? currentTheme === "dark"
                   ? "border-indigo-500 bg-indigo-500/20"
@@ -187,7 +187,7 @@ const NotificationScreen = () => {
             }`}
           >
             <Text
-              className={`text-center font-psemibold ${
+              className={`text-center  font-psemibold ${
                 activeFilter === "all"
                   ? currentTheme === "dark"
                     ? "text-indigo-400"
