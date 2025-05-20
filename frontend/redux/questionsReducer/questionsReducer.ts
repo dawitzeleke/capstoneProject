@@ -14,8 +14,13 @@ const initialState: QuestionState = {
     {
       id: "q1",
       questionText: "What is the capital of France?",
-      options: ["Berlin", "Madrid", "Paris", "Rome"],
-      correctOption: "Paris",
+      options: [
+        "Berlin - The largest city in Germany and its capital since 1990",
+        "Madrid - The capital and largest city of Spain",
+        "Paris - The capital and most populous city of France, known for the Eiffel Tower",
+        "Rome - The capital city of Italy and home to the Vatican City"
+      ],
+      correctOption: "Paris - The capital and most populous city of France, known for the Eiffel Tower",
       description: "Paris is the capital and most populous city of France.",
       TotalCorrectAnswers: 120,
       courseName: "Geography 101",
@@ -30,10 +35,14 @@ const initialState: QuestionState = {
     {
       id: "q2",
       questionText: "Which planet is known as the Red Planet?",
-      options: ["Earth", "Venus", "Mars", "Jupiter"],
-      correctOption: "Mars",
-      description:
-        "Mars is called the Red Planet due to its reddish appearance.",
+      options: [
+        "Earth - The third planet from the Sun and the only astronomical object known to harbor life",
+        "Venus - The second planet from the Sun and the hottest planet in our solar system",
+        "Mars - The fourth planet from the Sun and the second-smallest planet in the Solar System",
+        "Jupiter - The fifth planet from the Sun and the largest in the Solar System"
+      ],
+      correctOption: "Mars - The fourth planet from the Sun and the second-smallest planet in the Solar System",
+      description: "Mars is called the Red Planet due to its reddish appearance.",
       TotalCorrectAnswers: 98,
       courseName: "Astronomy Basics",
       createdBy: "teacher_002",
@@ -48,14 +57,13 @@ const initialState: QuestionState = {
       id: "q3",
       questionText: "Who wrote 'Romeo and Juliet'?",
       options: [
-        "William Shakespeare",
-        "Charles Dickens",
-        "Jane Austen",
-        "Leo Tolstoy",
+        "William Shakespeare - An English playwright and poet, widely regarded as the greatest writer in the English language",
+        "Charles Dickens - An English writer and social critic who created some of the world's best-known fictional characters",
+        "Jane Austen - An English novelist known primarily for her six major novels",
+        "Leo Tolstoy - A Russian writer who is regarded as one of the greatest authors of all time"
       ],
-      correctOption: "William Shakespeare",
-      description:
-        "Shakespeare is widely regarded as the greatest writer in the English language.",
+      correctOption: "William Shakespeare - An English playwright and poet, widely regarded as the greatest writer in the English language",
+      description: "Shakespeare is widely regarded as the greatest writer in the English language.",
       TotalCorrectAnswers: 105,
       courseName: "English Literature",
       createdBy: "teacher_003",

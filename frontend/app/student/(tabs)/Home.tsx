@@ -172,7 +172,7 @@ export default function Home() {
             <View>
               <Text className="text-sm font-psemibold text-blue-800">Math</Text>
               <Text className="text-xs font-pregular text-gray-500">
-                Do 15 questionsy
+                Do 15 questions
               </Text>
             </View>
             <Text className="text-xs font-pregular text-gray-500">

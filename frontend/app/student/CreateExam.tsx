@@ -10,13 +10,15 @@ import {
   Modal,
   TouchableOpacity,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native"; // ✅ Lottie
 import { useRef } from "react";
 import { useRouter } from "expo-router";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
+import { useSelector } from "react-redux";
 
 // Enable layout animation on Android
 if (
@@ -39,6 +41,7 @@ const streams: StreamType[] = ["Natural", "Social"];
 
 export default function CreateCustomExamScreen() {
   const router = useRouter();
+  const currentTheme = useSelector((state: any) => state.theme.mode);
   const [form, setForm] = useState({
     questions: "",
     examTime: "",
@@ -50,6 +53,7 @@ export default function CreateCustomExamScreen() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
   const animationRef = useRef(null);
+
   const toggleDropdown = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setDropdownOpen(!dropdownOpen);
@@ -69,110 +73,198 @@ export default function CreateCustomExamScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-[#f1f3fc] px-6 pt-10">
+    <ScrollView 
+      className={`flex-1 px-6 pt-10 ${
+        currentTheme === "dark" ? "bg-gray-900" : "bg-[#f1f3fc]"
+      }`}
+    >
       {/* Header */}
-      <View className="mb-6">
-        <Pressable className="mb-4">
-          <View className="flex-row items-center mb-6">
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons
-                name="chevron-back"
-                size={20}
-                // color={currentTheme === "dark" ? "#d6ddff" : "#4F46E5"} // Pritext-[#a5a1f7] color for icons
-              />
-            </TouchableOpacity>
-          </View>
-        </Pressable>
-        <Text className="text-center text-lg font-psemibold text-gray-800">
-          Custom Exam
-        </Text>
+      <View className="mb-8">
+        <View className="flex-row items-center justify-between mb-6">
+          <TouchableOpacity 
+            onPress={() => router.back()}
+            style={{
+              backgroundColor: currentTheme === "dark" ? "#1f2937" : "#f1f3fc",
+              borderRadius: 100,
+              padding: 10,
+            }}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={currentTheme === "dark" ? "#fff" : "#000"}
+            />
+          </TouchableOpacity>
+          <Text className={`text-xl font-psemibold ${
+            currentTheme === "dark" ? "text-white" : "text-gray-800"
+          }`}>
+            Create Custom Exam
+          </Text>
+          <View className="w-10" />
+        </View>
       </View>
+
 
       {/* Questions Input */}
-      <FormField
-        title="Number of Questions"
-        value={form.questions}
-        placeholder="e.g. 20"
-        handleChangeText={(val) =>
-          setForm({ ...form, questions: val.replace(/[^0-9]/g, "") })
-        }
-        keyboardType="numeric"
-      />
-
-      {/* Exam Time Input */}
-      <FormField
-        title="Exam Time (in minutes)"
-        value={form.examTime}
-        placeholder="e.g. 60"
-        handleChangeText={(val) =>
-          setForm({ ...form, examTime: val.replace(/[^0-9]/g, "") })
-        }
-        keyboardType="numeric"
-        otherStyles="mt-6"
-      />
-
-      {/* Difficulty Toggle */}
-      <Text className="text-gray-600 mt-6 mb-2 font-pregular">Difficulty</Text>
-      <View className="space-y-2 flex-row flex-wrap justify-between w-full">
-        {difficultyLevels.map((level) => (
-          <Pressable
-            key={level}
-            onPress={() => setForm({ ...form, difficulty: level })}
-            className="flex-row items-center space-x-3 px-4 py-3 bg-gray-100 rounded-xl">
-            <View
-              className={`w-4 h-4 rounded-full border-2 ${
-                form.difficulty === level
-                  ? "bg-indigo-600 border-indigo-600"
-                  : "border-gray-400"
-              }`}
-            />
-            <Text className="text-gray-800 font-pregular">{level}</Text>
-          </Pressable>
-        ))}
+      <View className="mb-6">
+        <Text className={`text-base font-pmedium mb-3 ${
+          currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+        }`}>
+          Number of Questions
+        </Text>
+        <View className={`flex-row items-center px-4 py-3 rounded-xl border ${
+          currentTheme === "dark" ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
+        }`}>
+          <MaterialIcons
+            name="help-outline"
+            size={24}
+            color={currentTheme === "dark" ? "#9CA3AF" : "#6B7280"}
+          />
+          <TextInput
+            value={form.questions}
+            onChangeText={(val) =>
+              setForm({ ...form, questions: val.replace(/[^0-9]/g, "") })
+            }
+            placeholder="e.g. 20"
+            keyboardType="numeric"
+            className={`flex-1 ml-3 text-base font-pregular ${
+              currentTheme === "dark" ? "text-white" : "text-gray-900"
+            }`}
+            placeholderTextColor={currentTheme === "dark" ? "#9CA3AF" : "#6B7280"}
+          />
+        </View>
       </View>
 
-      {/* Subject Dropdown */}
-      <Text className="text-gray-600 mb-2">Subject ({stream})</Text>
-      <Pressable
-        onPress={toggleDropdown}
-        className="bg-gray-100 px-4 py-3 rounded-xl mb-2 flex-row justify-between items-center">
-        <Text className="text-gray-800 font-pregular">
-          {form.subject || "Select a subject"}
+      {/* Exam Time Input */}
+      <View className="mb-6">
+        <Text className={`text-base font-pmedium mb-3 ${
+          currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+        }`}>
+          Exam Duration (minutes)
         </Text>
-        <FontAwesome
-          name={dropdownOpen ? "angle-up" : "angle-down"}
-          size={20}
-          color="#6b7280"
-        />
-      </Pressable>
+        <View className={`flex-row items-center px-4 py-3 rounded-xl border ${
+          currentTheme === "dark" ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
+        }`}>
+          <MaterialIcons
+            name="timer"
+            size={24}
+            color={currentTheme === "dark" ? "#9CA3AF" : "#6B7280"}
+          />
+          <TextInput
+            value={form.examTime}
+            onChangeText={(val) =>
+              setForm({ ...form, examTime: val.replace(/[^0-9]/g, "") })
+            }
+            placeholder="e.g. 60"
+            keyboardType="numeric"
+            className={`flex-1 ml-3 text-base font-pregular ${
+              currentTheme === "dark" ? "text-white" : "text-gray-900"
+            }`}
+            placeholderTextColor={currentTheme === "dark" ? "#9CA3AF" : "#6B7280"}
+          />
+        </View>
+      </View>
 
-      {dropdownOpen && (
-        <View className="bg-white rounded-xl shadow border border-gray-200 mb-4 overflow-hidden">
-          {subjectsByStream[stream].map((subj) => (
+      {/* Difficulty Selection */}
+      <View className="mb-6">
+        <Text className={`text-base font-pmedium mb-3 ${
+          currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+        }`}>
+          Difficulty Level
+        </Text>
+        <View className="flex-row space-x-3">
+          {difficultyLevels.map((level) => (
             <Pressable
-              key={subj}
-              onPress={() => {
-                setForm({ ...form, subject: subj });
-                setDropdownOpen(false);
-              }}
-              className="px-4 py-3 border-b border-gray-100">
-              <Text className="text-gray-800 font-pregular">{subj}</Text>
+              key={level}
+              onPress={() => setForm({ ...form, difficulty: level })}
+              className={`flex-1 py-3 px-4 rounded-xl border ${
+                form.difficulty === level
+                  ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30"
+                  : currentTheme === "dark"
+                  ? "border-gray-700 bg-gray-800"
+                  : "border-gray-200 bg-white"
+              }`}
+            >
+              <Text
+                className={`text-center font-pmedium ${
+                  form.difficulty === level
+                    ? "text-indigo-600 dark:text-indigo-400"
+                    : currentTheme === "dark"
+                    ? "text-gray-400"
+                    : "text-gray-600"
+                }`}
+              >
+                {level}
+              </Text>
             </Pressable>
           ))}
         </View>
-      )}
+      </View>
+
+      {/* Subject Selection */}
+      <View className="mb-8">
+        <Text className={`text-base font-pmedium mb-3 ${
+          currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+        }`}>
+          Subject
+        </Text>
+        <Pressable
+          onPress={toggleDropdown}
+          className={`px-4 py-3 rounded-xl border flex-row justify-between items-center ${
+            currentTheme === "dark" ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
+          }`}
+        >
+          <Text className={`font-pregular ${
+            currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
+          }`}>
+            {form.subject || "Select a subject"}
+          </Text>
+          <FontAwesome
+            name={dropdownOpen ? "angle-up" : "angle-down"}
+            size={20}
+            color={currentTheme === "dark" ? "#9CA3AF" : "#6B7280"}
+          />
+        </Pressable>
+
+        {dropdownOpen && (
+          <View className={`mt-2 rounded-xl border overflow-hidden ${
+            currentTheme === "dark" ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
+          }`}>
+            {subjectsByStream[stream].map((subj) => (
+              <Pressable
+                key={subj}
+                onPress={() => {
+                  setForm({ ...form, subject: subj });
+                  setDropdownOpen(false);
+                }}
+                className={`px-4 py-3 border-b ${
+                  currentTheme === "dark" ? "border-gray-700" : "border-gray-100"
+                }`}
+              >
+                <Text className={`font-pregular ${
+                  currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
+                }`}>
+                  {subj}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+      </View>
 
       {/* Submit Button */}
       <CustomButton
-        title="Preparing Exam"
+        title="Create Exam"
         handlePress={handleSubmit}
-        containerStyles="mt-6 bg-indigo-600"
-        textStyles="text-white text-base font-semibold"
+        containerStyles={`mt-2 mb-8 ${
+          currentTheme === "dark" ? "bg-indigo-500" : "bg-indigo-600"
+        }`}
+        textStyles="text-white text-base font-psemibold"
       />
 
       {/* Overlay */}
       {showOverlay && (
-        <Modal
+          <Modal
           transparent={true}
           visible={showOverlay}
           animationType="fade"
@@ -180,9 +272,7 @@ export default function CreateCustomExamScreen() {
           <View
             className="flex-1 justify-center items-center bg-black opacity-80"
             style={{ zIndex: 999 }}>
-            <View
-              className="rounded-xl justify-center items-center p-6 shadow-lg"
-              style={{ zIndex: 1000 }}>
+            <View className="rounded-xl justify-center items-center p-6 shadow-lg" style={{ zIndex: 1000 }}>
               <LottieView
                 ref={animationRef}
                 source={require("../../assets/animations/generating.json")}
@@ -195,9 +285,9 @@ export default function CreateCustomExamScreen() {
                 }}
               />
             </View>
-            <Text className="mt-6 text-lg text-center font-semibold text-gray-100">
-              Preparing Exam...
-            </Text>
+              <Text className="mt-6 text-lg text-center font-semibold text-gray-100">
+                Preparing Exam...
+              </Text>
           </View>
         </Modal>
       )}
