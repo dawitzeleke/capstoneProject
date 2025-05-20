@@ -101,7 +101,8 @@ const NotificationScreen = () => {
       } shadow-sm`}
     >
       <View className="flex-row items-start space-x-4">
-        <View className={`p-3 mr-4 rounded-lg ${
+        <View className={`p-3 mr-4y
+          rounded-lg ${
           currentTheme === "dark" ? "bg-gray-700" : "bg-gray-100"
         }`}>
           {getNotificationIcon(item.type)}
