@@ -1,7 +1,9 @@
 import { Pressable, Text, View } from "react-native";
 import React from "react";
+import { ContentStatus } from "@/types/questionTypes";
+import { MediaStatus } from "@/types/mediaTypes";
 
-type Tab = "all" | "posted" | "draft";
+type Tab = "all" | ContentStatus | MediaStatus;
 
 interface TabSwitcherProps {
   activeTab: Tab;
@@ -27,7 +29,7 @@ const TabSwitcher = ({ activeTab, onTabChange }: TabSwitcherProps) => {
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
           </Text>
         </Pressable>
-      ))}
+      ))} 
     </View>
   );
 };
