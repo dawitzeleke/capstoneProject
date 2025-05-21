@@ -8,7 +8,7 @@ type DescriptionInputProps = {
 };
 
 const DescriptionInput = ({ value, onChange, error, submitted }: DescriptionInputProps) => (
-  <View className="bg-white rounded-xl shadow p-4 mb-4">
+  <View className="bg-white rounded-xl shadow p-4 mb-4 border-b border-slate-200">
     <View className="flex-row justify-between items-center mb-2">
       <Text className="text-lg font-psemibold text-slate-800">
         Description<Text className="text-red-500 m-1 text-lg">*</Text>
