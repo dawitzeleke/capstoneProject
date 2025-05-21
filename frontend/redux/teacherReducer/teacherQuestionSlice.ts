@@ -7,13 +7,14 @@ import {
   DifficultyLevel,
   QuestionTypeEnum
 } from "@/types/questionTypes";
+import { MediaStatus } from "@/types/mediaTypes";
 
 interface QuestionState {
   questions: QuestionItem[];
   selectedIds: string[];
   editingQuestionId: string | null;
   searchTerm: string;
-  activeTab: ContentStatus | "all";
+  activeTab: ContentStatus | MediaStatus | "all";
   filters: {
     difficulties: DifficultyLevel[];
     questionTypes: QuestionTypeEnum[];
@@ -136,7 +137,7 @@ const teacherQuestionSlice = createSlice({
     setSearchTerm: (state, action: PayloadAction<string>) => {
       state.searchTerm = action.payload;
     },
-    setActiveTab: (state, action: PayloadAction<ContentStatus | "all">) => {
+    setActiveTab: (state, action: PayloadAction<ContentStatus | MediaStatus | "all">) => {
       state.activeTab = action.payload;
     },
     clearSelections(state) {
@@ -226,4 +227,6 @@ export const selectDisplayQuestions = createSelector(
     : filtered.filter((item: { status: any; }) => item.status === activeTab)
 );
 
+export default teacherQuestionSlice.reducer;
+export default teacherQuestionSlice.reducer;
 export default teacherQuestionSlice.reducer;
