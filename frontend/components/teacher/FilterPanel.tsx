@@ -18,6 +18,10 @@ interface FilterPanelProps {
   selectedPoints: number[];
   onPointChange: (values: number[]) => void;
   onClose: () => void;
+  onClearAll: () => void;
+  mediaTypes: string[];
+  selectedMediaTypes: string[];
+  onMediaTypeChange: (values: string[]) => void;
 }
 
 const FilterPanel = ({
@@ -33,24 +37,38 @@ const FilterPanel = ({
   points,
   selectedPoints,
   onPointChange,
-  onClose
+  onClose,
+  onClearAll,
+  mediaTypes,
+  selectedMediaTypes,
+  onMediaTypeChange
 }: FilterPanelProps) => {
-  // Generate grades 1-12
-  const allGrades = Array.from({length: 12}, (_, i) => i + 1);
+  // Generate grades 9-12
+  const allGrades = [9, 10, 11, 12];
   // Common point values
   const commonPoints = [1, 2, 3, 5, 10, 15, 20];
 
   return (
     <View className="bg-white border-b border-gray-200">
       {/* Filter Header */}
-      <View className="flex-row justify-between items-center px-4 py-1 border-b border-gray-100">
-        <Text className="text-lg font-psemibold text-gray-800">Filters</Text>
-        <Pressable onPress={onClose} className="p-2">
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1, borderColor: '#e5e7eb' }}>
+        <Text style={{ flex: 1, fontWeight: '600', fontSize: 18, color: '#1e293b' }}>Filters</Text>
+        <Pressable onPress={onClearAll} style={{ marginRight: 12 }}>
+          <Text style={{ color: '#4F46E5', fontWeight: '500', fontSize: 16 }}>Clear</Text>
+        </Pressable>
+        <Pressable onPress={onClose}>
           <Ionicons name="close" size={24} color="#64748b" />
         </Pressable>
       </View>
 
       <ScrollView className="max-h-96 px-4 py-3" showsVerticalScrollIndicator={false}>
+        {/* Content Type Filter */}
+        <FilterSection
+          title="Content Type"
+          items={mediaTypes.map(type => type.charAt(0).toUpperCase() + type.slice(1))}
+          selected={selectedMediaTypes.map(type => type.charAt(0).toUpperCase() + type.slice(1))}
+          onChange={(values) => onMediaTypeChange(values.map((value: string) => value.toLowerCase()))}
+        />
         <FilterSection 
           title="Difficulty Level"
           items={difficulties}
@@ -66,7 +84,7 @@ const FilterPanel = ({
         />
         
         <FilterSection
-          title="Grade (1-12)"
+          title="Grade (9-12)"
           items={allGrades}
           selected={selectedGrades}
           onChange={onGradeChange}
