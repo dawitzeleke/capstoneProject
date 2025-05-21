@@ -8,7 +8,7 @@ type GradeSelectorProps = {
 };
 
 const GradeSelector = ({ value, onChange, error, submitted }: GradeSelectorProps) => {
-  const grades = Array.from({ length: 12 }, (_, i) => i + 1);
+   const grades = Array.from({ length: 4 }, (_, i) => i + 9);
 
   return (
     <View className="bg-white rounded-xl shadow p-4 mb-4">
