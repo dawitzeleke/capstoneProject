@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-import ProfilePicture from '@/components/teacher/Profile/ProfilePicture';
-import type { TeacherProfile } from '@/types/teacherTypes';
+import type { TeacherProfile, TeacherStats } from '@/types/teacherTypes';
 
 
 
@@ -11,53 +10,65 @@ interface ProfileCardProps {
   profile: TeacherProfile;
   onChangeImage: (imageUri: string) => void;
   uploadingImage: boolean;
+  stats?: TeacherStats | null;
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({
   profile,
   onChangeImage,
   uploadingImage,
+  stats
 }) => {
   const fullName = `${profile.firstName} ${profile.lastName}`;
+
+  const totalViews = stats?.totalViews || 0;
 
   return (
     <Animated.View
       entering={FadeInUp.delay(100)}
-      className="bg-white p-4 rounded-3xl shadow-lg"
+      className="bg-[#4F46E5] p-6 mx-4 rounded-xl shadow-lg -mt-12 z-10 pt-14"
     >
-      <View className="flex-row items-center">
-        <ProfilePicture
-          profilePictureUrl={profile.profilePictureUrl}
-          onChangeImage={onChangeImage}
-          uploading={uploadingImage}
-        />
+      <View className="items-center">
+        {/* ProfilePicture will be rendered in Profile.tsx with absolute positioning */}
+      </View>
 
-        <View className="flex-1 space-y-1 ml-2">
-          <View className="flex-row items-center space-x-2">
-            <Text className="text-lg font-psemibold text-gray-900">
-              {fullName}
-            </Text>
-            <Ionicons name="ribbon" size={18} color="#4F46E5" />
-          </View>
-
-          <Text className="text-sm text-gray-600">
+      <View className="items-center mt-2">
+        <Text className="text-white text-xl font-psemibold">
+          {fullName}
+        </Text>
+        <Text className="text-indigo-200 text-sm mt-1">Subject: Math</Text>
+        <View className="flex-row items-center mt-1">
+          <Ionicons name="school-outline" size={16} color="white" />
+          <Text className="text-indigo-200 text-sm ml-1">
             {profile.school}
           </Text>
+        </View>
+      </View>
 
-          <View className="flex-row space-x-4 mt-2">
-            <View className="flex-row items-center space-x-1">
-              <Ionicons name="people" size={16} color="#4F46E5" />
-              <Text className="text-sm text-[#4F46E5]">
-                {profile.followersCount.toLocaleString()} Followers
-              </Text>
-            </View>
-            <View className="flex-row items-center space-x-1">
-              <Ionicons name="book" size={16} color="#4F46E5" />
-              <Text className="text-sm text-[#4F46E5]">
-                {profile.postsCount.toLocaleString()} Posts
-              </Text>
-            </View>
-          </View>
+      <View className="flex-row justify-around items-center mt-6 border-t border-b border-indigo-300 py-4">
+        <View className="items-center">
+          <Text className="text-base font-psemibold text-white">
+            {profile.followersCount.toLocaleString()}
+          </Text>
+          <Text className="text-xs text-indigo-200">Followers</Text>
+        </View>
+
+        <View className="w-[1px] h-full bg-indigo-300" />
+
+        <View className="items-center">
+          <Text className="text-base font-psemibold text-white">
+            {profile.postsCount.toLocaleString()}
+          </Text>
+          <Text className="text-xs text-indigo-200">Posts</Text>
+        </View>
+
+        <View className="w-[1px] h-full bg-indigo-300" />
+
+        <View className="items-center">
+          <Text className="text-base font-psemibold text-white">
+            {totalViews.toLocaleString()}
+          </Text>
+          <Text className="text-xs text-indigo-200">Views</Text>
         </View>
       </View>
     </Animated.View>
