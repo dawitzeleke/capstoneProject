@@ -31,7 +31,7 @@ const PointSelector = ({ value, onChange, error, submitted }: PointSelectorProps
             <Pressable
               key={point}
               onPress={() => onChange(point)}
-              className={`w-16 h-12 rounded-lg items-center justify-center ${
+              className={`w-12 h-12 rounded-lg items-center justify-center ${
                 value === point ? 'bg-indigo-600' : 'bg-indigo-50'
               } ${submitted && error ? 'border-2 border-red-200' : ''}`}
             >
