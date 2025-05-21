@@ -1,8 +1,6 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import EditButton from "@/components/teacher/EditButton";
-import DeleteButton from "@/components/teacher/DeleteButton";
 import { QuestionItem, ContentStatus } from "@/types/questionTypes";
 
 interface ManageQuestionCardProps {
@@ -59,13 +57,13 @@ const ManageQuestionCard = ({
       {/* Header Section */}
       <View className="flex-row justify-between items-start mb-2">
         <View className="flex-1">
-          <Text className="text-base font-pmedium text-gray-800">
+          <Text className="text-base font-psemibold text-gray-800">
             {item.courseName}
           </Text>
           <View className="flex-row gap-2 mt-1">
-            <Text className="text-sm text-gray-600">Grade {item.grade}</Text>
-            <Text className="text-sm text-gray-600">•</Text>
-            <Text className="text-sm text-gray-600">
+            <Text className="text-sm text-gray-600 font-pregular">Grade {item.grade}</Text>
+            <Text className="text-sm text-gray-600 font-pregular">•</Text>
+            <Text className="text-sm text-gray-600 font-pregular">
               {item.point} pts
             </Text>
           </View>
@@ -102,7 +100,7 @@ const ManageQuestionCard = ({
 
       {/* Description */}
       {item.description && (
-        <Text className="text-sm text-gray-600 mb-3" numberOfLines={2}>
+        <Text className="text-base text-gray-600 mb-3 font-pregular" numberOfLines={2}>
           {item.description}
         </Text>
       )}
@@ -120,7 +118,7 @@ const ManageQuestionCard = ({
           </View>
         ))}
         {item.options.length > 2 && (
-          <Text className="text-sm text-gray-400 mt-1">
+          <Text className="text-sm text-gray-400 mt-1 font-pregular">
             + {item.options.length - 2} more options
           </Text>
         )}
@@ -128,17 +126,25 @@ const ManageQuestionCard = ({
 
       {/* Footer */}
       <View className="flex-row justify-between items-center border-t border-slate-100 pt-2">
-        <Text className="text-xs text-gray-400">
+        <Text className="text-xs text-gray-400 font-pregular">
           {new Date(item.createdAt).toLocaleDateString()}
         </Text>
 
         <View className="flex-row gap-3">
-          <EditButton itemId={item.id} loading={loading} onPress={onEdit} />
-          <DeleteButton loading={loading} onPress={onDelete} variant="icon" />
+          <Pressable onPress={onEdit} className="p-2 bg-indigo-100 rounded-lg" disabled={loading}>
+            <Ionicons name="pencil" size={20} color="#4F46E5" />
+          </Pressable>
+          <Pressable onPress={onDelete} className="p-2 bg-red-100 rounded-lg" disabled={loading}>
+            <Ionicons name="trash" size={20} color="#ef4444" />
+          </Pressable>
         </View>
       </View>
     </Pressable>
   );
 };
+
+export default ManageQuestionCard;
+
+export default ManageQuestionCard;
 
 export default ManageQuestionCard;
