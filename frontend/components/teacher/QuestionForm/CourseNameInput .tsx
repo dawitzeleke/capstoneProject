@@ -8,7 +8,7 @@ type CourseNameInputProps = {
 };
 
 const CourseNameInput = ({ value, onChange, error, submitted }: CourseNameInputProps) => (
-  <View className=" bg-white rounded-xl shadow p-4 mb-4">
+  <View className=" bg-white rounded-xl shadow p-4 mb-4 border-b border-slate-200">
     <View className="flex-row justify-between items-center mb">
       <Text className="text-lg font-psemibold text-slate-800">
         Course Name<Text className="text-red-500 m-1 text-lg">*</Text>
