@@ -6,6 +6,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch } from '@/redux/teacherReducer/hooks';
 import { updateProfileImage } from '@/redux/teacherReducer/teacherSlice';
+import Toast from 'react-native-toast-message';
+
+// Import the local default avatar image
+import defaultAvatar from '@/assets/images/avatar.jpg';
 
 const ProfilePicture: React.FC<{
   profilePictureUrl?: string;
@@ -52,27 +56,31 @@ const ProfilePicture: React.FC<{
 
   return (
     <>
-      <View className="relative">
+      <View className="relative rounded-full bg-white shadow-lg">
         {profilePictureUrl ? (
           <Image
             source={{ uri: profilePictureUrl }}
-            className="w-16 h-16 rounded-full bg-gray-200"
+            className="w-28 h-28 rounded-full bg-gray-200"
+            style={{ width: 112, height: 112 }}
           />
         ) : (
-          <View className="w-16 h-16 bg-gray-300 rounded-full items-center justify-center">
-            <Ionicons name="person" size={32} color="#ffffff" />
-          </View>
+          <Image
+            source={defaultAvatar}
+            className="w-28 h-28 rounded-full"
+            resizeMode="cover"
+            style={{ width: 112, height: 112 }}
+          />
         )}
 
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
-          className="absolute bottom-0 right-0 bg-white p-1.5 rounded-full shadow-sm"
+          className="absolute bottom-2 right-2 bg-white p-1.5 rounded-full shadow-sm"
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator size="small" color="#4F46E5" />
           ) : (
-            <Ionicons name="pencil" size={16} color="#4F46E5" />
+            <Ionicons name="pencil" size={18} color="#4F46E5" />
           )}
         </TouchableOpacity>
       </View>
