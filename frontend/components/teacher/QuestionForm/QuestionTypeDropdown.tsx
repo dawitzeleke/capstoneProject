@@ -1,19 +1,20 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { QuestionTypeEnum } from '@/types/questionTypes';
 
 type QuestionTypeDropdownProps = {
-  value: string | null;
-  onChange: (type: string) => void;
+  value: QuestionTypeEnum | null;
+  onChange: (type: QuestionTypeEnum) => void;
   error: boolean;
   submitted: boolean;
 };
 
-const questionTypes = [
-  'MultipleChoice',
-  'TrueFalse', 
-  'ProblemSolving',
-  'Code'
+const questionTypes: QuestionTypeEnum[] = [
+  QuestionTypeEnum.MultipleChoice,
+  QuestionTypeEnum.TrueFalse, 
+  QuestionTypeEnum.ProblemSolving,
+  QuestionTypeEnum.Code
 ];
 
 const QuestionTypeDropdown = ({ value, onChange, error, submitted }: QuestionTypeDropdownProps) => {

@@ -1,15 +1,20 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
+import { DifficultyLevel } from '@/types/questionTypes';
 
 type DifficultySelectorProps = {
-  value: string | null;
-  onChange: (difficulty: string) => void;
+  value: DifficultyLevel | null;
+  onChange: (difficulty: DifficultyLevel) => void;
   error: boolean;
   submitted: boolean;
 };
 
-const DifficultySelector = ({ value, onChange, error, submitted }: DifficultySelectorProps) => {
-  const difficulties = ['Easy', 'Medium', 'Hard'];
+const difficulties: DifficultyLevel[] = [
+  DifficultyLevel.Easy,
+  DifficultyLevel.Medium,
+  DifficultyLevel.Hard
+];
 
+const DifficultySelector = ({ value, onChange, error, submitted }: DifficultySelectorProps) => {
   return (
     <View className="bg-white rounded-xl shadow p-4 mb-4">
       <View className="flex-row justify-between items-center mb-2">
