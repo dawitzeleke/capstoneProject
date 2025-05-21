@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { v4 as uuidv4 } from 'uuid';
+import type { AppDispatch } from '@/redux/store';
 
 // Components
 import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
@@ -31,7 +32,8 @@ const FILE_TYPES = {
 
 const UploadOtherScreen = () => {
     const router = useRouter();
-    const dispatch = useDispatch();
+    const rawDispatch = useDispatch();
+    const dispatch: AppDispatch = rawDispatch as AppDispatch;
     const { editingMedia } = useSelector((state: RootState) => state.media);
     const videoRef = useRef(null);
 
@@ -47,6 +49,7 @@ const UploadOtherScreen = () => {
         status: 'draft' as MediaStatus,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        createdBy: '',
     });
 
     // UI state
@@ -58,6 +61,7 @@ const UploadOtherScreen = () => {
         draftSuccess: false,
         cancel: false,
         message: '',
+        color: '',
     });
 
     // Validation
@@ -107,6 +111,13 @@ const UploadOtherScreen = () => {
         if (submitted) validateForm();
     }, [formState, submitted]);
 
+    // Ensure modalState.cancel is reset on unmount
+    useEffect(() => {
+        return () => {
+            setModalState(prev => ({ ...prev, cancel: false }));
+        };
+    }, []);
+
     const validateForm = useCallback(() => {
         const errors = {
             title: !formState.title.trim(),
@@ -143,8 +154,49 @@ const UploadOtherScreen = () => {
             }
         } catch (error) {
             console.error('File pick error:', error);
+            setModalState({
+                success: false,
+                error: true,
+                draftSuccess: false,
+                cancel: false,
+                message: 'Failed to select file. Please try again.',
+                color: '',
+            });
         }
     }, [formState.type]);
+
+    // Helper to restore form state from modal media
+    const restoreFormState = (media: any) => ({
+        id: media.id || uuidv4(),
+        title: media.title || '',
+        description: media.description || '',
+        type: media.type || 'image',
+        file: media.file && typeof media.file === 'object' && media.file !== null
+            ? media.file
+            : (media.url
+                ? {
+                    uri: media.url,
+                    name: media.title,
+                    type: media.type,
+                    size: 0
+                }
+                : null),
+        thumbnail: media.thumbnail && typeof media.thumbnail === 'object' && media.thumbnail !== null
+            ? media.thumbnail
+            : (media.thumbnailUrl
+                ? {
+                    uri: media.thumbnailUrl,
+                    name: 'thumbnail',
+                    type: 'image',
+                    size: 0
+                }
+                : null),
+        tags: media.tags || [],
+        status: media.status || 'draft',
+        createdAt: media.createdAt || new Date().toISOString(),
+        updatedAt: media.updatedAt || new Date().toISOString(),
+        createdBy: media.createdBy || '',
+    });
 
     const handleSubmit = useCallback(async (status: MediaStatus) => {
         setSubmitted(true);
@@ -162,40 +214,65 @@ const UploadOtherScreen = () => {
         try {
             status === 'posted' ? setIsPosting(true) : setIsSavingDraft(true);
 
-            const mediaPayload: MediaItem = {
-                ...formState,
-                id: editingMedia?.id || uuidv4(),
-                url: formState.file?.uri || '',
-                thumbnailUrl: formState.thumbnail?.uri || null,
-                status,
-                createdAt: editingMedia?.createdAt || new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            };
+            // Set status in formState for UI consistency
+            setFormState(prev => ({ ...prev, status }));
 
-            if (editingMedia) {
-                await dispatch(updateMediaContent(mediaPayload)).unwrap();
-            } else {
-                await dispatch(createMediaContent(mediaPayload)).unwrap();
+            // Create FormData with proper file formatting
+            const formData = new FormData();
+            formData.append('title', formState.title);
+            formData.append('description', formState.description || '');
+            formData.append('type', formState.type);
+            formData.append('status', status);
+            formData.append('tags', JSON.stringify(formState.tags));
+
+            if (formState.file) {
+                formData.append('file', {
+                    uri: formState.file.uri,
+                    name: formState.file.name,
+                    type: formState.file.type,
+                } as any);
+            }
+            if (formState.thumbnail) {
+                formData.append('thumbnail', {
+                    uri: formState.thumbnail.uri,
+                    name: formState.thumbnail.name,
+                    type: formState.thumbnail.type,
+                } as any);
             }
 
+            let result;
+            if (editingMedia) {
+                result = await dispatch(updateMediaContent({
+                    id: editingMedia.id,
+                    type: editingMedia.type,
+                    data: formData
+                })).unwrap();
+            } else {
+                result = await dispatch(createMediaContent(formData)).unwrap();
+            }
+
+            // Use returned status if available
+            setFormState((prev: any) => ({ ...prev, status: result?.status || status }));
+
             setModalState({
-                success: status === 'posted',
+                success: true,
                 error: false,
-                draftSuccess: status === 'draft',
+                draftSuccess: false,
                 cancel: false,
-                message: status === 'draft'
-                    ? 'Draft saved successfully!'
-                    : 'Media uploaded successfully!',
+                message: status === 'posted' ? "Posted Successfully!" : "Saved as Draft!",
+                color: status === 'posted' ? "#22c55e" : "#4F46E5",
             });
 
             if (!editingMedia) resetForm();
         } catch (error: any) {
+            const errorMessage = error.payload?.message || error.message || 'Submission failed. Please try again.';
             setModalState({
                 success: false,
                 error: true,
                 draftSuccess: false,
                 cancel: false,
-                message: error.message || 'Submission failed. Please try again.',
+                message: errorMessage,
+                color: '',
             });
         } finally {
             setIsPosting(false);
@@ -215,6 +292,7 @@ const UploadOtherScreen = () => {
             status: 'draft',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
+            createdBy: '',
         });
         setValidationErrors({ title: false, file: false, tags: false, thumbnail: false });
         setSubmitted(false);
@@ -225,6 +303,8 @@ const UploadOtherScreen = () => {
         let timeoutId: NodeJS.Timeout;
 
         if (modalState.success || modalState.draftSuccess) {
+            // Refresh media list after successful post/draft
+            dispatch({ type: 'media/fetch', payload: formState.type });
             timeoutId = setTimeout(() => {
                 router.push('/teacher/ContentList');
                 setModalState(prev => ({
@@ -242,12 +322,16 @@ const UploadOtherScreen = () => {
         }
 
         return () => timeoutId && clearTimeout(timeoutId);
-    }, [modalState, router]);
+    }, [modalState, router, dispatch, formState.type]);
+
+    const handleCancel = useCallback(() => {
+        setModalState(prev => ({ ...prev, cancel: true }));
+    }, []);
 
     return (
         <View className="flex-1 bg-slate-50">
             <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-                <AppHeader title="Upload Media" onBack={() => router.back()} />
+                <AppHeader title="Upload Content" onBack={() => router.back()} />
                 <ContentTypeSelector currentScreen="UploadOther" />
 
                 <View className="px-4 pt-4">
@@ -333,7 +417,7 @@ const UploadOtherScreen = () => {
                             setSubmitted(true);
                             if (validateForm()) setShowPreviewModal(true);
                         }}
-                        onCancel={() => setModalState(prev => ({ ...prev, cancel: true }))}
+                        onCancel={handleCancel}
                         isSavingDraft={isSavingDraft}
                         isPosting={isPosting}
                         validationErrors={validationErrors}
@@ -348,12 +432,20 @@ const UploadOtherScreen = () => {
                     ...formState,
                     url: formState.file?.uri || '',
                     thumbnailUrl: formState.thumbnail?.uri || '',
+                    createdBy: formState.createdBy || '',
                 }}
                 onClose={() => setShowPreviewModal(false)}
-                onConfirm={() => handleSubmit('posted')}
+                onEdit={() => {
+                    setShowPreviewModal(false);
+                    setFormState(restoreFormState(formState));
+                }}
+                onConfirm={() => {
+                    setShowPreviewModal(false);
+                    handleSubmit('posted');
+                }}
                 loading={isPosting}
                 mode={editingMedia ? 'edit' : 'create'}
-                status="posted"
+                status={formState.status}
             />
 
             <SuccessModal
@@ -361,6 +453,7 @@ const UploadOtherScreen = () => {
                 onDismiss={() => setModalState(prev => ({ ...prev, success: false }))}
                 message={modalState.message}
                 icon={formState.type === 'image' ? 'image' : 'videocam'}
+                color={modalState.color}
             />
 
             <SuccessModal
@@ -381,6 +474,7 @@ const UploadOtherScreen = () => {
                 onConfirm={() => {
                     resetForm();
                     router.push('/teacher/ContentList');
+                    setModalState(prev => ({ ...prev, cancel: false }));
                 }}
                 onCancel={() => setModalState(prev => ({ ...prev, cancel: false }))}
             />
