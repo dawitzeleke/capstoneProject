@@ -1,4 +1,3 @@
-
 // types/questionTypes.ts
 export enum DifficultyLevel {
     Easy = 'Easy',
@@ -55,6 +54,8 @@ export type QuestionFormState = {
   explanation: string;
   correctOption: string;
   status: ContentStatus;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 
