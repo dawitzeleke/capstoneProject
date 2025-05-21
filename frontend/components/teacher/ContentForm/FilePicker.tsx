@@ -1,28 +1,39 @@
 import { useState } from 'react';
-import { Pressable, View, Text, Image, GestureResponderEvent } from 'react-native';
+import { Pressable, View, Text, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import Video from 'react-native-video';
 
-export type FileData = {
+const MAX_FILE_SIZE_MB = 50; // 50MB
+
+export interface FileData {
   uri: string;
   name: string;
   type: string;
   size: number;
-};
+}
 
 type FilePickerProps = {
   allowedTypes: string[];
   fileTypeLabel: string;
   onFilePicked: (file: FileData | null) => void;
   error?: boolean;
+  loading?: boolean;
 };
 
-const FilePicker = ({ allowedTypes, fileTypeLabel, onFilePicked, error }: FilePickerProps) => {
+const FilePicker = ({ 
+  allowedTypes, 
+  fileTypeLabel, 
+  onFilePicked, 
+  error = false,
+  loading = false
+}: FilePickerProps) => {
   const [pickedFile, setPickedFile] = useState<FileData | null>(null);
-  const [isVideoPaused, setIsVideoPaused] = useState(true);
+  const [previewError, setPreviewError] = useState<string | null>(null);
 
-  const handleFilePick = async (event: GestureResponderEvent) => {
+  const handleFilePick = async () => {
+    if (loading) return;
+    
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: allowedTypes,
@@ -32,116 +43,110 @@ const FilePicker = ({ allowedTypes, fileTypeLabel, onFilePicked, error }: FilePi
 
       if (result?.assets?.[0]) {
         const asset = result.assets[0];
+        if (asset.size && asset.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+          throw new Error(`File size exceeds ${MAX_FILE_SIZE_MB}MB`);
+        }
+
         const newFile = {
           uri: asset.uri,
           name: asset.name || 'unnamed_file',
           type: asset.mimeType || allowedTypes[0],
           size: asset.size || 0,
         };
+        
         setPickedFile(newFile);
         onFilePicked(newFile);
-      } else {
-        setPickedFile(null);
-        onFilePicked(null);
+        setPreviewError(null);
       }
-    } catch (error) {
-      console.error('File picker error:', error);
+    } catch (err) {
+      const error = err as Error;
+      setPreviewError(error.message || 'Failed to pick file');
       setPickedFile(null);
       onFilePicked(null);
+      setTimeout(() => setPreviewError(null), 3000);
     }
   };
 
   return (
     <View className="w-full mb-4">
-      {/* File Selection Button */}
       <Pressable
         className={`min-h-[180px] border-2 border-dashed rounded-xl justify-center items-center p-5 ${
-          error ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-slate-50'
+          error || previewError ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-slate-50'
         }`}
         onPress={handleFilePick}
+        disabled={loading}
       >
-        <View className="items-center">
-          <Ionicons 
-            name="cloud-upload" 
-            size={48} 
-            color={error ? '#EF4444' : '#4F46E5'} 
-          />
-          <Text className={`text-base font-psemibold mt-2 ${
-            error ? 'text-red-600' : 'text-slate-800'
-          }`}>
-            Select {fileTypeLabel.toUpperCase()} File
-          </Text>
-          <Text className={`text-sm ${
-            error ? 'text-red-500' : 'text-slate-500'
-          } text-center`}>
-            {pickedFile ? 'Tap to change file' : 'Tap to choose from your device'}
-          </Text>
-        </View>
+        {loading ? (
+          <ActivityIndicator size="large" color="#4F46E5" />
+        ) : (
+          <View className="items-center">
+            <Ionicons 
+              name="cloud-upload" 
+              size={48} 
+              color={error || previewError ? '#EF4444' : '#4F46E5'} 
+            />
+            <Text className={`text-base font-psemibold mt-2 ${
+              error || previewError ? 'text-red-600' : 'text-slate-800'
+            }`}>
+              Select {fileTypeLabel.toUpperCase()} File
+            </Text>
+            <Text className={`text-sm ${
+              error || previewError ? 'text-red-500' : 'text-slate-500'
+            } text-center`}>
+              {pickedFile ? 'Tap to change file' : `Max ${MAX_FILE_SIZE_MB}MB`}
+            </Text>
+          </View>
+        )}
       </Pressable>
 
-      {/* Validation Error Message */}
-      {error && !pickedFile && (
+      {(error || previewError) && (
         <Text className="text-red-500 text-sm mt-1 font-pregular">
-          {fileTypeLabel === 'video' 
-            ? 'Video file is required' 
-            : 'Image file is required'}
+          {previewError || `${fileTypeLabel} file is required`}
         </Text>
       )}
 
-      {/* Selected File Preview */}
-      {pickedFile && (
+      {pickedFile && !loading && (
         <View className="mt-4 p-3 bg-indigo-50 rounded-lg">
-          {/* File Info */}
           <View className="flex-row items-center justify-between">
-            <Text className="text-indigo-800 font-pmedium flex-1">
+            <Text className="text-indigo-800 font-pmedium flex-1" numberOfLines={1}>
               {pickedFile.name}
             </Text>
             <Text className="text-indigo-600 text-sm">
-              {Math.round(pickedFile.size / 1024)}KB
+              {(pickedFile.size / 1024 / 1024).toFixed(1)}MB
             </Text>
           </View>
 
-          {/* Media Preview */}
-          <View className="mt-4">
+          <View className="mt-4 aspect-video bg-gray-100 rounded-lg overflow-hidden">
             {pickedFile.type.startsWith('image/') ? (
               <Image
                 source={{ uri: pickedFile.uri }}
-                className="w-full h-48 rounded-lg"
+                className="w-full h-full"
                 resizeMode="contain"
+                onError={() => setPreviewError('Failed to load image')}
               />
             ) : pickedFile.type.startsWith('video/') ? (
-              <View className="w-full h-48 rounded-lg overflow-hidden">
-                <Video
-                  source={{ uri: pickedFile.uri }}
-                  style={{ width: '100%', height: '100%' }}
-                  resizeMode="cover"
-                  controls={false}
-                  paused={isVideoPaused}
-                  repeat
-                />
-                <Pressable
-                  className="absolute bottom-2 right-2 bg-[#4F46E5] p-2 rounded-full"
-                  onPress={() => setIsVideoPaused(!isVideoPaused)}
-                >
-                  <Ionicons 
-                    name={isVideoPaused ? "play" : "pause"} 
-                    size={24} 
-                    color="white" 
-                  />
-                </Pressable>
-              </View>
+              <Video
+                source={{ uri: pickedFile.uri }}
+                style={{ width: '100%', height: '100%' }}
+                resizeMode="contain"
+                controls
+                paused={true}
+                onError={() => setPreviewError('Failed to load video')}
+              />
             ) : (
-              <Text className="text-slate-500 mt-2">Preview not available</Text>
+              <View className="flex-1 items-center justify-center">
+                <Ionicons name="document" size={48} color="#64748b" />
+              </View>
             )}
           </View>
 
-          {/* Remove File Button */}
           <Pressable
             className="mt-3 flex-row items-center justify-end"
             onPress={() => {
               setPickedFile(null);
               onFilePicked(null);
             }}
+            disabled={loading}
           >
             <Ionicons name="close-circle" size={20} color="#EF4444" />
             <Text className="text-red-500 text-sm font-pmedium ml-1">
