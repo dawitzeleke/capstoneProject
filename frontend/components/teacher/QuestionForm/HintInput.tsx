@@ -6,7 +6,7 @@ type HintInputProps = {
 };
 
 const HintInput = ({ value, onChange }: HintInputProps) => (
-  <View className="bg-white rounded-xl shadow p-4 mb-4">
+  <View className="bg-white rounded-xl shadow p-4 mb-4 border-b border-slate-200">
     <Text className="text-lg font-psemibold text-slate-800 mb-2">
       Hint (Optional)
     </Text>
