@@ -11,7 +11,7 @@ const ExplanationInput = ({ value, onChange, error, submitted }: ExplanationInpu
   <View className="bg-white rounded-xl shadow p-4 mb-4">
     <View className="flex-row justify-between items-center mb-2">
       <Text className="text-lg font-psemibold text-slate-800">
-        Explanation<Text className="text-red-500 m-1 text-lg">*</Text>
+        Explanation<Text className="text-red-500 m-1 text-lg"> *</Text>
       </Text>
       {submitted && error && (
         <Text className="text-red-500 text-xs">Required</Text>

@@ -14,7 +14,7 @@ const HintInput = ({ value, onChange }: HintInputProps) => (
       multiline
       placeholder="You can add a hint to help students"
       placeholderTextColor="#94a3b8"
-      className="min-h-[80px] text-base text-black font-pregular"
+      className="min-h-[80px] text-base text-black font-pregular border-b border-slate-200"
       value={value}
       onChangeText={onChange}
     />
