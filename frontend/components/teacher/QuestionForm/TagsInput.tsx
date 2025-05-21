@@ -66,7 +66,7 @@ const TagsInput = ({
   };
 
   return (
-    <View className="bg-white rounded-xl shadow p-4 mb-6">
+    <View className="bg-white rounded-xl shadow p-4 mb-6 border-b border-slate-200">
       <View className="flex-row justify-between items-center mb-2">
         <Text className="text-lg font-psemibold text-slate-800">
           Tags<Text className="text-red-500"> *</Text>
