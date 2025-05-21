@@ -8,7 +8,7 @@ type ExplanationInputProps = {
 };
 
 const ExplanationInput = ({ value, onChange, error, submitted }: ExplanationInputProps) => (
-  <View className="bg-white rounded-xl shadow p-4 mb-4">
+  <View className="bg-white rounded-xl shadow p-4 mb-4 border-b border-slate-200">
     <View className="flex-row justify-between items-center mb-2">
       <Text className="text-lg font-psemibold text-slate-800">
         Explanation<Text className="text-red-500 m-1 text-lg"> *</Text>
@@ -19,9 +19,9 @@ const ExplanationInput = ({ value, onChange, error, submitted }: ExplanationInpu
     </View>
     <TextInput
       multiline
-      placeholder="Explain why the correct answer is correct"
+      placeholder="Explain why the correct answer is correct."
       placeholderTextColor="#94a3b8"
-      className={`min-h-[100px] text-base text-black font-pregular ${
+      className={`min-h-[100px] text-base text-black font-pregular border-b border-slate-200 ${
         submitted && error ? "border-2 border-red-200 bg-red-50 rounded px-2" : ""
       }`}
       value={value}
