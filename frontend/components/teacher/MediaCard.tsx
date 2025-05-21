@@ -74,12 +74,12 @@ const MediaCard = ({
     >
       {/* Selection Indicator */}
       {selectionMode && (
-        <Ionicons
+          <Ionicons
           name={isSelected ? "checkmark-circle" : "ellipse-outline"}
-          size={24}
+            size={24}
           color={isSelected ? "#4F46E5" : "#cbd5e1"}
           style={{ position: 'absolute', top: 8, left: 8, zIndex: 10 }}
-        />
+          />
       )}
 
       {/* Header Row */}
@@ -132,15 +132,15 @@ const MediaCard = ({
       )}
 
       {/* Tags */}
-      {item.tags?.length > 0 && (
+        {item.tags?.length > 0 && (
         <View className="flex-row flex-wrap gap-2 mb-3">
-          {item.tags.map((tag, index) => (
+            {item.tags.map((tag, index) => (
             <View key={`${item.id}-tag-${index}`} className="px-2 py-1 bg-indigo-100 rounded-full">
-              <Text className="text-xs font-pmedium text-indigo-700">{tag}</Text>
-            </View>
-          ))}
-        </View>
-      )}
+                <Text className="text-xs font-pmedium text-indigo-700">{tag}</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
       {/* Footer */}
       <View className="flex-row justify-between items-center border-t border-slate-100 pt-2">

@@ -90,13 +90,13 @@ const MediaPreviewModal = ({
               ) : (
                 showVideo ? (
                   <View style={{ width: '100%', height: '100%' }}>
-                    <Video
-                      source={{ uri: media.url }}
+                <Video
+                  source={{ uri: media.url }}
                       style={{ width: '100%', height: 220 }}
-                      resizeMode="contain"
-                      controls
-                      paused={false}
-                    />
+                  resizeMode="contain"
+                  controls
+                  paused={false}
+                />
                     <Pressable onPress={() => setShowVideo(false)} style={{ position: 'absolute', top: 8, right: 8, zIndex: 10 }}>
                       <Ionicons name="close-circle" size={32} color="#fff" />
                     </Pressable>
