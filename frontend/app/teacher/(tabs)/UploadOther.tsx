@@ -9,7 +9,7 @@ import type { AppDispatch } from '@/redux/store';
 
 // Components
 import ContentTypeSelector from '@/components/teacher/ContentTypeSelector';
-import AppHeader from '@/components/teacher/Header';
+import AppHeader from '@/components/teacher/AppHeader';
 import TagsInput from '@/components/teacher/QuestionForm/TagsInput';
 import FormActions from '@/components/teacher/QuestionForm/FormActions';
 import FilePicker, { FileData } from '@/components/teacher/ContentForm/FilePicker';
@@ -19,6 +19,7 @@ import { ErrorModal } from '@/components/teacher/popups/ErrorModal';
 import { CancelModal } from '@/components/teacher/popups/CancelModal';
 import TitleInput from '@/components/teacher/ContentForm/TitleInput';
 import DescriptionInput from '@/components/teacher/ContentForm/DescriptionInput';
+import ResetFormButton from '@/components/teacher/ResetFormButton';
 
 // Redux and Types
 import { RootState } from '@/redux/store';
@@ -55,6 +56,7 @@ const UploadOtherScreen = () => {
     // UI state
     const [submitted, setSubmitted] = useState(false);
     const [showPreviewModal, setShowPreviewModal] = useState(false);
+    const [showResetModal, setShowResetModal] = useState(false);
     const [modalState, setModalState] = useState({
         success: false,
         error: false,
@@ -129,6 +131,22 @@ const UploadOtherScreen = () => {
         setValidationErrors(errors);
         return !Object.values(errors).some(Boolean);
     }, [formState]);
+
+    // Map media validation errors to question validation errors structure for FormActions
+    const mappedValidationErrors = {
+        questionText: validationErrors.title, // Map media title error to questionText
+        courseName: false, // Not applicable for media
+        description: false, // Description is optional for media
+        grade: false, // Not applicable for media
+        difficulty: false, // Not applicable for media
+        questionType: false, // Not applicable for media
+        point: false, // Not applicable for media
+        options: [false, false, false, false], // Not applicable for media
+        explanation: false, // Not applicable for media
+        tags: validationErrors.tags, // Map media tags error to tags
+        correctOption: false, // Not applicable for media
+        // Include other properties expected by FormActions with default false values
+    };
 
     const handleFilePick = useCallback(async (type: 'file' | 'thumbnail') => {
         try {
@@ -281,23 +299,26 @@ const UploadOtherScreen = () => {
     }, [formState, validateForm, dispatch, editingMedia]);
 
     const resetForm = useCallback(() => {
-        setFormState({
-            id: uuidv4(),
-            title: '',
-            description: '',
-            type: 'image',
-            file: null,
-            thumbnail: null,
-            tags: [],
-            status: 'draft',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            createdBy: '',
-        });
-        setValidationErrors({ title: false, file: false, tags: false, thumbnail: false });
-        setSubmitted(false);
-        dispatch(setEditingMedia(null));
-    }, [dispatch]);
+        // Only reset if we're not in edit mode
+        if (!editingMedia) {
+            setFormState({
+                id: uuidv4(),
+                title: '',
+                description: '',
+                type: 'image' as MediaType,
+                file: null,
+                thumbnail: null,
+                tags: [],
+                status: 'draft' as MediaStatus,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                createdBy: '',
+            });
+            setValidationErrors({ title: false, file: false, tags: false, thumbnail: false });
+            setSubmitted(false);
+            dispatch(setEditingMedia(null));
+        }
+    }, [dispatch, editingMedia]);
 
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
@@ -331,10 +352,23 @@ const UploadOtherScreen = () => {
     return (
         <View className="flex-1 bg-slate-50">
             <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-                <AppHeader title="Upload Content" onBack={() => router.back()} />
+                <AppHeader 
+                  title="Upload Content" 
+                  onBack={() => router.back()}
+                  showResetButton={true}
+                  onReset={resetForm}
+                  buttons={[
+                    {
+                      icon: 'folder-open',
+                      onPress: () => router.push("/teacher/(tabs)/ContentList"),
+                      side: 'right',
+                      key: 'exit-button'
+                    }
+                  ]}
+                />
                 <ContentTypeSelector currentScreen="UploadOther" />
 
-                <View className="px-4 pt-4">
+                <View className="px-4 pt-4 mt-2">
                     {/* Media Type Selection */}
                     <View className="bg-white p-4 rounded-lg shadow mb-4">
                         <Text className="text-lg font-psemibold mb-2">Media Type</Text>
@@ -420,7 +454,7 @@ const UploadOtherScreen = () => {
                         onCancel={handleCancel}
                         isSavingDraft={isSavingDraft}
                         isPosting={isPosting}
-                        validationErrors={validationErrors}
+                        validationErrors={mappedValidationErrors}
                     />
                 </View>
             </ScrollView>
@@ -478,6 +512,9 @@ const UploadOtherScreen = () => {
                 }}
                 onCancel={() => setModalState(prev => ({ ...prev, cancel: false }))}
             />
+
+            {/* Reset Confirmation Modal (hidden button, controlled by state) */}
+            {/* Removed redundant ResetFormButton component call */}
         </View>
     );
 };
