@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/redux/rootReducer';
 import { ScrollView, useWindowDimensions, View, Text, TouchableOpacity } from 'react-native';
@@ -11,6 +11,8 @@ import ScreenButtons from '@/components/teacher/Profile/ScreenButtons';
 import DashboardSummary from '@/components/teacher/Profile/DashboardSummary';
 import { TeacherProfile, TeacherStats } from '@/types/teacherTypes';
 import ProfilePicture from '@/components/teacher/Profile/ProfilePicture';
+import { fetchTeacherProfile } from '@/redux/teacherReducer/teacherSlice';
+import { useAppDispatch } from '@/redux/teacherReducer/hooks';
 
 type Metric = {
   id: string;
@@ -18,18 +20,42 @@ type Metric = {
   label: string;
 };
 
+// Define default profile and stats to prevent errors when state is null
+const defaultProfile: TeacherProfile = {
+  id: '',
+  firstName: '',
+  lastName: '',
+  email: '',
+  school: '',
+  profilePictureUrl: '',
+  followersCount: 0,
+  postsCount: 0,
+  createdAt: '',
+  updatedAt: '',
+};
+
+const defaultStats: TeacherStats = {
+  totalViews: 0,
+  totalShares: 0,
+  engagementLast7Days: [],
+  engagementLabels: [],
+};
+
 const TeacherDashboard: React.FC = () => {
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375;
   const isVerySmallScreen = width < 340;
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const router = useRouter();
-  const teacherData = useSelector((state: RootState) => state.teacher.teacherData);
+  const profile = useSelector((state: RootState) => state.teacher.profile);
+  const stats = useSelector((state: RootState) => state.teacher.stats);
+  const loadingImage = useSelector((state: RootState) => state.teacher.loading.image);
 
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  useEffect(() => {
+    dispatch(fetchTeacherProfile('current-teacher-id'));
+  }, [dispatch]);
 
   const metrics: Metric[] = [
     { id: 'engagement', value: '0K', label: 'Engagement' },
@@ -37,67 +63,44 @@ const TeacherDashboard: React.FC = () => {
     { id: 'shares', value: '1K', label: 'Shares' },
   ];
 
-  const dummyProfile: TeacherProfile = {
-    id: '1',
-    firstName: 'Jane',
-    lastName: 'Doe',
-    email: 'jane.doe@example.com',
-    school: 'Bright Future Academy',
-    profilePictureUrl: '@/assets/images/avatar',
-    followersCount: 1234,
-    postsCount: 56,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  const dummyStats: TeacherStats = {
-    totalViews: 10000,
-    totalShares: 1000,
-    engagementLast7Days: [20, 45, 28, 80, 99, 43, 50],
-    engagementLabels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  };
-
   return (
     <ScrollView
       className="flex-1 bg-[#f1f3fc]"
       contentContainerStyle={{ paddingBottom: 24, paddingTop: 0 }}
       showsVerticalScrollIndicator={false}
     >
-      <View className="flex-row justify-between items-center bg-white px-5 py-4 ">
-        <Text className="text-3xl font-pbold text-[#4F46E5] tracking-tight">Dashboard</Text>
-        <Link href="../Settings" asChild>
-          <Ionicons name="menu" size={28} color="#4F46E5" />
-        </Link>
-      </View>
-
+         <View className="flex-row justify-between items-center bg-white px-5 py-4 ">
+          <Text className="text-3xl font-pbold text-[#4F46E5] tracking-tight">Dashboard</Text>
+          <Link href="../Settings" asChild>
+            <Ionicons name="menu" size={28} color="#4F46E5" />
+          </Link>
+        </View>
+     
       {/* Profile Picture - positioned absolutely */}
       <View className="w-full items-center absolute" style={{ top: 90, zIndex: 10 }}>
         <ProfilePicture
-           profilePictureUrl={undefined}
-           loading={uploadingImage}
-           onUploadStart={() => setUploadingImage(true)}
+           profilePictureUrl={profile?.profilePictureUrl}
+           loading={loadingImage}
         />
       </View>
 
       {/* Content below profile picture, including ProfileCard */}
       <View className="space-y-6 px-4 mt-[130]">
-        <ProfileCard
-          profile={dummyProfile}
-          onChangeImage={(uri: string) => setProfileImage(uri)}
-          uploadingImage={uploadingImage}
-          stats={dummyStats}
-        />
+      <ProfileCard
+          profile={profile || defaultProfile}
+          stats={stats || defaultStats}
+      />
 
         <ScreenButtons isVerySmallScreen={isVerySmallScreen} />
 
-        <DashboardSummary
-          isSmallScreen={isSmallScreen}
-          isVerySmallScreen={isVerySmallScreen}
-          stats={dummyStats}
-        />
-      </View>
+      <DashboardSummary
+        isSmallScreen={isSmallScreen}
+        isVerySmallScreen={isVerySmallScreen}
+          stats={stats || defaultStats}
+      />
+    </View>
 
-      <Toast />
+  <Toast />
     </ScrollView >
   );
 };
