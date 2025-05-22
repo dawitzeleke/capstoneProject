@@ -7,7 +7,7 @@ interface ManageQuestionCardProps {
   item: QuestionItem;
   isSelected: boolean;
   onToggleSelection: () => void;
-  onEdit: () => void;
+  onEdit: (item: QuestionItem) => void;
   onDelete: () => void;
   loading: boolean;
   onPreview: () => void;
@@ -131,7 +131,7 @@ const ManageQuestionCard = ({
         </Text>
 
         <View className="flex-row gap-3">
-          <Pressable onPress={onEdit} className="p-2 bg-indigo-100 rounded-lg" disabled={loading}>
+          <Pressable onPress={() => onEdit(item)} className="p-2 bg-indigo-100 rounded-lg" disabled={loading}>
             <Ionicons name="pencil" size={20} color="#4F46E5" />
           </Pressable>
           <Pressable onPress={onDelete} className="p-2 bg-red-100 rounded-lg" disabled={loading}>
