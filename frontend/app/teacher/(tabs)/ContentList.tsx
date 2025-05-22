@@ -123,6 +123,14 @@ const ContentListScreen = () => {
     dispatch(toggleSelection(id));
   };
 
+  const handleEditQuestion = (item: QuestionItem) => {
+    dispatch(setEditingQuestion(item));
+    router.push({
+      pathname: "/teacher/(tabs)/AddQuestion",
+      params: { questionId: item.id }
+    });
+  };
+
   const handleDelete = (id: string) => {
     setItemToDelete(id);
     setShowDeleteModal(true);
@@ -292,15 +300,7 @@ const ContentListScreen = () => {
                 setShowMediaPreview(true);
               } else setPreviewQuestion(item);
             }}
-            onEdit={id => {
-              const media = filteredMedia.find(m => m.id === id);
-              if (media) {
-                router.push({ pathname: '/teacher/UploadOther', params: { mediaId: media.id } });
-              } else {
-                dispatch(clearEditingQuestion());
-              router.push("/teacher/AddQuestion");
-              }
-            }}
+            onEdit={handleEditQuestion}
             selectionMode={selectionMode}
             setSelectionMode={setSelectionMode}
           />
