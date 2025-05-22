@@ -37,17 +37,17 @@ const initialState: QuestionState = {
       ],
       correctOption: "Mitochondria",
       courseName: "Biology",
-      grade: 10,
+      grade: 9,
       difficulty: DifficultyLevel.Medium,
       questionType: QuestionTypeEnum.MultipleChoice,
-      point: 5,
+      point: 1,
       tags: ["bio", "science"],
       hint: "It's the organelle responsible for producing energy (ATP).",
       explanation: `Mitochondria generate most of the cell's energy through cellular respiration, converting glucose and oxygen into ATP, hence they're called the "powerhouse" of the cell.`,
       status: ContentStatus.Posted,
       createdBy: "teacher_abc123",
-      createdAt: "2024-03-16T00:00:00Z",
-      updatedAt: "2024-03-16T00:00:00Z",
+      createdAt: "2025-03-16T00:00:00Z",
+      updatedAt: "2025-03-16T00:00:00Z",
     },
     {
       id: "2",
@@ -59,14 +59,14 @@ const initialState: QuestionState = {
       grade: 10,
       difficulty: DifficultyLevel.Medium,
       questionType: QuestionTypeEnum.MultipleChoice,
-      point: 5,
+      point: 3,
       tags: ["bio", "science"],
       hint: "It involves the division of a single cell into two identical daughter cells.",
       explanation: "Mitosis is the process by which a cell divides to produce two genetically identical daughter cells. It is essential for growth, repair, and asexual reproduction. Meiosis, on the other hand, is used in the formation of gametes and results in four genetically different cells.",
       status: ContentStatus.Draft,
       createdBy: "teacher_abc123",
-      createdAt: "2024-03-15T00:00:00Z",
-      updatedAt: "2024-03-15T00:00:00Z",
+      createdAt: "2025-02-25T00:00:00Z",
+      updatedAt: "2025-02-29T00:00:00Z",
     },
     {
       id: "3",
@@ -78,7 +78,7 @@ const initialState: QuestionState = {
       grade: 10,
       difficulty: DifficultyLevel.Medium,
       questionType: QuestionTypeEnum.MultipleChoice,
-      point: 5,
+      point: 2,
       tags: ["bio", "science"],
       hint: "This molecule has a double helix structure and contains the instructions for building proteins.",
       explanation: "DNA (Deoxyribonucleic acid) is the molecule that carries genetic information in most living organisms. It encodes the instructions needed for an organism to develop, survive, and reproduce.",
@@ -227,6 +227,4 @@ export const selectDisplayQuestions = createSelector(
     : filtered.filter((item: { status: any; }) => item.status === activeTab)
 );
 
-export default teacherQuestionSlice.reducer;
-export default teacherQuestionSlice.reducer;
 export default teacherQuestionSlice.reducer;
