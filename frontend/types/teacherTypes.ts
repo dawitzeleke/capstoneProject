@@ -23,6 +23,7 @@ export interface TeacherStats {
 export interface UpdateImagePayload {
   teacherId: string;
   imageUri: string;
+  base64Data?: string | null;
 }
 
 // Backend DTO alignment
