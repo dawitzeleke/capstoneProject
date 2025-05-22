@@ -1,4 +1,4 @@
-import { View, Text, Modal } from 'react-native';
+import { View, Text, Modal, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 type ErrorModalProps = {
@@ -13,6 +13,9 @@ export const ErrorModal = ({ isVisible, message, onDismiss }: ErrorModalProps) =
       {/* Absolute positioned centered container */}
       <View className="w-full absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 max-w-xs px-4">
         <View className="bg-white rounded-xl p-6 items-center shadow-lg">
+          <Pressable onPress={onDismiss} className="absolute top-3 right-3 z-10">
+            <Ionicons name="close" size={24} color="#64748b" />
+          </Pressable>
           <Ionicons name="close-circle" size={48} color="#ef4444" />
           <Text 
             className="text-lg font-psemibold text-red-600 mt-2 text-center"
