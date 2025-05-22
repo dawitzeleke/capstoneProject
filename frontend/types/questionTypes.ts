@@ -51,7 +51,7 @@ export type QuestionFormState = {
   options: string[];
   tags: string[];
   hint?: string;
-  explanation?: string;
+  explanation: string;
   correctOption: string;
   status: ContentStatus;
   createdAt?: string;
