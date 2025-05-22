@@ -97,6 +97,14 @@ const QuestionPreviewModal = ({
                             <Text className="text-lg font-psemibold text-black">{question.questionText}</Text>
                         </View>
 
+                        {/* Description */}
+                        {!!question.description && (
+                            <View className="mb-4 flex-row items-center">
+                                <Text className="text-base font-pmedium text-gray-600 mr-2">Description:</Text>
+                                <Text className="text-base text-black font-pregular flex-1">{question.description}</Text>
+                            </View>
+                        )}
+
                         {/* Options/Correct Answer Section */}
                         {(isMCQ || isTrueFalse) && (
                             <View className="mb-4">
