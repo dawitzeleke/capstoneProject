@@ -500,20 +500,6 @@ const AddQuestion = () => {
           </View>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
           <FormActions
             onPost={handlePost}
             onSaveDraft={handleSaveDraft}
