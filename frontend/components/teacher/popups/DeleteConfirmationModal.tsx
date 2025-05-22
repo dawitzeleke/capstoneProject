@@ -44,7 +44,7 @@ export const DeleteConfirmationModal = ({
             className="w-full bg-red-100 px-6 py-3 rounded-lg"
             onPress={onConfirm}>
             <Text className="text-red-600 font-pmedium text-center text-base">
-              {count === 1 ? 'Delete Permanently' : `Delete ${count} Questions`}
+              {count === 1 ? 'Delete Permanently' : `Delete ${count} ${title?.replace('Delete ', '').replace('?', '').replace('Items', 'Items')}`}
             </Text>
           </Pressable>
         </View>
