@@ -8,15 +8,11 @@ import type { TeacherProfile, TeacherStats } from '@/types/teacherTypes';
 
 interface ProfileCardProps {
   profile: TeacherProfile;
-  onChangeImage: (imageUri: string) => void;
-  uploadingImage: boolean;
   stats?: TeacherStats | null;
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({
   profile,
-  onChangeImage,
-  uploadingImage,
   stats
 }) => {
   const fullName = `${profile.firstName} ${profile.lastName}`;
@@ -34,8 +30,8 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 
       <View className="items-center mt-2">
         <Text className="text-white text-xl font-psemibold">
-          {fullName}
-        </Text>
+              {fullName}
+            </Text>
         <Text className="text-indigo-200 text-sm mt-1">Subject: Math</Text>
         <View className="flex-row items-center mt-1">
           <Ionicons name="school-outline" size={16} color="white" />
@@ -49,18 +45,18 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         <View className="items-center">
           <Text className="text-base font-psemibold text-white">
             {profile.followersCount.toLocaleString()}
-          </Text>
+              </Text>
           <Text className="text-xs text-indigo-200">Followers</Text>
-        </View>
+            </View>
 
         <View className="w-[1px] h-full bg-indigo-300" />
 
         <View className="items-center">
           <Text className="text-base font-psemibold text-white">
             {profile.postsCount.toLocaleString()}
-          </Text>
+              </Text>
           <Text className="text-xs text-indigo-200">Posts</Text>
-        </View>
+            </View>
 
         <View className="w-[1px] h-full bg-indigo-300" />
 
