@@ -34,6 +34,7 @@ const PointSelector = ({ value, onChange, error, submitted }: PointSelectorProps
               className={`w-12 h-12 rounded-lg items-center justify-center ${
                 value === point ? 'bg-indigo-600' : 'bg-indigo-50'
               } ${submitted && error ? 'border-2 border-red-200' : ''}`}
+              style={{ backgroundColor: value === point ? '#4F46E5' : undefined }}
             >
               <Text className={`text-lg font-pmedium ${
                 value === point ? 'text-white' : 'text-indigo-700'
