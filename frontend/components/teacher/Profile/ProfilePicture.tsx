@@ -16,33 +16,50 @@ const ProfilePicture: React.FC<{
   loading: boolean;
   error?: string | null;
   onUploadStart?: () => void;
-}> = ({ profilePictureUrl, loading, error, onUploadStart }) => {
+}> = ({ profilePictureUrl, loading: reduxLoading, error, onUploadStart }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [localLoading, setLocalLoading] = useState(false);
   const dispatch = useAppDispatch();
 
   const handleImagePick = async (useCamera: boolean) => {
     setModalVisible(false);
     onUploadStart?.();
+    setLocalLoading(true);
+
+    // Request permissions
+    const { status } = useCamera 
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== 'granted') {
+      Toast.show({
+        type: 'error',
+        text1: 'Permission Denied',
+        text2: 'Please grant permission to access your camera and media library.'
+      });
+      setLocalLoading(false);
+      return;
+    }
 
     try {
+      const pickerOptions: ImagePicker.ImagePickerOptions = {
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        base64: true, // Request base64 data
+      };
+
       const result = await (useCamera 
-        ? ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-          })
-        : ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-          }));
+        ? ImagePicker.launchCameraAsync(pickerOptions)
+        : ImagePicker.launchImageLibraryAsync(pickerOptions));
 
       if (!result.canceled && result.assets[0].uri) {
-        dispatch(updateProfileImage({
+        const selectedAsset = result.assets[0];
+        await dispatch(updateProfileImage({
           teacherId: 'current-teacher-id', // Replace with real ID later
-          imageUri: result.assets[0].uri
+          imageUri: selectedAsset.uri,
+          base64Data: selectedAsset.base64, // Pass base64 data
         }));
       }
     } catch (err) {
@@ -51,8 +68,12 @@ const ProfilePicture: React.FC<{
         text1: 'Image Error',
         text2: 'Failed to select image'
       });
+    } finally {
+      setLocalLoading(false);
     }
   };
+
+  const isLoading = reduxLoading || localLoading;
 
   return (
     <>
@@ -60,7 +81,7 @@ const ProfilePicture: React.FC<{
         {profilePictureUrl ? (
           <Image
             source={{ uri: profilePictureUrl }}
-            className="w-28 h-28 rounded-full bg-gray-200"
+            className="w-28 h-28 rounded-full"
             style={{ width: 112, height: 112 }}
           />
         ) : (
@@ -74,13 +95,13 @@ const ProfilePicture: React.FC<{
 
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
-          className="absolute bottom-2 right-2 bg-white p-1.5 rounded-full shadow-sm"
-          disabled={loading}
+          className="absolute bottom-0 right-1 bg-[#e9e8fc] p-1.5 rounded-full shadow-sm"
+          disabled={isLoading}
         >
-          {loading ? (
+          {isLoading ? (
             <ActivityIndicator size="small" color="#4F46E5" />
           ) : (
-            <Ionicons name="pencil" size={18} color="#4F46E5" />
+            <Ionicons name="pencil" size={20} color="#4F46E5" />
           )}
         </TouchableOpacity>
       </View>
@@ -100,6 +121,7 @@ const ProfilePicture: React.FC<{
             <TouchableOpacity
               onPress={() => handleImagePick(true)}
               className="bg-indigo-100 p-3 rounded-xl active:bg-indigo-200"
+              disabled={isLoading}
             >
               <Text className="text-center text-indigo-700 font-psemibold">
                 Take Photo
@@ -109,6 +131,7 @@ const ProfilePicture: React.FC<{
             <TouchableOpacity
               onPress={() => handleImagePick(false)}
               className="bg-indigo-100 p-3 rounded-xl active:bg-indigo-200"
+              disabled={isLoading}
             >
               <Text className="text-center text-indigo-700 font-psemibold">
                 Choose From Gallery
@@ -118,6 +141,7 @@ const ProfilePicture: React.FC<{
             <TouchableOpacity
               onPress={() => setModalVisible(false)}
               className="p-3 active:opacity-70"
+              disabled={isLoading}
             >
               <Text className="text-center text-gray-500 font-psemibold">
                 Cancel
