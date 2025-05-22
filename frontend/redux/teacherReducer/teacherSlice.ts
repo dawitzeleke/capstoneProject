@@ -43,7 +43,7 @@ export const fetchTeacherProfile = createAsyncThunk<TeacherProfile, string>(
         lastName: 'Doe',
         email: 'jane.doe@example.com',
         school: 'Bright Future Academy',
-        profilePictureUrl: 'https://example.com/avatar.jpg',
+        profilePictureUrl: null,
         followersCount: 1234,
         postsCount: 56,
         createdAt: new Date().toISOString(),
@@ -63,13 +63,19 @@ export const fetchTeacherProfile = createAsyncThunk<TeacherProfile, string>(
 
 export const updateProfileImage = createAsyncThunk<string, UpdateImagePayload>(
   'teacher/updateImage',
-  async ({ teacherId, imageUri }, { rejectWithValue }) => {
+  async ({ teacherId, imageUri, base64Data }, { rejectWithValue }) => {
     try {
-      // TEMPORARY: Mock implementation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return 'https://example.com/new-avatar.jpg';
+      // TEMPORARY: For immediate display, use base64 data if available (web)
+      if (base64Data) {
+        // Construct a data URL
+        const dataUrl = `data:image/jpeg;base64,${base64Data}`;
+        return dataUrl;
+      }
       
-      // REAL IMPLEMENTATION:
+      // Fallback to URI (native or when base64 isn't available)
+      return imageUri;
+      
+      // REAL IMPLEMENTATION (uncomment later):
       // const formData = new FormData();
       // formData.append('image', { uri: imageUri, name: 'profile.jpg', type: 'image/jpeg' });
       // const response = await apiClient.patch(`/teachers/${teacherId}/image`, formData);
