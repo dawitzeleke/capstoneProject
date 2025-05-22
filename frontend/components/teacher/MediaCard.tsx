@@ -5,7 +5,7 @@ import Video from 'react-native-video';
 import type { MediaItem } from '@/types/mediaTypes';
 import { useDispatch } from 'react-redux';
 import { toggleMediaSelection, setEditingMedia } from '@/redux/teacherReducer/mediaSlice';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 interface MediaCardProps {
   item: MediaItem;
@@ -39,7 +39,7 @@ const MediaCard = ({
   setSelectionMode
 }: MediaCardProps) => {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
+  const router = useRouter();
 
   const handleToggleSelection = () => {
     if (!selectionMode) return;
@@ -48,10 +48,12 @@ const MediaCard = ({
 
   const handleEdit = () => {
     dispatch(setEditingMedia(item));
-    (navigation as any).navigate('UploadOther', { 
-      mediaId: item.id,
-      type: item.type,
-      initialValues: item
+    router.push({
+      pathname: "/teacher/(tabs)/UploadOther",
+      params: { 
+        mediaId: item.id,
+        type: item.type
+      }
     });
   };
 
