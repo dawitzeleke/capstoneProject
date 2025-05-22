@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { ScrollView, View, Text } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
 import ContentTypeSelector from "@/components/teacher/ContentTypeSelector";
-import AppHeader from "@/components/teacher/Header";
+import AppHeader from "@/components/teacher/AppHeader";
 import TagsInput from '@/components/teacher/QuestionForm/TagsInput';
 import { SuccessModal } from '@/components/teacher/popups/SuccessModal';
 import { ErrorModal } from '@/components/teacher/popups/ErrorModal';
@@ -34,6 +34,28 @@ import GradeSelector from "@/components/teacher/QuestionForm/GradeSelector";
 import PointSelector from "@/components/teacher/QuestionForm/PointSelector";
 import QuestionPreviewModal from "@/components/teacher/popups/QuestionPreviewModal";
 import CourseNameInput from '@/components/teacher/QuestionForm/CourseNameInput ';
+import ResetFormButton from '@/components/teacher/ResetFormButton';
+
+// Move this *above* your component, so it's the same object every time.
+const EMPTY_FORM_STATE = {
+  id: "",
+  questionText: "",
+  courseName: "",
+  description: "",
+  grade: 9,
+  difficulty: DifficultyLevel.Easy,
+  questionType: QuestionTypeEnum.MultipleChoice,
+  point: 1,
+  options: ["", "", "", ""],
+  tags: [],
+  hint: "",
+  explanation: "",
+  correctOption: "",
+  status: ContentStatus.Draft,
+};
+
+// Type assertion for the hoisted constant
+const EMPTY_FORM_STATE_TYPED: QuestionFormState = EMPTY_FORM_STATE as QuestionFormState;
 
 const AddQuestion = () => {
   const router = useRouter();
@@ -41,23 +63,16 @@ const AddQuestion = () => {
   const [submitted, setSubmitted] = useState(false);
   const { questions, editingQuestionId } = useSelector((state: RootState) => state.teacherQuestions);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const shouldLoadDraft = useRef(!editingQuestionId);
 
-  // Form state
-  const [formState, setFormState] = useState<QuestionFormState>({
-    id: "",
-    questionText: "",
-    courseName: "",
-    description: "",
-    grade: 1,
-    difficulty: DifficultyLevel.Easy,
-    questionType: QuestionTypeEnum.MultipleChoice,
-    point: 5,
-    options: ["", "", "", ""],
-    tags: [],
-    hint: "",
-    explanation: "",
-    correctOption: "",
-    status: ContentStatus.Draft,
+  // Use the hoisted stable reference for initial state
+  const [formState, setFormState] = useState<QuestionFormState>(() => {
+    if (editingQuestionId) {
+      const questionToEdit = questions.find(q => q.id === editingQuestionId);
+      return questionToEdit || EMPTY_FORM_STATE_TYPED;
+    }
+    return EMPTY_FORM_STATE_TYPED;
   });
 
   // Modal and loading states
@@ -99,17 +114,26 @@ const AddQuestion = () => {
             options: [...questionToEdit.options],
           });
         }
+        shouldLoadDraft.current = false; // Prevent draft loading after edit
+      } else if (shouldLoadDraft.current) {
+        // Only load draft on first mount if not editing and draft exists
+        const savedDraft = localStorage.getItem('questionDraft');
+        if (savedDraft) {
+          setFormState(JSON.parse(savedDraft));
+        }
+        shouldLoadDraft.current = false; // Mark as loaded (or attempted load)
       } else {
-        resetForm();
+        // Explicitly reset form when entering without edit mode and no draft should load
+        setFormState(EMPTY_FORM_STATE_TYPED);
       }
 
       return () => {
+        // Only clear editing state if component unmounts without active edit
         if (!editingQuestionId) {
           dispatch(clearEditingQuestion());
-          resetForm();
         }
       };
-    }, [editingQuestionId, questions, dispatch])
+    }, [editingQuestionId, questions, dispatch]) // Updated dependencies
   );
 
   // Form handlers
@@ -231,6 +255,19 @@ const AddQuestion = () => {
       });
       resetForm();
       setSubmitted(false);
+
+      // Add timeout to close modal and navigate
+      setTimeout(() => {
+        setModalState(prev => ({
+          ...prev,
+          success: false,
+          error: false,
+          draftSuccess: false,
+          cancel: false,
+        }));
+        router.push("/teacher/(tabs)/ContentList");
+      }, 2000); // Close after 2 seconds
+
     } catch (error) {
       setModalState({
         success: false,
@@ -243,7 +280,7 @@ const AddQuestion = () => {
     } finally {
       setIsPosting(false);
     }
-  }, [formState, editingQuestionId, dispatch]);
+  }, [formState, editingQuestionId, dispatch, router]);
 
   const handleSaveDraft = useCallback(async () => {
     if (formState.questionText.trim() === "") {
@@ -282,6 +319,19 @@ const AddQuestion = () => {
         color: "#4f46e5"
       });
       setSubmitted(false);
+
+      // Add timeout to close modal and navigate after draft save
+      setTimeout(() => {
+        setModalState(prev => ({
+          ...prev,
+          success: false,
+          error: false,
+          draftSuccess: false,
+          cancel: false,
+        }));
+        router.push("/teacher/(tabs)/ContentList");
+      }, 2000); // Close after 2 seconds
+
     } catch (error) {
       setModalState({
         success: false,
@@ -296,50 +346,9 @@ const AddQuestion = () => {
     }
   }, [formState, editingQuestionId, dispatch, questions, validateForm]);
 
-  const handleCancel = useCallback(() => {
-    setModalState(prev => ({
-      ...prev,
-      cancel: true,
-    }));
-  }, []);
-
-  const handleConfirmCancel = useCallback(() => {
-    resetForm();
-    setSubmitted(false);
-    setModalState(prev => ({
-      ...prev,
-      cancel: false,
-    }));
-    dispatch(clearEditingQuestion()); // Clear editing state on cancel
-    router.back(); // Navigate back after canceling
-  }, [dispatch, router]);
-
-  const handleCloseModal = useCallback(() => {
-    setModalState(prev => ({
-      ...prev,
-      success: false,
-      error: false,
-      draftSuccess: false,
-    }));
-  }, []);
-
   const resetForm = useCallback(() => {
-    setFormState({
-      id: "",
-      questionText: "",
-      courseName: "",
-      description: "",
-      grade: 1,
-      difficulty: DifficultyLevel.Easy,
-      questionType: QuestionTypeEnum.MultipleChoice,
-      point: 5,
-      options: ["", "", "", ""],
-      tags: [],
-      hint: "",
-      explanation: "",
-      correctOption: "",
-      status: ContentStatus.Draft,
-    });
+    dispatch(clearEditingQuestion());
+    setFormState(EMPTY_FORM_STATE_TYPED);
     setValidationErrors({
       questionText: false,
       courseName: false,
@@ -354,6 +363,31 @@ const AddQuestion = () => {
       correctOption: false,
     });
     setSubmitted(false);
+    // Clear draft from storage and prevent reloading
+    localStorage.removeItem('questionDraft');
+    shouldLoadDraft.current = false; // Corrected to false
+  }, [dispatch, EMPTY_FORM_STATE_TYPED]); // Updated dependencies
+
+  const handleCancel = useCallback(() => {
+    setModalState(prev => ({
+      ...prev,
+      cancel: true,
+    }));
+  }, []);
+
+  const handleConfirmCancel = useCallback(() => {
+    resetForm();
+    setModalState(prev => ({ ...prev, cancel: false }));
+    router.push("/teacher/(tabs)/ContentList");
+  }, [resetForm, router]); // Dependencies are okay as resetForm now handles clearEditingQuestion and its dependencies
+
+  const handleCloseModal = useCallback(() => {
+    setModalState(prev => ({
+      ...prev,
+      success: false,
+      error: false,
+      draftSuccess: false,
+    }));
   }, []);
 
   // Effects
@@ -365,91 +399,120 @@ const AddQuestion = () => {
   return (
     <View className="flex-1 bg-slate-50">
       <ScrollView className="pb-10" showsVerticalScrollIndicator={false}>
-        <AppHeader title="Upload Content" onBack={router.back} />
+        <AppHeader 
+          title="Upload Content" 
+          onBack={router.back}
+          showResetButton={true}
+          onReset={resetForm}
+          buttons={[
+            {
+              icon: "folder-open",
+              onPress: () => router.push("/teacher/(tabs)/ContentList"),
+              side: "right",
+              key: "exit-button",
+            },
+          ]}
+        />
         <ContentTypeSelector currentScreen="AddQuestion" />
 
         <View className="px-4 pt-4">
-          <View className="mt-6">
+          <View className="mt-2">
+
+            <CourseNameInput
+              value={formState.courseName}
+              onChange={(text) => setFormState({ ...formState, courseName: text })}
+              error={validationErrors.courseName}
+              submitted={submitted}
+            />
+            <DescriptionInput
+              value={formState.description}
+              onChange={(text) => setFormState({ ...formState, description: text })}
+              error={validationErrors.description}
+              submitted={submitted}
+            />
+
+            <GradeSelector
+              value={formState.grade}
+              onChange={(value) => setFormState({ ...formState, grade: value })}
+              error={validationErrors.grade}
+              submitted={submitted}
+            />
+
             <QuestionTypeDropdown
               value={formState.questionType}
               onChange={(type: QuestionTypeEnum) => setFormState({ ...formState, questionType: type })}
               error={validationErrors.questionType}
               submitted={submitted}
             />
+
+            <DifficultySelector
+              value={formState.difficulty}
+              onChange={(difficulty: DifficultyLevel) => setFormState({ ...formState, difficulty })}
+              error={validationErrors.difficulty}
+              submitted={submitted}
+            />
+
+
+            <PointSelector
+              value={formState.point}
+              onChange={(value) => setFormState({ ...formState, point: value })}
+              error={validationErrors.point}
+              submitted={submitted}
+            />
+
+            <QuestionInputSection
+              value={formState.questionText}
+              onChange={(text) => setFormState({ ...formState, questionText: text })}
+              error={validationErrors.questionText}
+              submitted={submitted}
+            />
+            <AnswerInput
+              questionType={formState.questionType}
+              options={formState.options}
+              correctOption={formState.correctOption}
+              onOptionChange={handleOptionChange}
+              onCorrectAnswer={(value) => setFormState({ ...formState, correctOption: value })}
+              errors={validationErrors.options}
+              correctAnswerError={validationErrors.correctOption}
+              submitted={submitted}
+            />
+
+
+            <HintInput
+              value={formState.hint ?? ''}
+              onChange={(text) => setFormState({ ...formState, hint: text })}
+            />
+
+            <ExplanationInput
+              value={formState.explanation ?? ''}
+              onChange={(text) => setFormState({ ...formState, explanation: text })}
+              error={validationErrors.explanation}
+              submitted={submitted}
+            />
+
+            <TagsInput
+              value={formState.tags}
+              onChange={(tags) => setFormState({ ...formState, tags: tags })}
+              error={validationErrors.tags}
+              submitted={submitted}
+            />
+
           </View>
 
-          <QuestionInputSection
-            value={formState.questionText}
-            onChange={(text) => setFormState({ ...formState, questionText: text })}
-            error={validationErrors.questionText}
-            submitted={submitted}
-          />
-          <AnswerInput
-            questionType={formState.questionType}
-            options={formState.options}
-            correctOption={formState.correctOption}
-            onOptionChange={handleOptionChange}
-            onCorrectAnswer={(value) => setFormState({ ...formState, correctOption: value })}
-            errors={validationErrors.options}
-            correctAnswerError={validationErrors.correctOption}
-            submitted={submitted}
-          />
-
-          <CourseNameInput
-            value={formState.courseName}
-            onChange={(text) => setFormState({ ...formState, courseName: text })}
-            error={validationErrors.courseName}
-            submitted={submitted}
-          />
-          <DescriptionInput
-            value={formState.description}
-            onChange={(text) => setFormState({ ...formState, description: text })}
-            error={validationErrors.description}
-            submitted={submitted}
-          />
-
-
-          <GradeSelector
-            value={formState.grade}
-            onChange={(value) => setFormState({ ...formState, grade: value })}
-            error={validationErrors.grade}
-            submitted={submitted}
-          />
-
-          <DifficultySelector
-            value={formState.difficulty}
-            onChange={(difficulty: DifficultyLevel) => setFormState({ ...formState, difficulty })}
-            error={validationErrors.difficulty}
-            submitted={submitted}
-          />
-
-          <PointSelector
-            value={formState.point}
-            onChange={(value) => setFormState({ ...formState, point: value })}
-            error={validationErrors.point}
-            submitted={submitted}
-          />
 
 
 
-          <TagsInput
-            value={formState.tags}
-            onChange={(tags) => setFormState({ ...formState, tags: tags })}
-            error={validationErrors.tags}
-            submitted={submitted}
-          />
 
-          <HintInput
-            value={formState.hint ?? ''}
-            onChange={(text) => setFormState({ ...formState, hint: text })}
-          />
 
-          <ExplanationInput
-            value={formState.explanation ?? ''}
-            onChange={(text) => setFormState({ ...formState, explanation: text })}
-            error={validationErrors.explanation}
-            submitted={submitted}
-          />
+
+
+
+
+
+
+
+
+
 
           <FormActions
             onPost={handlePost}
@@ -460,6 +523,7 @@ const AddQuestion = () => {
             validationErrors={validationErrors}
           />
         </View>
+        
         <SuccessModal
           isVisible={modalState.success || modalState.draftSuccess}
           message={modalState.message}
@@ -476,8 +540,12 @@ const AddQuestion = () => {
 
         <CancelModal
           isVisible={modalState.cancel}
+          onConfirm={() => {
+            resetForm();
+            router.push("/teacher/(tabs)/ContentList");
+            setModalState(prev => ({ ...prev, cancel: false }));
+          }}
           onCancel={() => setModalState(prev => ({ ...prev, cancel: false }))}
-          onConfirm={handleConfirmCancel}
         />
 
         <QuestionPreviewModal
@@ -491,6 +559,7 @@ const AddQuestion = () => {
           loading={isPosting}
           mode="edit"
         />
+
       </ScrollView>
     </View>
   );
