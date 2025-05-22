@@ -50,8 +50,8 @@ export type QuestionFormState = {
   point: number;
   options: string[];
   tags: string[];
-  hint: string;
-  explanation: string;
+  hint?: string;
+  explanation?: string;
   correctOption: string;
   status: ContentStatus;
   createdAt?: string;
