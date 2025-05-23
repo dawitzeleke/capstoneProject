@@ -30,7 +30,7 @@ const ScreenButtons: React.FC<ActionButtonsProps> = ({ isVerySmallScreen }) => {
         <TouchableOpacity className="flex-1 items-center p-4 rounded-xl shadow-md" style={{ backgroundColor: '#E6B325' }} activeOpacity={0.8}>
           <Ionicons name="stats-chart" size={24} color="white" />
           <Text className={`text-white ${isVerySmallScreen ? 'text-xs' : 'text-sm'} mt-2 font-pmedium text-center`}>
-            Deep Analytics
+            Analytics
           </Text>
         </TouchableOpacity>
       </Link>
