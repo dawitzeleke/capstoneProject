@@ -51,7 +51,7 @@ const MediaCard = ({
     router.push({
       pathname: "/teacher/(tabs)/UploadOther",
       params: { 
-        mediaId: item.id,
+      mediaId: item.id,
         type: item.type
       }
     });
