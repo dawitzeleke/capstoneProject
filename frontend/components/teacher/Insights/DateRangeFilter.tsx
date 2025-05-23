@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, Pressable, TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface DateRangeFilterProps {
@@ -43,46 +43,59 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ currentRange, onSelec
   };
 
   return (
-    <View style={{ zIndex: isOpen ? 200 : 1 }}>
+    <View className={`relative ${isOpen ? 'z-[200]' : 'z-1'}`}>
       <Pressable
-        style={styles.trigger}
+        className="flex-row items-center border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white min-w-[120px] mr-2 mb-0.5 shadow-sm shadow-indigo-300/10"
         onPress={toggleDropdown}
       >
-        <Text style={styles.label}>Period:</Text>
-        <Text style={styles.value} numberOfLines={1}>{currentRange.replace('_', ' ')}</Text>
+        <Text className="text-[#4F46E5] font-medium mr-1.5 text-[15px]">
+          Period:
+        </Text>
+        <Text 
+          className="text-indigo-900 font-medium text-[15px] flex-1" 
+          numberOfLines={1}
+        >
+          {currentRange.replace('_', ' ')}
+        </Text>
         <Ionicons
           name={isOpen ? 'chevron-up' : 'chevron-down'}
           size={18}
-          color="#4F46E5"
-          style={{ marginLeft: 6 }}
+          color="#a78bfa"
+          className="ml-1.5"
         />
       </Pressable>
+
       {isOpen && (
         <Animated.View
-          style={[
-            styles.dropdown,
-            {
-              opacity: dropdownAnim,
-              transform: [
-                {
-                  translateY: dropdownAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-10, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
+          className="absolute top-12 left-0 right-0 bg-white rounded-xl shadow-lg shadow-indigo-300/30 py-1.5 px-1 mt-0.5"
+          style={{
+            opacity: dropdownAnim,
+            transform: [
+              {
+                translateY: dropdownAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-10, 0],
+                }),
+              },
+            ],
+          }}
         >
           {ranges.map((range) => (
             <TouchableOpacity
               key={range.value}
-              style={styles.option}
+              className="flex-row items-center py-2 px-4 bg-white rounded-xl"
               onPress={() => handleSelect(range.value)}
             >
-              <Text style={styles.optionText}>{range.label}</Text>
+              <Text className="text-indigo-900 text-base font-normal flex-1">
+                {range.label}
+              </Text>
               {currentRange === range.value && (
-                <Ionicons name="checkmark" size={16} color="#a78bfa" style={{ marginLeft: 8 }} />
+                <Ionicons 
+                  name="checkmark" 
+                  size={16} 
+                  color="#a78bfa" 
+                  className="ml-2"
+                />
               )}
             </TouchableOpacity>
           ))}
@@ -92,64 +105,4 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ currentRange, onSelec
   );
 };
 
-const styles = StyleSheet.create({
-  trigger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
-    minWidth: 120,
-    marginRight: 8,
-    marginBottom: 2,
-    shadowColor: '#a78bfa',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  label: {
-    color: '#7c3aed',
-    fontWeight: '500',
-    marginRight: 6,
-    fontSize: 15,
-  },
-  value: {
-    color: '#312e81',
-    fontWeight: '500',
-    fontSize: 15,
-    flex: 1,
-  },
-  dropdown: {
-    position: 'absolute',
-    top: 48,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    shadowColor: '#a78bfa',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.13,
-    shadowRadius: 12,
-    elevation: 8,
-    paddingVertical: 6,
-    marginTop: 2,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-  },
-  optionText: {
-    color: '#312e81',
-    fontSize: 16,
-    fontWeight: '400',
-    flex: 1,
-  },
-});
-
-export default DateRangeFilter; 
+export default DateRangeFilter;
