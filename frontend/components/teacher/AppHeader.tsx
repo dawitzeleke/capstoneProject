@@ -5,7 +5,8 @@ import {
   Text,
   ViewStyle,
   TextStyle,
-  useWindowDimensions
+  useWindowDimensions,
+  TouchableOpacity
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router'; // Import useRouter
@@ -32,6 +33,7 @@ interface AppHeaderProps {
   gap?: number;
   onReset?: () => void;
   showResetButton?: boolean;
+  right?: React.ReactNode;
 }
 
 const AppHeader = ({
@@ -42,11 +44,12 @@ const AppHeader = ({
   titleStyle,
   backIconColor = '#4F46E5',
   titleColor = '#1e293b',
-  buttons, // Add buttons to destructuring
+  buttons, 
   customTitleComponent,
   gap = 12,
   onReset,
   showResetButton = false,
+  right,
 }: AppHeaderProps) => {
   const { width } = useWindowDimensions();
   const router = useRouter(); // Initialize useRouter
@@ -75,11 +78,9 @@ const AppHeader = ({
       {/* Left Section */}
       <View className="flex-1 flex-row items-center flex-shrink" style={{ gap }}>
         {showBackButton && onBack && (
-          renderButton({
-            icon: 'arrow-back',
-            onPress: onBack,
-            side: 'left',
-          })
+          <TouchableOpacity onPress={onBack} style={{ marginRight: 12 }}>
+            <Ionicons name="arrow-back" size={24} color="#334155" />
+          </TouchableOpacity>
         )}
 
         {customTitleComponent || (
@@ -111,6 +112,9 @@ const AppHeader = ({
           />
         )}
         {buttons?.filter(b => b.side === 'right').map(renderButton)}
+        {right && (
+          <View style={{ marginLeft: 8 }}>{right}</View>
+        )}
       </View>
     </View>
   );
