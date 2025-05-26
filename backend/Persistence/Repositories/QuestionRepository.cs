@@ -26,10 +26,10 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         return 0;
     }
 
-    public async Task<PaginatedList<Question>> GetFilteredQuestions(QuestionFilterDto filter,PaginationDto pagination, List<string> solvedQuestionIds = null)
-    {
-        var query = _questions.AsQueryable();
 
+    public async Task<PaginatedList<Question>> GetFilteredQuestions(QuestionFilterDto filter,PaginationDto pagination, List<string> solvedQuestionIds = null){
+        var query = _questions.AsQueryable(); 
+           
         if (filter.Grade.HasValue)
         {
             query = query.Where(q => q.Grade == filter.Grade);

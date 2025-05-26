@@ -1,6 +1,8 @@
 import React, { useRef } from "react";
 import { View, Text, Pressable, Modal, Dimensions } from "react-native";
 import LottieView from "lottie-react-native";
+import { useRouter } from "expo-router";
+import { useSelector } from "react-redux";
 
 type ResultModalProps = {
   visible: boolean;
@@ -17,6 +19,8 @@ export default function ResultModal({
   onClose,
   onRetake,
 }: ResultModalProps) {
+  const router = useRouter();
+  const currentTheme = useSelector((state: any) => state.theme.mode);
   const animationRef = useRef(null);
   const { width, height } = Dimensions.get("window");
 
@@ -32,6 +36,11 @@ export default function ResultModal({
     return null;
   };
 
+  const handleRetake = () => {
+    onClose();
+    router.replace("/student/CreateExam");
+  };
+
   return (
     <Modal
       transparent
@@ -45,18 +54,11 @@ export default function ResultModal({
           onPress={() => {}}
           className="bg-[#f1f3fc] rounded-2xl opacity-100 px-6 items-center z-2 absolute justify-center"
           style={{ width: width * 0.9, height: height * 0.65 }}>
-          <Text className="text-2xl font-pbold text-green-600 mb-3">
+          <Text className="text-2xl font-pbold text-indigo-600 mb-3">
             You scored {score}/{totalQuestions}
           </Text>
 
-          <Pressable
-            onPress={onRetake}
-            className="bg-indigo-600 px-6 py-3 rounded-full mb-6">
-            <Text className="text-white font-pregular text-base">
-              Retake Exam
-            </Text>
-          </Pressable>
-
+        
           {score !== null && getAnimationSource() && (
             <LottieView
               ref={animationRef}
@@ -78,6 +80,25 @@ export default function ResultModal({
               ? "Good job! You're above average!"
               : "Keep up the effort! You'll improve with practice."}
           </Text>
+
+          <Pressable
+              onPress={handleRetake}
+              className={`px-6 py-3 mt-3 rounded-xl ${
+                currentTheme === "dark" ? "bg-indigo-500" : "bg-indigo-600"
+              }`}
+            >
+              <Text className="text-white font-psemibold">
+                Retake Exam
+              </Text>
+            </Pressable>
+
+          <Pressable
+            onPress={onClose}
+            className="mt-3 bg-gray-200 px-6 py-3 rounded-full">
+            <Text className="text-gray-700 font-pregular text-base">
+              Exit
+            </Text>
+          </Pressable>
         </Pressable>
       </Pressable>
     </Modal>

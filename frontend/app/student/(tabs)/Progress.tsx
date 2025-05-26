@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, ScrollView, Dimensions } from "react-native";
+import React, { useState } from "react";
+import { View, Text, ScrollView, Dimensions, TouchableOpacity } from "react-native";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Heatmap from "@/components/Heatmap";
@@ -12,31 +12,56 @@ const screenWidth = Dimensions.get("window").width;
 const Progress = () => {
   const currentTheme = useSelector((state: any) => state.theme.mode);
   const isDark = currentTheme === "dark";
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const today = new Date();
+
+  const isCurrentMonth = currentMonth.getMonth() === today.getMonth() && 
+                        currentMonth.getFullYear() === today.getFullYear();
+
+  const handlePreviousMonth = () => {
+    const newDate = new Date(currentMonth);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setCurrentMonth(newDate);
+  };
+
+  const handleNextMonth = () => {
+    if (!isCurrentMonth) {
+      const newDate = new Date(currentMonth);
+      newDate.setMonth(newDate.getMonth() + 1);
+      setCurrentMonth(newDate);
+    }
+  };
+
+  const getMonthName = (date: Date) => {
+    return date.toLocaleString('default', { month: 'long', year: 'numeric' });
+  };
 
   return (
     <ScrollView
       className={`flex-1 px-4 pt-6 pb-20 ${isDark ? "bg-black" : "bg-[#f1f3fc]"}`}>
       
       {/* Header */}
-      <View className="flex-row justify-between items-center mb-6">
-        <Link href="/student/(tabs)/Profile">
+      <View className="flex-row justify-between items-center mb-6 mt-8">
+        <Link href="/student/(tabs)/Profile" className="w-10">
           <Ionicons
             name="chevron-back"
-            size={20}
-            color={isDark ? "#ccc" : "#4B5563"} // dark gray for light mode
+            size={24}
+            color={isDark ? "#ccc" : "#4B5563"}
           />
         </Link>
         <Text
-          className={`text-2xl font-pbold ${
+          className={`text-xl font-pbold flex-1 text-center ${
             isDark ? "text-gray-200" : "text-gray-800"
           }`}>
           Progress
         </Text>
-        <Ionicons
-          name="ellipsis-horizontal"
-          size={24}
-          color={isDark ? "#ccc" : "#4B5563"}
-        />
+        <TouchableOpacity className="w-10">
+          <Ionicons
+            name="ellipsis-horizontal"
+            size={24}
+            color={isDark ? "#ccc" : "#4B5563"}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Bar Chart */}
@@ -62,10 +87,10 @@ const Progress = () => {
             backgroundGradientToOpacity: 0,
             decimalPlaces: 0,
             barRadius: 6,
-            fillShadowGradient: isDark ? "#ffffff" : "#6366F1", // indigo for light
+            fillShadowGradient: isDark ? "#ffffff" : "#6366F1",
             fillShadowGradientOpacity: 1,
             color: () => (isDark ? "#ffffff" : "#6366F1"),
-            labelColor: () => (isDark ? "#ffffff" : "#374151"), // dark gray for light
+            labelColor: () => (isDark ? "#ffffff" : "#374151"),
             propsForBackgroundLines: {
               stroke: isDark ? "#374151" : "#D1D5DB",
             },
@@ -93,7 +118,7 @@ const Progress = () => {
             <Ionicons
               name="checkmark-circle-outline"
               size={28}
-              color={isDark ? "#10B981" : "#10B981"} // Emerald green
+              color={isDark ? "#10B981" : "#10B981"}
             />
             <Text
               className={`font-pbold text-2xl text-center ${
@@ -112,11 +137,47 @@ const Progress = () => {
 
         {/* Heatmap */}
         <View
-          className={`rounded-2xl shadow-md flex-1 ml-2 ${
-            isDark
-              ? "bg-neutral-900"
-              : "bg-white border border-gray-200"
+          className={`rounded-2xl shadow-md flex-1 ml-2 p-4 ${
+            isDark ? "bg-neutral-900" : "bg-white border border-gray-200"
           }`}>
+          <View className="flex-row items-center justify-between mb-3">
+            <TouchableOpacity 
+              onPress={handlePreviousMonth}
+              className={`p-1.5 rounded-lg ${isDark ? "bg-gray-800" : "bg-gray-100"}`}
+            >
+              <Ionicons 
+                name="chevron-back" 
+                size={18} 
+                color={isDark ? "#ccc" : "#4B5563"} 
+              />
+            </TouchableOpacity>
+            <View className="items-center">
+              <Text className={`text-sm font-pmedium ${isDark ? "text-gray-200" : "text-gray-800"}`}>
+                {currentMonth.toLocaleString('default', { month: 'long' })}
+              </Text>
+              <Text className={`text-xs font-pregular ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                {currentMonth.getFullYear()}
+              </Text>
+            </View>
+            <TouchableOpacity 
+              onPress={handleNextMonth}
+              disabled={isCurrentMonth}
+              className={`p-1.5 rounded-lg ${
+                isCurrentMonth 
+                  ? isDark ? "bg-gray-800/50" : "bg-gray-100/50"
+                  : isDark ? "bg-gray-800" : "bg-gray-100"
+              }`}
+            >
+              <Ionicons 
+                name="chevron-forward" 
+                size={18} 
+                color={isCurrentMonth 
+                  ? isDark ? "#666" : "#9CA3AF"
+                  : isDark ? "#ccc" : "#4B5563"
+                } 
+              />
+            </TouchableOpacity>
+          </View>
           <Heatmap />
         </View>
       </View>

@@ -53,6 +53,7 @@ public class SignUpStudentCommandHandler : IRequestHandler<SignUpStudentCommand,
             LastName = request.LastName,
             PhoneNumber = request.PhoneNumber,
             Grade = request.Grade,
+            Stream = request.Stream,
             CreatedAt = DateTime.UtcNow,
         };
 

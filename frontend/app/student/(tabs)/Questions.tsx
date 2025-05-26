@@ -5,6 +5,7 @@ import ReportOption from "../../../components/ReportOptions";
 import OptionsMenu from "../../../components/CardOptions";
 import { View } from "react-native";
 import QuestionsList from "../../../components/QuestionList";
+import { StatusBar } from "react-native";
 import { Pressable, Text, SafeAreaView, Dimensions } from "react-native";
 import { closeOption } from "@/redux/optionReducer/optionActions";
 import {
@@ -19,27 +20,27 @@ const { height } = Dimensions.get("window"); // Get device height
 const Questions = () => {
   const dispatch = useDispatch();
 
-  // Dispatch loadQuestions when component mounts
-  useEffect(() => {
-    const loadQuest = async () => {
-      dispatch(setLoading());
-      try {
-        const response = await httpRequest("/api/Questions", null, "GET");
-        console.log("here",response)
-        // const resonse2 = await httpRequest("/api/Video", null, "GET");
-        const resonse3 = await httpRequest("/api/imagecontent", null, "GET");
-        // console.log(resonse2.data, "herey");
-        // console.log(resonse3.data);
-        dispatch(setQuestions(response));
-      } catch (err) {
-        console.error("Failed to load user", err);
-        console.log(err);
-      } finally {
-        dispatch(setLoading());
-      }
-    };
-    loadQuest();
-  }, [dispatch]);
+  // // Dispatch loadQuestions when component mounts
+  // useEffect(() => {
+  //   const loadQuest = async () => {
+  //     dispatch(setLoading());
+  //     try {
+  //       const response = await httpRequest("/api/Questions/", null, "GET");
+  //       console.log("here", response);
+  //       // const resonse2 = await httpRequest("/api/Video", null, "GET");
+  //       const resonse3 = await httpRequest("/api/imagecontent", null, "GET");
+  //       // console.log(resonse2.data, "herey");
+  //       // console.log(resonse3.data);
+  //       dispatch(setQuestions(response));
+  //     } catch (err) {
+  //       console.error("Failed to load user", err);
+  //       console.log(err);
+  //     } finally {
+  //       dispatch(setLoading());
+  //     }
+  //   };
+  //   loadQuest();
+  // }, [dispatch]);
 
   const questions = useSelector((state: RootState) => state.questions.data);
   type VideoItem = {
@@ -51,6 +52,9 @@ const Questions = () => {
     likes: string;
     isLike: boolean;
   };
+
+  const sampleQuestions = [];
+
   const videos: VideoItem[] = [
     {
       id: "v1",
@@ -104,7 +108,7 @@ const Questions = () => {
 
   // Function to load more questions (dispatch an action)
   const loadMoreQuestions = () => {
-    dispatch({ type: "LOAD_MORE_QUESTIONS" });
+    // dispatch(setLoading());
   };
 
   const displayOption = useSelector(
@@ -117,6 +121,11 @@ const Questions = () => {
   console.log(questions);
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar
+        translucent
+        backgroundColor="rgba(255, 255, 255, 0.9)"
+        barStyle="dark-content" // or "dark-content" depending on your background
+      />
       {displayOption && (
         <Pressable
           onPress={() => dispatch(closeOption())}
@@ -136,7 +145,7 @@ const Questions = () => {
       )}
 
       {/* Render the list of questions only if not loading */}
-      {isLoading && questions.length > 0 ? (
+      {!isLoading && questions.length > 0 ? (
         <QuestionsList
           questions={questions}
           loadMoreQuestions={loadMoreQuestions}

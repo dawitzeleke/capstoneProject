@@ -4,7 +4,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 
 const mockData = {
-  month: "March",
   year: 2025,
   days_in_month: 31,
   heatmap: [
@@ -29,17 +28,6 @@ const Heatmap = () => {
       className={`rounded-2xl p-4 w-full ${
         isDark ? "bg-neutral-900" : "bg-white border border-gray-200"
       }`}>
-      <Text
-        className={`font-psemibold text-sm text-center mb-3 ${
-          isDark ? "text-gray-400" : "text-gray-600"
-        }`}>
-        <Ionicons
-          name="calendar-outline"
-          size={16}
-          color={isDark ? "#9CA3AF" : "#4B5563"}
-        />{" "}
-        {heatmapData.month}
-      </Text>
 
       <View className="flex-row flex-wrap justify-center">
         {heatmapData.heatmap.map((week, weekIndex) => (

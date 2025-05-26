@@ -1,6 +1,7 @@
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, Pressable } from "react-native";
 import ChatBubbleVideo from "./ui/ChatBubbleVideo";
 import { useSelector } from "react-redux";
+import { Ionicons } from "@expo/vector-icons";
 
 interface ChatBubbleProps {
   message: string;
@@ -9,6 +10,7 @@ interface ChatBubbleProps {
   time?: string;
   image?: string;
   video?: string;
+  onOptionsPress?: () => void;
 }
 
 const ChatBubble: React.FC<ChatBubbleProps> = ({
@@ -18,68 +20,55 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
   time = "2h ago",
   image,
   video,
+  onOptionsPress,
 }) => {
   const currentTheme = useSelector((state: any) => state.theme.mode);
+  const isDark = currentTheme === "dark";
 
   return (
-    <View
-      className={`flex-col items-start my-2 py-3 px-3 border-l-2 ${
-        currentTheme === "dark" ? "border-neutral-700" : "border-gray-200"
-      }`}
-    >
-      {/* Bubble container */}
-      <View
-        className={`p-4 my-3 rounded-2xl w-full shadow-xl border ${
-          currentTheme === "dark"
-            ? "bg-neutral-800 border-neutral-700"
-            : "bg-gray-50 border-gray-200"
-        }`}
-      >
+    <View className="px-4 py-2">
+      {/* Sender row */}
+      <View className="flex-row items-center mb-2">
+        <Image source={{ uri: avatar }} className="w-10 h-10 rounded-full" />
+        <View className="ml-3 flex-1">
+          <Text className={`text-base font-psemibold ${isDark ? "text-white" : "text-gray-900"}`}>
+            {sender}
+          </Text>
+          <Text className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+            {time}
+          </Text>
+        </View>
+        <Pressable className="p-2" onPress={onOptionsPress}>
+          <Ionicons 
+            name="ellipsis-horizontal" 
+            size={20} 
+            color={isDark ? "#e5e5e5" : "#64748b"} 
+          />
+        </Pressable>
+      </View>
+
+      {/* Content container */}
+      <View className="ml-13">
+        {/* Message text */}
+        <Text className={`text-base leading-6 mb-3 ${isDark ? "text-gray-100" : "text-gray-800"}`}>
+          {message}
+        </Text>
+
         {/* Optional Image */}
         {image && (
           <Image
             source={{ uri: image }}
-            className="w-full h-48 rounded-xl mb-3"
+            className="w-full h-64 rounded-2xl mb-3"
             resizeMode="cover"
           />
         )}
 
         {/* Optional Video */}
         {video && (
-          <View className="w-full h-52 rounded-xl overflow-hidden mb-3">
+          <View className="w-full h-64 rounded-2xl overflow-hidden mb-3">
             <ChatBubbleVideo video={video} />
           </View>
         )}
-
-        {/* Message text */}
-        <Text
-          className={`font-plight text-base ${
-            currentTheme === "dark" ? "text-gray-100" : "text-gray-800"
-          }`}
-        >
-          {message}
-        </Text>
-
-        {/* Timestamp */}
-        <Text
-          className={`text-xs font-pregular text-right mt-2 ${
-            currentTheme === "dark" ? "text-gray-400" : "text-gray-500"
-          }`}
-        >
-          {time}
-        </Text>
-      </View>
-
-      {/* Sender row */}
-      <View className="w-full flex-row items-center mt-1">
-        <Image source={{ uri: avatar }} className="w-10 h-10 rounded-full" />
-        <Text
-          className={`mx-4 text-lg font-pregular ${
-            currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
-          }`}
-        >
-          {sender}
-        </Text>
       </View>
     </View>
   );

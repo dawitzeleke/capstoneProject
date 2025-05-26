@@ -1,457 +1,492 @@
-import React, { useEffect, useState } from "react";
-import {
-  Text,
-  TextInput,
-  Pressable,
-  ScrollView,
-  useWindowDimensions,
-  Modal,
-  ActivityIndicator,
-  View,
-} from "react-native";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { ScrollView, View, Text } from "react-native";
+import { useRouter, useFocusEffect } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ContentTypeSelector from "@/components/teacher/ContentTypeSelector";
-import AppHeader from "@/components/teacher/Header";
+import AppHeader from "@/components/teacher/AppHeader";
+import TagsInput from '@/components/teacher/QuestionForm/TagsInput';
+import { SuccessModal } from '@/components/teacher/popups/SuccessModal';
+import { ErrorModal } from '@/components/teacher/popups/ErrorModal';
+import { CancelModal } from '@/components/teacher/popups/CancelModal';
+import { RootState } from "@/redux/store";
+import {
+  addQuestion,
+  updateQuestion,
+  clearEditingQuestion
+} from "@/redux/teacherReducer/teacherQuestionSlice";
+import {
+  QuestionFormState,
+  QuestionItem,
+  ContentStatus,
+  DifficultyLevel,
+  ValidationErrors,
+  QuestionTypeEnum
+} from "@/types/questionTypes";
+import QuestionInputSection from "@/components/teacher/QuestionForm/QuestionInputSection";
+import AnswerInput from "@/components/teacher/QuestionForm/AnswerInput";
+import HintInput from "@/components/teacher/QuestionForm/HintInput";
+import FormActions from "@/components/teacher/QuestionForm/FormActions";
+import DescriptionInput from "@/components/teacher/QuestionForm/DescriptionInput";
+import QuestionTypeDropdown from "@/components/teacher/QuestionForm/QuestionTypeDropdown";
+import DifficultySelector from "@/components/teacher/QuestionForm/DifficultySelector";
+import GradeSelector from "@/components/teacher/QuestionForm/GradeSelector";
+import PointSelector from "@/components/teacher/QuestionForm/PointSelector";
+import QuestionPreviewModal from "@/components/teacher/popups/QuestionPreviewModal";
+import CourseNameInput from '@/components/teacher/QuestionForm/CourseNameInput ';
+import ResetFormButton from '@/components/teacher/ResetFormButton';
+import MatrikCheckbox from '@/components/teacher/QuestionForm/MatrikCheckbox';
+import StreamDropdown from '@/components/teacher/QuestionForm/StreamDropdown';
+import ChapterInput from '@/components/teacher/QuestionForm/ChapterInput';
+import httpRequest from "@/util/httpRequest";
+
+// Update the initial state to ensure explanation is always a string
+const EMPTY_FORM_STATE: QuestionFormState = {
+  id: "",
+  questionText: "",
+  courseName: "",
+  description: "",
+  grade: 9,
+  difficulty: DifficultyLevel.Easy,
+  options: ["", "", "", "", ""],
+  tags: [],
+  hint: "",
+  correctOption: "",
+  status: ContentStatus.Draft,
+  isMatrik: false,
+  year: "",
+  stream: "",
+  chapter: "",
+  point: 1,
+  questionType: QuestionTypeEnum.MultipleChoice,
+  createdBy: "",
+};
 
 const AddQuestion = () => {
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const isVerySmallScreen = width <= 320;
+  const dispatch = useDispatch();
+  const [submitted, setSubmitted] = useState(false);
+  const { questions, editingQuestionId } = useSelector((state: RootState) => state.teacherQuestions);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const shouldLoadDraft = useRef(!editingQuestionId);
 
-  const [question, setQuestion] = useState("");
-  const [options, setOptions] = useState(["", "", "", ""]);
-  const [tagsInput, setTagsInput] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
-  const [hint, setHint] = useState("");
-  const [explanation, setExplanation] = useState("");
-  const [correctOption, setCorrectOption] = useState<number | null>(null);
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [isPosting, setIsPosting] = useState(false);
-  const [isSavingDraft, setIsSavingDraft] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [showDraftSuccessModal, setShowDraftSuccessModal] = useState(false);
-  const [postedQuestion, setPostedQuestion] = useState<any>(null);
-
-  const [errors, setErrors] = useState({
-    question: false,
-    options: [false, false, false, false],
-    explanation: false,
-    tags: false,
-    correctOption: false,
+  // Use the hoisted stable reference for initial state
+  const [formState, setFormState] = useState<QuestionFormState>(() => {
+    if (editingQuestionId) {
+      const questionToEdit = questions.find(q => q.id === editingQuestionId);
+      if (questionToEdit) {
+        return {
+          ...questionToEdit,
+          correctOption: questionToEdit.correctOption,
+          options: [...questionToEdit.options],
+          hint: questionToEdit.hint || '',
+        };
+      }
+    }
+    return EMPTY_FORM_STATE;
   });
 
-  const handleOptionChange = (text: string, index: number) => {
-    const newOptions = [...options];
-    newOptions[index] = text;
-    setOptions(newOptions);
+  // Modal and loading states
+  const [modalState, setModalState] = useState({
+    success: false,
+    error: false,
+    draftSuccess: false,
+    cancel: false,
+    message: "",
+    color: "",
+  });
+
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({
+    questionText: false,
+    courseName: false,
+    description: false,
+    grade: false,
+    difficulty: false,
+    options: [false, false, false, false, false],
+    tags: false,
+    correctOption: false,
+    stream: false,
+    chapter: false,
+    isMatrik: false,
+    year: false,
+    hint: false,
+  });
+
+  const [isPosting, setIsPosting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+
+  // Form initialization and reset
+  useFocusEffect(
+    useCallback(() => {
+      if (editingQuestionId) {
+        const questionToEdit = questions.find(q => q.id === editingQuestionId);
+        if (questionToEdit) {
+          const formState: QuestionFormState = {
+            ...questionToEdit,
+            correctOption: questionToEdit.correctOption,
+            options: [...questionToEdit.options],
+            hint: questionToEdit.hint || '',
+          };
+          setFormState(formState);
+        }
+        shouldLoadDraft.current = false;
+      } else if (shouldLoadDraft.current) {
+        const loadDraft = async () => {
+          try {
+            const savedDraft = await AsyncStorage.getItem('questionDraft');
+            if (savedDraft) {
+              const parsedDraft = JSON.parse(savedDraft);
+              const formState: QuestionFormState = {
+                ...parsedDraft,
+                hint: parsedDraft.hint || '',
+              };
+              setFormState(formState);
+            }
+          } catch (error) {
+            console.error('Error loading draft:', error);
+          }
+          shouldLoadDraft.current = false;
+        };
+        loadDraft();
+      } else {
+        setFormState(EMPTY_FORM_STATE);
+      }
+
+      return () => {
+        if (!editingQuestionId) {
+          dispatch(clearEditingQuestion());
+        }
+      };
+    }, [editingQuestionId, questions, dispatch])
+  );
+
+  // Form handlers
+  const handleDifficultyChange = (value: DifficultyLevel) => {
+    setFormState(prev => ({
+      ...prev,
+      difficulty: value
+    }));
   };
 
-  const handleTagInput = (text: string) => {
-    setTagsInput(text);
-    if (text.includes(",") || text.includes(" ")) {
-      const newTags = text.split(/[ ,]+/).filter((tag) => tag.trim() !== "");
-      setTags([...tags, ...newTags]);
-      setTagsInput("");
-    }
-  };
+  const handleOptionChange = useCallback((text: string, index: number) => {
+    setFormState(prev => ({
+      ...prev,
+      options: prev.options.map((opt, i) =>
+        i === index ? text.trim() : opt
+      )
+    }));
+  }, []);
 
-  const removeTag = (index: number) => {
-    const newTags = tags.filter((_, i) => i !== index);
-    setTags(newTags);
-  };
+  const handleCorrectAnswer = useCallback((index: number) => {
+    setFormState(prev => ({
+      ...prev,
+      correctOption: prev.options[index]
+    }));
+  }, []);
 
-  const validateForm = () => {
-    const newErrors = {
-      question: question.trim() === "",
-      options: options.map((opt) => opt.trim() === ""),
-      explanation: explanation.trim() === "",
-      tags: tags.length === 0,
-      correctOption: correctOption === null,
+  // Validation
+  const validateForm = useCallback(() => {
+    const errors = {
+      questionText: formState.questionText.trim() === "",
+      courseName: formState.courseName.trim() === "",
+      description: formState.description.trim() === "",
+      grade: !formState.grade,
+      difficulty: !formState.difficulty,
+      options: formState.options.map(opt => opt.trim() === ""),
+      tags: formState.tags.length === 0,
+      correctOption: !formState.correctOption || !formState.options.includes(formState.correctOption),
+      stream: formState.stream.trim() === "",
+      chapter: formState.chapter.trim() === "",
+      isMatrik: !formState.isMatrik,
+      year: formState.isMatrik && !formState.year.trim(),
+      hint: false,
     };
 
-    setErrors(newErrors);
-    return !Object.values(newErrors).some((error) =>
-      Array.isArray(error) ? error.some((e) => e) : error
-    );
-  };
+    setValidationErrors({
+      questionText: submitted && errors.questionText,
+      courseName: submitted && errors.courseName,
+      description: submitted && errors.description,
+      grade: submitted && errors.grade,
+      difficulty: submitted && errors.difficulty,
+      options: submitted ? errors.options : [false, false, false, false, false],
+      tags: submitted && errors.tags,
+      correctOption: submitted && errors.correctOption,
+      stream: submitted && errors.stream,
+      chapter: submitted && errors.chapter,
+      isMatrik: submitted && errors.isMatrik,
+      year: submitted && errors.year,
+      hint: submitted && errors.hint,
+    });
 
-  const handlePost = async () => {
-    if (!validateForm()) {
-      setErrorMessage("Please fill all required fields");
-      setShowErrorModal(true);
+    return !Object.values(errors).some(error =>
+      Array.isArray(error) ? error.some(e => e) : error
+    );
+  }, [formState, submitted]);
+
+  // Form submissions
+  const handlePost = useCallback(async () => {
+    setSubmitted(true);
+    const isValid = validateForm();
+
+    if (!isValid) {
+      setModalState(prev => ({
+        ...prev,
+        error: true,
+        message: "Please complete all required fields marked with *"
+      }));
       return;
     }
 
-    setIsPosting(true);
+    setShowPreviewModal(true);
+  }, [validateForm]);
 
+  const handleConfirmPost = useCallback(async () => {
+    setIsPosting(true);
     try {
-      const newQuestion = {
-        id: Date.now().toString(),
-        question: question.trim(),
-        options: options.map((opt, index) => ({
-          text: opt.trim(),
-          correct: index === correctOption,
-        })),
-        tags,
-        hint: hint.trim(),
-        explanation: explanation.trim(),
-        status: "posted",
-        date: new Date().toISOString(),
+      const questionPayload = {
+        questionText: formState.questionText,
+        description: formState.description,
+        options: formState.options,
+        correctOption: formState.correctOption,
+        courseName: formState.courseName,
+        point: formState.point,
+        grade: formState.grade,
+        difficulty: formState.difficulty,
+        questionType: formState.questionType,
+        createdBy: formState.createdBy,
+        stream: formState.stream,
+        hint: formState.hint,
+        tags: formState.tags,
       };
 
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          Math.random() > 0.1
-            ? resolve(true)
-            : reject(new Error("Simulated API failure"));
-        }, 1500);
-      });
+      const response = await httpRequest("/api/Questions", questionPayload, "POST");
 
-      setPostedQuestion(newQuestion);
-      setShowSuccessModal(true);
-      resetForm();
+      const questionToSubmit: QuestionItem = {
+        ...formState,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (editingQuestionId) {
+        dispatch(updateQuestion(questionToSubmit));
+      } else {
+        dispatch(addQuestion(questionToSubmit));
+      }
+
+      setModalState(prev => ({
+        ...prev,
+        success: true,
+        message: editingQuestionId ? "Question updated successfully!" : "Question posted successfully!",
+        color: "#16a34a"
+      }));
+
+      setShowPreviewModal(false);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Posting failed. Please try again."
-      );
-      setShowErrorModal(true);
+      setModalState(prev => ({
+        ...prev,
+        error: true,
+        message: "Failed to post question. Please try again."
+      }));
     } finally {
       setIsPosting(false);
     }
-  };
+  }, [formState, editingQuestionId, dispatch]);
 
-  const handleSaveDraft = async () => {
-    if (question.trim() === "") {
-      setErrorMessage("Question field is required for drafts");
-      setShowErrorModal(true);
-      return;
-    }
-
+  const handleSaveDraft = useCallback(async () => {
     setIsSavingDraft(true);
-
     try {
-      const draftQuestion = {
-        id: Date.now().toString(),
-        question: question.trim(),
-        options: options.map((opt, index) => ({
-          text: opt.trim(),
-          correct: index === correctOption,
-        })),
-        tags,
-        hint: hint.trim(),
-        explanation: explanation.trim(),
-        status: "draft",
-        date: new Date().toISOString(),
-      };
-
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          Math.random() > 0.1
-            ? resolve(true)
-            : reject(new Error("Simulated save failure"));
-        }, 1000);
-      });
-
-      setPostedQuestion(draftQuestion);
-      setShowDraftSuccessModal(true);
-      resetForm();
+      await AsyncStorage.setItem('questionDraft', JSON.stringify(formState));
+      setModalState(prev => ({
+        ...prev,
+        draftSuccess: true,
+        message: "Draft saved successfully!",
+        color: "#4F46E5"
+      }));
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Saving draft failed"
-      );
-      setShowErrorModal(true);
+      setModalState(prev => ({
+        ...prev,
+        error: true,
+        message: "Failed to save draft. Please try again."
+      }));
     } finally {
       setIsSavingDraft(false);
     }
-  };
+  }, [formState]);
 
-  const resetForm = () => {
-    setQuestion("");
-    setOptions(["", "", "", ""]);
-    setCorrectOption(null);
-    setTags([]);
-    setHint("");
-    setExplanation("");
-    setTagsInput("");
-    setErrors({
-      question: false,
-      options: [false, false, false, false],
-      explanation: false,
-      tags: false,
-      correctOption: false,
-    });
-  };
-
-  useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
-
-    if (showSuccessModal) {
-      timers.push(
-        setTimeout(() => {
-          setShowSuccessModal(false);
-          router.push("../(teacher)/ContentList");
-        }, 2000)
-      );
-    }
-
-    if (showDraftSuccessModal) {
-      timers.push(
-        setTimeout(() => {
-          setShowDraftSuccessModal(false);
-          router.push("../(teacher)/Drafts");
-        }, 2000)
-      );
-    }
-
-    if (showErrorModal) {
-      timers.push(setTimeout(() => setShowErrorModal(false), 2000));
-    }
-
-    return () => timers.forEach((timer) => clearTimeout(timer));
-  }, [showSuccessModal, showDraftSuccessModal, showErrorModal, postedQuestion]);
-
-  useEffect(() => {
-    return () => {
-      setShowSuccessModal(false);
-      setShowErrorModal(false);
-      setShowDraftSuccessModal(false);
-      setPostedQuestion(null);
-    };
+  const handleCloseModal = useCallback(() => {
+    setModalState(prev => ({
+      ...prev,
+      success: false,
+      error: false,
+      draftSuccess: false,
+      cancel: false
+    }));
   }, []);
 
+  const resetForm = useCallback(() => {
+    setFormState(EMPTY_FORM_STATE);
+    setValidationErrors({
+      questionText: false,
+      courseName: false,
+      description: false,
+      grade: false,
+      difficulty: false,
+      options: [false, false, false, false, false],
+      tags: false,
+      correctOption: false,
+      stream: false,
+      chapter: false,
+      isMatrik: false,
+      year: false,
+      hint: false,
+    });
+    setSubmitted(false);
+  }, []);
+
+  // Effects
+  useEffect(() => {
+    validateForm();
+  }, [formState, submitted, validateForm]);
+
+  // Render
   return (
     <View className="flex-1 bg-slate-50">
-      <ScrollView
-        className="px-4 pt-4 pb-10"
-        showsVerticalScrollIndicator={false}>
-        <AppHeader title="Upload Content" onBack={() => router.back()} />
+      <ScrollView className="pb-10" showsVerticalScrollIndicator={false}>
+        <AppHeader 
+          title="Upload Content" 
+          onBack={router.back}
+          showResetButton={true}
+          onReset={resetForm}
+          buttons={[
+            {
+              icon: "folder-open",
+              onPress: () => router.push("/teacher/(tabs)/ContentList"),
+              side: "right",
+              key: "exit-button",
+            },
+          ]}
+        />
         <ContentTypeSelector currentScreen="AddQuestion" />
 
-        {/* QUESTION */}
-        <View className="bg-white rounded-xl shadow p-4 mb-4">
-          <Text className="text-base font-psemibold text-slate-800 mb-2">
-            Question<Text className="text-red-500">*</Text>
-          </Text>
-          <TextInput
-            multiline
-            placeholder="Start writing your question here..."
-            placeholderTextColor="#94a3b8"
-            className="min-h-[100px] text-sm text-slate-700"
-            value={question}
-            onChangeText={setQuestion}
+        <View className="px-4 pt-4">
+          <View className="mt-2">
+            <CourseNameInput
+              value={formState.courseName}
+              onChange={(text) => setFormState({ ...formState, courseName: text })}
+              error={validationErrors.courseName}
+              submitted={submitted}
+            />
+            <DescriptionInput
+              value={formState.description}
+              onChange={(text) => setFormState({ ...formState, description: text })}
+              error={validationErrors.description}
+              submitted={submitted}
+            />
+
+            <GradeSelector
+              value={formState.grade}
+              onChange={(value) => setFormState({ ...formState, grade: value })}
+              error={validationErrors.grade}
+              submitted={submitted}
+            />
+
+            <MatrikCheckbox
+              formState={formState}
+              setFormState={setFormState}
+              validationErrors={{
+                isMatrik: validationErrors.isMatrik ? 'Required' : '',
+                year: validationErrors.year ? 'Required' : ''
+              }}
+            />
+
+            <StreamDropdown
+              value={formState.stream}
+              onChange={(value) => setFormState({ ...formState, stream: value })}
+              error={validationErrors.stream}
+              submitted={submitted}
+            />
+
+            <ChapterInput
+              value={formState.chapter}
+              onChange={(text) => setFormState({ ...formState, chapter: text })}
+              error={validationErrors.chapter}
+              submitted={submitted}
+            />
+
+            <QuestionInputSection
+              value={formState.questionText}
+              onChange={(text) => setFormState({ ...formState, questionText: text })}
+              error={validationErrors.questionText}
+              submitted={submitted}
+            />
+            <AnswerInput
+              options={formState.options}
+              correctOption={formState.correctOption}
+              onOptionChange={handleOptionChange}
+              onCorrectAnswer={(value) => setFormState({ ...formState, correctOption: value })}
+              errors={validationErrors.options}
+              correctAnswerError={validationErrors.correctOption}
+              submitted={submitted}
+            />
+
+            <HintInput
+              value={formState.hint}
+              onChange={(text) => setFormState({ ...formState, hint: text })}
+            />
+
+            <TagsInput
+              value={formState.tags}
+              onChange={(tags) => setFormState({ ...formState, tags: tags })}
+              error={validationErrors.tags}
+              submitted={submitted}
+            />
+          </View>
+
+          <FormActions
+            onPost={handlePost}
+            onSaveDraft={handleSaveDraft}
+            onCancel={handleCloseModal}
+            isPosting={isPosting}
+            isSavingDraft={isSavingDraft}
+            validationErrors={validationErrors}
           />
         </View>
+        
+        <SuccessModal
+          isVisible={modalState.success || modalState.draftSuccess}
+          message={modalState.message}
+          onDismiss={handleCloseModal}
+          color={modalState.color}
+          icon={modalState.success ? "checkmark-circle" : "bookmark"}
+        />
 
-        {/* OPTIONS */}
-        <View className="bg-white rounded-xl shadow p-4 mb-4">
-          <Text className="text-base font-psemibold text-slate-800 mb-2">
-            Options<Text className="text-red-500">*</Text>
-          </Text>
-          {options.map((option, index) => (
-            <View key={index} className="flex-row items-center mb-2">
-              <Pressable
-                onPress={() => setCorrectOption(index)}
-                className="p-2 mr-2">
-                <Ionicons
-                  name={
-                    correctOption === index
-                      ? "radio-button-on"
-                      : "radio-button-off"
-                  }
-                  size={20}
-                  color="#4F46E5"
-                />
-              </Pressable>
-              <Text className="w-6 text-sm font-pmedium text-indigo-700">
-                {String.fromCharCode(65 + index)}.
-              </Text>
-              <TextInput
-                placeholder={`Start writing choice ${String.fromCharCode(
-                  65 + index
-                )}...`}
-                placeholderTextColor="#94a3b8"
-                className={`flex-1 border-b border-slate-200 text-sm text-slate-700 py-1 ${
-                  errors.options[index]
-                    ? "border-red-500 bg-red-100 rounded"
-                    : ""
-                }`}
-                value={option}
-                onChangeText={(text) => handleOptionChange(text, index)}
-              />
-            </View>
-          ))}
-          {errors.correctOption && (
-            <Text className="text-red-500 text-xs mt-1">
-              Please select the correct answer
-            </Text>
-          )}
-        </View>
-        {/* HINT */}
-        <View className="bg-white rounded-xl shadow p-4 mb-4">
-          <Text className="text-base font-psemibold text-slate-800 mb-2">
-            Hint (Optional)
-          </Text>
-          <TextInput
-            multiline
-            placeholder="You can add a hint to help students"
-            placeholderTextColor="#94a3b8"
-            className="min-h-[80px] text-sm text-slate-700"
-            value={hint}
-            onChangeText={setHint}
-          />
-        </View>
+        <ErrorModal
+          isVisible={modalState.error}
+          message={modalState.message}
+          onDismiss={handleCloseModal}
+        />
 
-        {/* EXPLANATION */}
-        <View className="bg-white rounded-xl shadow p-4 mb-4">
-          <Text className="text-base font-psemibold text-slate-800 mb-2">
-            Explanation<Text className="text-red-500">*</Text>
-          </Text>
-          <TextInput
-            multiline
-            placeholder="Explain why the correct answer is correct"
-            placeholderTextColor="#94a3b8"
-            className={`min-h-[100px] text-sm text-slate-700 ${
-              errors.explanation
-                ? "border border-red-500 bg-red-100 rounded px-2"
-                : ""
-            }`}
-            value={explanation}
-            onChangeText={setExplanation}
-          />
-        </View>
+        <CancelModal
+          isVisible={modalState.cancel}
+          onConfirm={() => {
+            resetForm();
+            router.push("/teacher/(tabs)/ContentList");
+            setModalState(prev => ({ ...prev, cancel: false }));
+          }}
+          onCancel={() => setModalState(prev => ({ ...prev, cancel: false }))}
+        />
 
-        {/* TAGS */}
-        <View className="bg-white rounded-xl shadow p-4 mb-6">
-          <Text className="text-base font-psemibold text-slate-800 mb-2">
-            Tags<Text className="text-red-500">*</Text>
-          </Text>
-          <TextInput
-            placeholder="Add tags separated by comma or space"
-            placeholderTextColor="#94a3b8"
-            className={`border-b border-slate-200 text-sm text-slate-700 py-1 mb-2 ${
-              errors.tags ? "border-red-500 bg-red-100 rounded" : ""
-            }`}
-            value={tagsInput}
-            onChangeText={handleTagInput}
-          />
-          <View className="flex-row flex-wrap gap-2">
-            {tags.map((tag, index) => (
-              <View
-                key={index}
-                className="bg-indigo-100 px-3 py-1 rounded-full flex-row items-center">
-                <Text className="text-indigo-700 text-xs">{tag}</Text>
-                <Pressable onPress={() => removeTag(index)} className="ml-1">
-                  <Ionicons name="close-circle" size={14} color="#4F46E5" />
-                </Pressable>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* ACTION BUTTONS */}
-        <View className="flex-row gap-2 mx-4 mt-4 min-h-[44px]">
-          <Pressable
-            className="flex-1 rounded bg-indigo-100 py-3 items-center justify-center"
-            onPress={handleSaveDraft}
-            disabled={isSavingDraft}>
-            {isSavingDraft ? (
-              <ActivityIndicator color="#4F46E5" size="small" />
-            ) : (
-              <Text className="text-indigo-600 text-sm font-pmedium">
-                Save Draft
-              </Text>
-            )}
-          </Pressable>
-
-          <Pressable
-            className="flex-1 rounded bg-indigo-600 py-3 items-center justify-center"
-            onPress={handlePost}
-            disabled={isPosting}>
-            {isPosting ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <Text className="text-white text-sm font-pmedium">Post</Text>
-            )}
-          </Pressable>
-
-          <Pressable
-            className="flex-1 rounded bg-red-300 py-3 items-center justify-center"
-            onPress={() => setShowCancelModal(true)}>
-            <Text className="text-white text-sm font-pmedium">Cancel</Text>
-          </Pressable>
-        </View>
-
-        {/* MODALS */}
-        <Modal transparent visible={showSuccessModal}>
-          <View className="flex-1 justify-center items-center bg-black/40 px-6">
-            <View className="bg-white rounded-xl p-6 w-full items-center">
-              <Ionicons name="checkmark-circle" size={48} color="#22c55e" />
-              <Text className="text-lg font-psemibold text-green-600 mt-2">
-                Posted Successfully!
-              </Text>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal visible={showCancelModal} transparent animationType="fade">
-          <View className="flex-1 bg-black/50 justify-center items-center">
-            <View className="bg-white rounded-xl p-6 w-4/5">
-              <Text className="text-lg font-psemibold text-slate-800 mb-2">
-                Discard Changes?
-              </Text>
-              <Text className="text-sm text-slate-500 mb-6">
-                Are you sure you want to discard this upload?
-              </Text>
-              <View className="flex-row justify-end gap-2">
-                <Pressable
-                  className="bg-slate-100 px-4 py-2 rounded"
-                  onPress={() => setShowCancelModal(false)}>
-                  <Text className="text-slate-500 font-pmedium">
-                    Continue Editing
-                  </Text>
-                </Pressable>
-                <Pressable
-                  className="bg-red-200 px-4 py-2 rounded"
-                  onPress={() => {
-                    setShowCancelModal(false);
-                    resetForm();
-                   router.push("../(teacher)/ContentList"); 
-                  }}>
-                  <Text className="text-red-500 font-pmedium">Discard</Text>
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal transparent visible={showDraftSuccessModal}>
-          <View className="flex-1 justify-center items-center bg-black/40 px-6">
-            <View className="bg-white rounded-xl p-6 w-full items-center">
-              <Ionicons name="checkmark-circle" size={48} color="#3b82f6" />
-              <Text className="text-lg font-psemibold text-blue-600 mt-2">
-                Saved as Draft!
-              </Text>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal transparent visible={showErrorModal}>
-          <View className="flex-1 justify-center items-center bg-black/40 px-6">
-            <View className="bg-white rounded-xl p-6 w-full items-center">
-              <Ionicons name="close-circle" size={48} color="#ef4444" />
-              <Text className="text-lg font-psemibold text-red-600 mt-2">
-                {errorMessage}
-              </Text>
-            </View>
-          </View>
-        </Modal>
-
-        {/* Remaining inputs and buttons (hint, explanation, tags, modals, etc.) will follow same pattern */}
+        <QuestionPreviewModal
+          visible={showPreviewModal}
+          question={formState as QuestionItem}
+          onClose={() => setShowPreviewModal(false)}
+          onEdit={() => setShowPreviewModal(false)}
+          onConfirm={handleConfirmPost}
+          loading={isPosting}
+          mode="edit"
+        />
       </ScrollView>
     </View>
   );

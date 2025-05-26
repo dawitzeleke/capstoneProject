@@ -1,4 +1,5 @@
 using Application.Dtos.AuthDtos;
+using backend.Domain.Enums;
 using MediatR;
 
 public class SignUpStudentCommand : IRequest<AuthResponseDto>
@@ -9,4 +10,5 @@ public class SignUpStudentCommand : IRequest<AuthResponseDto>
     public string Password { get; set; }
     public string PhoneNumber { get; set; }
     public int Grade { get; set; }
+    public StreamEnum Stream { get; set; }
 }
