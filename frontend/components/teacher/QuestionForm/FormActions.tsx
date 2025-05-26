@@ -1,4 +1,7 @@
+import React from 'react';
 import { View, Pressable, Text, ActivityIndicator } from 'react-native';
+import { ValidationErrors } from '@/types/questionTypes';
+import { Ionicons } from '@expo/vector-icons';
 
 type FormActionsProps = {
   onSaveDraft: () => void;
@@ -6,19 +9,7 @@ type FormActionsProps = {
   onCancel: () => void;
   isSavingDraft: boolean;
   isPosting: boolean;
-  validationErrors: {
-    questionText: boolean;
-    courseName: boolean;
-    description: boolean;
-    grade: boolean;
-    difficulty: boolean;
-    questionType: boolean;
-    point: boolean;
-    options: boolean[];
-    explanation: boolean;
-    tags: boolean;
-    correctOption: boolean;
-  };
+  validationErrors: ValidationErrors;
 };
 
 const FormActions = ({
@@ -27,7 +18,7 @@ const FormActions = ({
   onCancel,
   isSavingDraft,
   isPosting,
-  validationErrors
+  validationErrors,
 }: FormActionsProps) => {
   const canSaveDraft = !validationErrors.questionText;
   const canPost = !Object.values(validationErrors).some(error => 
@@ -35,51 +26,43 @@ const FormActions = ({
   );
 
   return (
-    <View className="flex-row gap-2 mx-4 mt-4 min-h-[44px]">
-      {/* Save Draft Button */}
+    <View className="flex-row justify-between p-4 border-t border-gray-200 gap-2">
       <Pressable
-        className={`flex-1 rounded py-3 items-center justify-center ${
-          canSaveDraft ? 'bg-indigo-100' : 'bg-gray-100'
-        }`}
+        className="flex-2 flex-row items-center justify-center px-4 py-2 bg-indigo-100 rounded-lg"
         onPress={onSaveDraft}
-        disabled={isSavingDraft || !canSaveDraft}
+        disabled={isSavingDraft}
       >
         {isSavingDraft ? (
-          <ActivityIndicator color="#4F46E5" size="small" />
+          <ActivityIndicator color="#4F46E5" />
         ) : (
-          <Text className={`text-sm font-pmedium ${
-            canSaveDraft ? 'text-indigo-600' : 'text-gray-400'
-          }`}>
-            Save Draft
-          </Text>
+          <>
+            <Ionicons name="bookmark" size={18} color="#4F46E5" />
+            <Text className="ml-2 text-[#4F46E5] font-pmedium">Save Draft</Text>
+          </>
         )}
       </Pressable>
 
-      {/* Post Button */}
       <Pressable
-        className={`flex-1 rounded py-3 items-center justify-center ${
-          canPost ? 'bg-indigo-600' : 'bg-gray-300'
-        }`}
+        className="flex-2 flex-row items-center justify-center px-4 py-2 bg-[#dcfce7] rounded-lg"
         onPress={onPost}
-        disabled={isPosting || !canPost}
+        disabled={isPosting}
       >
         {isPosting ? (
-          <ActivityIndicator color="#fff" size="small" />
+          <ActivityIndicator color="#16a34a" />
         ) : (
-          <Text className={`text-sm font-pmedium ${
-            canPost ? 'text-white' : 'text-gray-500'
-          }`}>
-            Post
-          </Text>
+          <>
+            <Ionicons name="checkmark" size={18} color="#16a34a" />
+            <Text className="ml-2 text-[#16a34a] font-pmedium">Post</Text>
+          </>
         )}
       </Pressable>
 
-      {/* Cancel Button */}
       <Pressable
-        className="flex-1 rounded bg-red-100 py-3 items-center justify-center"
+        className="flex-2 flex-row items-center justify-center px-4 py-2 bg-red-100 rounded-lg"
         onPress={onCancel}
       >
-        <Text className="text-red-600 text-sm font-pmedium">Cancel</Text>
+        <Ionicons name="close" size={18} color="#DC2626" />
+        <Text className="ml-2 text-red-600 font-pmedium">Cancel</Text>
       </Pressable>
     </View>
   );

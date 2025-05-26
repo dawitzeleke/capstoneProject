@@ -45,6 +45,8 @@ const TeacherDashboard: React.FC = () => {
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375;
   const isVerySmallScreen = width < 340;
+  const currentTheme = useSelector((state: RootState) => state.theme.mode);
+  const isDark = currentTheme === 'dark';
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
@@ -65,43 +67,50 @@ const TeacherDashboard: React.FC = () => {
 
   return (
     <ScrollView
-      className="flex-1 bg-[#f1f3fc]"
+      className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-[#f1f3fc]'}`}
       contentContainerStyle={{ paddingBottom: 24, paddingTop: 0 }}
       showsVerticalScrollIndicator={false}
     >
-         <View className="flex-row justify-between items-center bg-white px-5 py-4 ">
-          <Text className="text-3xl font-pbold text-[#4F46E5] tracking-tight">Dashboard</Text>
-          <Link href="../Settings" asChild>
-            <Ionicons name="menu" size={28} color="#4F46E5" />
-          </Link>
-        </View>
-     
+      {/* Header */}
+      <View className={`flex-row mt-6 justify-between items-center ${isDark ? 'bg-gray-800' : 'bg-white'} px-5 py-4`}>
+        <Text className={`text-3xl font-pbold ${isDark ? 'text-white' : 'text-[#4F46E5]'} tracking-tight`}>
+          Dashboard
+        </Text>
+        <Link href="../Settings" asChild>
+          <TouchableOpacity>
+            <Ionicons name="menu" size={28} color={isDark ? 'white' : '#4F46E5'} />
+          </TouchableOpacity>
+        </Link>
+      </View>
+
       {/* Profile Picture - positioned absolutely */}
-      <View className="w-full items-center absolute" style={{ top: 90, zIndex: 10 }}>
-        <ProfilePicture
-           profilePictureUrl={profile?.profilePictureUrl}
-           loading={loadingImage}
-        />
+      <View className="w-full items-center absolute" style={{ top: 90, zIndex: 20 }}>
+        <View className={`rounded-full p-1 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
+          <ProfilePicture
+            profilePictureUrl={profile?.profilePictureUrl}
+            loading={loadingImage}
+          />
+        </View>
       </View>
 
       {/* Content below profile picture, including ProfileCard */}
-      <View className="space-y-6 px-4 mt-[130]">
-      <ProfileCard
+      <View className="space-y-6 px-4 mt-[120]">
+        <ProfileCard
           profile={profile || defaultProfile}
           stats={stats || defaultStats}
-      />
+        />
 
         <ScreenButtons isVerySmallScreen={isVerySmallScreen} />
 
-      <DashboardSummary
-        isSmallScreen={isSmallScreen}
-        isVerySmallScreen={isVerySmallScreen}
+        <DashboardSummary
+          isSmallScreen={isSmallScreen}
+          isVerySmallScreen={isVerySmallScreen}
           stats={stats || defaultStats}
-      />
-    </View>
+        />
+      </View>
 
-  <Toast />
-    </ScrollView >
+      <Toast />
+    </ScrollView>
   );
 };
 

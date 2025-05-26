@@ -1,11 +1,11 @@
-// File: src/components/teacher/Profile/DashboardSummary.tsx
-
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import EngagementGraph from './EngagementGraph';
 import { TeacherStats } from '@/types/teacherTypes';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/rootReducer';
 
 interface DashboardSummaryProps {
   isSmallScreen: boolean;
@@ -18,6 +18,9 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({
   isVerySmallScreen,
   stats,
 }) => {
+  const currentTheme = useSelector((state: RootState) => state.theme.mode);
+  const isDark = currentTheme === 'dark';
+
   // Mock data structure matching backend schema
   const mockStats: TeacherStats = {
     totalViews: 10000,
@@ -28,41 +31,73 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({
 
   const safeStats = stats || mockStats;
 
+  // Ensure engagement data is valid
+  const engagementData = {
+    labels: safeStats.engagementLabels?.length === 7 
+      ? safeStats.engagementLabels 
+      : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    values: safeStats.engagementLast7Days?.length === 7 
+      ? safeStats.engagementLast7Days.map(val => Math.max(0, Math.min(100, val || 0)))
+      : [0, 0, 0, 0, 0, 0, 0]
+  };
+
   return (
     <Animated.View
       entering={FadeInUp.delay(200)}
-      className="bg-white p-5 mt-4 rounded-3xl shadow-lg mb-6"
+      className={`p-6 mt-4 rounded-3xl shadow-lg mb-6 ${
+        isDark ? 'bg-gray-800' : 'bg-white'
+      }`}
     >
-      <Text className="text-lg font-psemibold text-gray-900 mb-4">
+      <Text className={`text-lg font-psemibold mb-4 ${
+        isDark ? 'text-gray-100' : 'text-gray-900'
+      }`}>
         Your Dashboard Summary
       </Text>
 
-      <View className="flex-row justify-between mb-6">
-        <View className="items-center space-y-1">
-          <Ionicons name="eye-outline" size={28} color="#4F46E5" />
-          <Text className="text-sm text-gray-600">Views</Text>
-          <Text className="text-base font-pbold text-gray-800">
+      <View className="flex-row justify-between mb-8 px-2">
+        <View className="items-center space-y-2 bg-opacity-10 p-4 rounded-2xl flex-1 mx-2" 
+          style={{ backgroundColor: isDark ? 'rgba(79, 70, 229, 0.1)' : 'rgba(79, 70, 229, 0.05)' }}>
+          <Ionicons name="eye-outline" size={32} color="#4F46E5" />
+          <Text className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+            Total Views
+          </Text>
+          <Text className={`text-lg font-pbold ${
+            isDark ? 'text-gray-100' : 'text-gray-800'
+          }`}>
             {safeStats.totalViews.toLocaleString()}
           </Text>
         </View>
 
-        <View className="items-center space-y-1">
-          <Ionicons name="share-social-outline" size={28} color="#4F46E5" />
-          <Text className="text-sm text-gray-600">Shares</Text>
-          <Text className="text-base font-pbold text-gray-800">
+        <View className="items-center space-y-2 bg-opacity-10 p-4 rounded-2xl flex-1 mx-2"
+          style={{ backgroundColor: isDark ? 'rgba(79, 70, 229, 0.1)' : 'rgba(79, 70, 229, 0.05)' }}>
+          <Ionicons name="share-social-outline" size={32} color="#4F46E5" />
+          <Text className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+            Total Shares
+          </Text>
+          <Text className={`text-lg font-pbold ${
+            isDark ? 'text-gray-100' : 'text-gray-800'
+          }`}>
             {safeStats.totalShares.toLocaleString()}
           </Text>
         </View>
       </View>
 
-      <EngagementGraph 
-        data={{
-          labels: safeStats.engagementLabels,
-          values: safeStats.engagementLast7Days
-        }}
-        isSmallScreen={isSmallScreen}
-        isVerySmallScreen={isVerySmallScreen}
-      />
+      <View className={`p-4 rounded-2xl ${
+        isDark ? 'bg-gray-700' : 'bg-gray-50'
+      }`}>
+        <Text className={`text-base font-pmedium mb-4 ${
+          isDark ? 'text-gray-200' : 'text-gray-700'
+        }`}>
+          Engagement Last 7 Days
+        </Text>
+        <View className="overflow-hidden rounded-xl">
+          <EngagementGraph 
+            data={engagementData}
+            isSmallScreen={isSmallScreen}
+            isVerySmallScreen={isVerySmallScreen}
+          />
+        </View>
+      </View>
     </Animated.View>
   );
 };

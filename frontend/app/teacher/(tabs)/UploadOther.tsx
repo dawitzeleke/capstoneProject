@@ -4,7 +4,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
-import { v4 as uuidv4 } from 'uuid';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { AppDispatch } from '@/redux/store';
 
 // Components
@@ -28,6 +28,15 @@ import { MediaItem, MediaType, MediaStatus } from '@/types/mediaTypes';
 const FILE_TYPES = {
     image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
     video: ['video/mp4', 'video/quicktime', 'video/x-m4v', 'video/3gpp'],
+};
+
+// Custom ID generator for React Native
+const generateId = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 };
 
 // Add type for form state
@@ -57,7 +66,7 @@ type ModalState = {
 
 // Create a factory function for empty state
 const createEmptyFormState = () => ({
-  id: uuidv4(),
+  id: generateId(),
   title: '',
   description: '',
   type: 'image' as MediaType,
@@ -76,8 +85,8 @@ const UploadOtherScreen = () => {
   const { editingMedia } = useSelector((state: RootState) => state.media);
   const shouldLoadDraft = useRef(true);
   const [localDraft, setLocalDraft] = useState(() => {
-    const savedDraft = localStorage.getItem('mediaDraft');
-    return savedDraft ? JSON.parse(savedDraft) : null;
+    // Initialize with null, we'll load the draft in useEffect
+    return null;
   });
 
   // Form state
@@ -107,11 +116,30 @@ const UploadOtherScreen = () => {
   const [isPosting, setIsPosting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
 
+  // Load draft from AsyncStorage on mount
+  useEffect(() => {
+    const loadDraft = async () => {
+      try {
+        const savedDraft = await AsyncStorage.getItem('mediaDraft');
+        if (savedDraft) {
+          setLocalDraft(JSON.parse(savedDraft));
+        }
+      } catch (error) {
+        console.error('Error loading draft:', error);
+      }
+    };
+    loadDraft();
+  }, []);
+
   // Reset/Cancel logic
-  const resetForm = useCallback(() => {
+  const resetForm = useCallback(async () => {
     dispatch(setEditingMedia(null));
     setFormState(createEmptyFormState());
-    localStorage.removeItem('mediaDraft');
+    try {
+      await AsyncStorage.removeItem('mediaDraft');
+    } catch (error) {
+      console.error('Error removing draft:', error);
+    }
     shouldLoadDraft.current = false;
   }, [dispatch]);
 
@@ -128,32 +156,27 @@ const UploadOtherScreen = () => {
             uri: editingMedia.thumbnailUrl, name: 'thumbnail', type: 'image', size: 0 
           } : null
         };
-      } else {
-        const savedDraft = localStorage.getItem('mediaDraft');
-        if (savedDraft) {
-          try {
-            initialData = JSON.parse(savedDraft);
-          } catch (e) {
-            console.error("Failed to parse draft:", e);
-          }
-        }
+      } else if (localDraft) {
+        initialData = localDraft;
       }
 
       setFormState(initialData);
 
       return () => {
         if (!editingMedia && formState.title) {
-          localStorage.setItem('mediaDraft', JSON.stringify(formState));
+          AsyncStorage.setItem('mediaDraft', JSON.stringify(formState))
+            .catch(error => console.error('Error saving draft:', error));
         }
       };
-    }, [editingMedia])
+    }, [editingMedia, localDraft])
   );
 
   // Auto-save effect
   useEffect(() => {
     if (!editingMedia && formState.title && !modalState.success) {
       const timeout = setTimeout(() => {
-        localStorage.setItem('mediaDraft', JSON.stringify(formState));
+        AsyncStorage.setItem('mediaDraft', JSON.stringify(formState))
+          .catch(error => console.error('Error auto-saving draft:', error));
       }, 500);
       return () => clearTimeout(timeout);
     }
@@ -283,7 +306,6 @@ const UploadOtherScreen = () => {
 
       if (!editingMedia) {
         setFormState(createEmptyFormState());
-        localStorage.removeItem('mediaDraft');
       }
     } catch (error: any) {
       const errorMessage = error.payload?.message || error.message || 'Submission failed. Please try again.';

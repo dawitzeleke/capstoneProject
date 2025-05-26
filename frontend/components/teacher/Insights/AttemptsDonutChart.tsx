@@ -23,12 +23,12 @@ export const AttemptsDonutChart: React.FC<AttemptsDonutChartProps> = ({ correct,
   const strokeWidth = radius * 0.3; // donut thickness (30% of radius)
   const innerRadius = radius - strokeWidth;
   const total = correct + wrong;
-  const correctPct = total ? correct / total : 0;
-  const wrongPct = total ? wrong / total : 0;
+  const correctPct = total ? Math.max(0, Math.min(1, correct / total)) : 0;
+  const wrongPct = total ? Math.max(0, Math.min(1, wrong / total)) : 0;
 
   const circumference = 2 * Math.PI * radius;
-  const correctStroke = correctPct * circumference;
-  const wrongStroke = wrongPct * circumference;
+  const correctStroke = Math.max(0, Math.min(circumference, correctPct * circumference));
+  const wrongStroke = Math.max(0, Math.min(circumference, wrongPct * circumference));
 
   return (
     <View className="bg-white rounded-2xl p-4 shadow-md mb-4 w-full items-center">

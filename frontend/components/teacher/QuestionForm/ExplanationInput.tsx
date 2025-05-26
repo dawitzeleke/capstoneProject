@@ -1,33 +1,40 @@
+import React from 'react';
 import { View, Text, TextInput } from 'react-native';
 
-type ExplanationInputProps = {
+interface ExplanationInputProps {
   value: string;
   onChange: (text: string) => void;
   error: boolean;
   submitted: boolean;
-};
+}
 
-const ExplanationInput = ({ value, onChange, error, submitted }: ExplanationInputProps) => (
-  <View className="bg-white rounded-xl shadow p-4 mb-4 border-b border-slate-200">
-    <View className="flex-row justify-between items-center mb-2">
-      <Text className="text-lg font-psemibold text-slate-800">
-        Explanation<Text className="text-red-500 m-1 text-lg"> *</Text>
+const ExplanationInput: React.FC<ExplanationInputProps> = ({
+  value,
+  onChange,
+  error,
+  submitted,
+}) => {
+  return (
+    <View className="mb-4">
+      <Text className="text-base font-pmedium text-gray-600 mb-2">
+        Hint {submitted && <Text className="text-red-500">*</Text>}
       </Text>
-      {submitted && error && (
-        <Text className="text-red-500 text-xs">Required</Text>
+      <TextInput
+        className={`p-3 border rounded-lg ${
+          error ? 'border-red-500' : 'border-gray-300'
+        }`}
+        value={value}
+        onChangeText={onChange}
+        placeholder="Enter a hint for the question"
+        multiline
+        numberOfLines={3}
+        textAlignVertical="top"
+      />
+      {error && (
+        <Text className="text-red-500 text-sm mt-1">Hint is required</Text>
       )}
     </View>
-    <TextInput
-      multiline
-      placeholder="Explain why the correct answer is correct."
-      placeholderTextColor="#94a3b8"
-      className={`min-h-[100px] text-base text-black font-pregular border-b border-slate-200 ${
-        submitted && error ? "border-2 border-red-200 bg-red-50 rounded px-2" : ""
-      }`}
-      value={value}
-      onChangeText={onChange}
-    />
-  </View>
-);
+  );
+};
 
 export default ExplanationInput;

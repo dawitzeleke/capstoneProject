@@ -25,41 +25,60 @@ export interface QuestionItem {
     options: string[];
     correctOption: string;
     courseName: string;
+    point: number;
     grade: number;
     difficulty: DifficultyLevel;
     questionType: QuestionTypeEnum;
-    point: number;
-    tags: string[];
-    hint?: string;
-    explanation?: string;
-    status: ContentStatus;
     createdBy: string;
-    createdAt: string;
-    updatedAt: string;
+    stream: string;
+    hint: string;
+    tags: string[];
+    status: ContentStatus;
+    createdAt?: string;
+    updatedAt?: string;
+    isMatrik: boolean;
+    year: string;
+    chapter: string;
 }
 
-export type QuestionFormState = {
-  
+export interface QuestionFormState {
     id: string;
-  questionText: string;
-  courseName: string;
-  description: string;
-  grade: number;
-  difficulty: DifficultyLevel;
-  questionType: QuestionTypeEnum;
-  point: number;
-  options: string[];
-  tags: string[];
-  hint?: string;
-  explanation: string;
-  correctOption: string;
-  status: ContentStatus;
-  createdAt?: string;
-  updatedAt?: string;
-};
+    questionText: string;
+    description: string;
+    options: string[];
+    correctOption: string;
+    hint: string;
+    difficulty: DifficultyLevel;
+    courseName: string;
+    grade: number;
+    stream: string;
+    chapter: string;
+    isMatrik: boolean;
+    year: string;
+    tags: string[];
+    status: ContentStatus;
+    createdAt?: string;
+    updatedAt?: string;
+    point: number;
+    questionType: QuestionTypeEnum;
+    createdBy: string;
+}
 
-
-
+export interface ValidationErrors {
+    questionText: boolean;
+    courseName: boolean;
+    description: boolean;
+    grade: boolean;
+    difficulty: boolean;
+    options: boolean[];
+    tags: boolean;
+    correctOption: boolean;
+    stream: boolean;
+    chapter: boolean;
+    isMatrik: boolean;
+    year: boolean;
+    hint: boolean;
+}
 
 export type QuestionFormMode = "create" | "edit";
 

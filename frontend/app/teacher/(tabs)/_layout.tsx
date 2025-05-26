@@ -44,8 +44,10 @@ const TabIcon: React.FC<TabIconProps> = ({
         />
       )}
       <Text
-        className={`font-psemibold text-xs`}
-        style={{ color: color }}>
+        className="font-psemibold text-xs w-16 text-center"
+        style={{ color: color }}
+        numberOfLines={1}
+      >
         {name}
       </Text>
     </View>
