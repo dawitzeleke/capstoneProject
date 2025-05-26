@@ -10,5 +10,8 @@ namespace backend.Domain.Entities
         public List<string> CompletedQuestions { get; set; }
         public List<string> Badges { get; set; }
         public int Grade { get; set; }
+        public HashSet<string> SavedQuestions { get; set; } = new HashSet<string>();
+        public HashSet<string> SavedContents { get; set; } = new HashSet<string>();
+
     }
 }

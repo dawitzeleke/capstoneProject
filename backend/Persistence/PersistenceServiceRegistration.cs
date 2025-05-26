@@ -30,16 +30,9 @@ public static class PersistenceServiceRegistration
             var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>();
             var client = sp.GetRequiredService<IMongoClient>();
             // Validate the connection to MongoDB by pinging the server
-            try
-            {
-                client.GetDatabase(settings.Value.DatabaseName).RunCommandAsync((Command<object>)"{ping:1}").Wait();
-                Console.WriteLine("MongoDB connection successful.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("MongoDB connection failed: " + ex.Message);
-                throw new InvalidOperationException("MongoDB connection failed", ex);
-            }
+            
+            client.GetDatabase(settings.Value.DatabaseName).RunCommandAsync((Command<object>)"{ping:1}").Wait();
+            
 
             return client.GetDatabase(settings.Value.DatabaseName);
         });
