@@ -4,7 +4,6 @@ using backend.Domain.Enums;
 namespace backend.Application.Features.ReportFeature.Commands.CreateReport;
 public class CreateReportCommand : IRequest<Report>
 {
-    public string ReportedBy { get; set; }
     public ContentTypeEnum ContentType {get; set;}
     public string ContentId { get; set; }
     public ReportType ReportType { get; set; }

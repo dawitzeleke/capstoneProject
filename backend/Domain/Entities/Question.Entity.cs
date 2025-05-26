@@ -21,5 +21,5 @@ public class Question : ContentEntity
     public string Hint { get; set; }
     public string Report { get; set;}
     public string[] Tags { get; set; }
-    public StreamEnum? Stream { get; set; } 
+    public StreamEnum? Stream { get; set;} 
 }

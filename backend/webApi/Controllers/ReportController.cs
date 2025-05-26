@@ -18,6 +18,7 @@ public class ReportController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllReports()
     {
@@ -32,6 +33,7 @@ public class ReportController : ControllerBase
         return Ok(report);
     }
 
+    [Authorize(Roles = "Student")]
     [HttpPost]
     public async Task<IActionResult> CreateReport([FromBody] CreateReportCommand report)
     {
@@ -39,6 +41,7 @@ public class ReportController : ControllerBase
         return Ok(response);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut]
     public async Task<IActionResult> ResolveReport([FromBody] CreateReportCommand report)
     {
