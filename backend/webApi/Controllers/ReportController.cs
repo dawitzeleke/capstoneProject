@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using backend.Application.Features.ReportFeature.Commands.CreateReport;
@@ -18,6 +19,7 @@ public class ReportController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllReports()
     {
@@ -32,6 +34,7 @@ public class ReportController : ControllerBase
         return Ok(report);
     }
 
+    [Authorize(Roles = "Student")]
     [HttpPost]
     public async Task<IActionResult> CreateReport([FromBody] CreateReportCommand report)
     {
@@ -39,6 +42,7 @@ public class ReportController : ControllerBase
         return Ok(response);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut]
     public async Task<IActionResult> ResolveReport([FromBody] CreateReportCommand report)
     {
