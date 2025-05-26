@@ -16,5 +16,5 @@ public class CreateQuestionCommand: IRequest<Question>
     public DifficultyLevel Difficulty { get; set; }
     public QuestionTypeEnum QuestionType { get; set; }
     public string CreatedBy { get; set; }
-    public StreamEnum Stream { get; set; }
+    public StreamEnum Stream { get; set;}
 }
