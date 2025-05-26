@@ -13,7 +13,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "expo-router";
 import TeacherItem from "@/components/TeacherItem";
 import { RootState, AppDispatch } from "../../redux/store";
-import { setTeacherData } from "../../redux/teacherReducer/teacherActions";
+import { setTeacherData } from "../../redux/userTeacherReducer/userTeacherActions";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const FollowingList = () => {
@@ -22,7 +22,7 @@ const FollowingList = () => {
   const [query, setQuery] = useState("");
 
   const followingTeachers = useSelector(
-    (state: RootState) => state.teacher.teachers
+    (state: RootState) => state.userTeacher.teachers
   );
   const currentTheme = useSelector((state: RootState) => state.theme.mode); // Get the current theme
 

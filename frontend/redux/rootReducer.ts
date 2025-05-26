@@ -7,6 +7,7 @@ import mediaReducer from "@/redux/teacherReducer/mediaSlice";
 import notificationsReducer from "@/redux/teacherReducer/notificationsSlice"
 import teacherQuestionReducer from "@/redux/teacherReducer/teacherQuestionSlice"
 import themeReducer from "./themeReducer/themeReducer";
+import userTeacherReducer from "@/redux/userTeacherReducer/userTeacherReducer";
 import teacherInsightsReducer from "@/redux/teacherReducer/teacherInsightsSlice";
 import animationReducer from "./AnimationReducer/animationReducer";
 
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   animation: animationReducer,
   questions: questionsReducer,
   teacher: teacherReducer,
+  userTeacher: userTeacherReducer,
   savedQuestions:  savedQuestionsReducer,
   media: mediaReducer,
   notifications: notificationsReducer,

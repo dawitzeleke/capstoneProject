@@ -12,7 +12,7 @@ import {
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
-import { setTeacherData } from "../../redux/teacherReducer/teacherActions";
+import { setTeacherData } from "../../redux/userTeacherReducer/userTeacherActions";
 import TeacherItem from "@/components/TeacherItem";
 import { RootState, AppDispatch } from "../../redux/store";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -24,7 +24,7 @@ const SearchScreen = () => {
   const router = useRouter();
 
   const currentTheme = useSelector((state: RootState) => state.theme.mode);
-  const teachers = useSelector((state: RootState) => state.teacher.teachers);
+  const teachers = useSelector((state: RootState) => state.userTeacher.teachers);
 
   const filteredTeachers = teachers.filter((teacher) =>
     teacher.name.toLowerCase().includes(query.toLowerCase())

@@ -9,7 +9,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const TeacherProfile = () => {
-  const teacherData = useSelector((state: RootState) => state.teacher.teacherData);
+  const teacherData = useSelector((state: RootState) => state.userTeacher.teacherData);
   const currentTheme = useSelector((state: RootState) => state.theme.mode);
   const router = useRouter();
   const [isFollowing, setIsFollowing] = useState(false);
