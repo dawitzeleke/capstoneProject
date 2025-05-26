@@ -9,7 +9,6 @@ import teacherQuestionReducer from "@/redux/teacherReducer/teacherQuestionSlice"
 import themeReducer from "./themeReducer/themeReducer";
 import teacherInsightsReducer from "@/redux/teacherReducer/teacherInsightsSlice";
 import animationReducer from "./AnimationReducer/animationReducer";
-import themeReducer from "./themeReducer/themeReducer";
 
 const rootReducer = combineReducers({
   option: optionReducer,
@@ -20,7 +19,6 @@ const rootReducer = combineReducers({
   savedQuestions:  savedQuestionsReducer,
   media: mediaReducer,
   notifications: notificationsReducer,
-  theme: themeReducer,
   teacherQuestions: teacherQuestionReducer,
   teacherInsights: teacherInsightsReducer,
 });
