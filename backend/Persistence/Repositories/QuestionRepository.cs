@@ -18,13 +18,14 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
     {
         _questions = context.GetCollection<Question>(typeof(Question).Name);
     }
-    
+
 
     public async Task<int> GetQuestionFeedbacks(string id)
     {
         var question = await _questions.Find(x => x.Id == id).FirstOrDefaultAsync();
         return 0;
     }
+
 
     public async Task<PaginatedList<Question>> GetFilteredQuestions(QuestionFilterDto filter,PaginationDto pagination, List<string> solvedQuestionIds = null){
         var query = _questions.AsQueryable(); 
@@ -69,13 +70,13 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         {
             return new List<Question>();
         }
-        
+
         var filter = Builders<Question>.Filter.In(q => q.Id, ids);
         return await _questions.Find(filter).ToListAsync();
     }
 
     public async Task<int> CountAsync()
     {
-        return (int)await _questions.CountDocumentsAsync(new BsonDocument());
+        return (int)await _questions.CountDocumentsAsync(_ => true);
     }
 }

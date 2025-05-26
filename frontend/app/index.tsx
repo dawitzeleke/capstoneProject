@@ -22,20 +22,20 @@ export default function App() {
             style={{ height: 190, tintColor: "#4F46E5" }}
           />
           <View className="w-full items-center justify-center">
-  <View style={{ width: 450, height: 350 }}>
-    <LottieView
-      ref={animationRef}
-      source={require("../assets/animations/group.json")}
-      autoPlay
-      loop
-      style={{
-        width: 700,
-        height: 700,
-        transform: [{ scale: 3 }], // force magnify
-      }}
-    />
-  </View>
-</View>
+            <View className="w-full h-64 items-center justify-center">
+              <LottieView
+                ref={animationRef}
+                source={require("../assets/animations/group.json")}
+                autoPlay
+                loop
+                style={{
+                  width: 150,
+                  height: 200,
+                  transform: [{ scale: 3 }], // force magnify
+                }}
+              />
+            </View>
+          </View>
 
           <View className="relative">
             <Text className="text-3xl text-gray-800 font-pregular text-center">
