@@ -13,6 +13,7 @@ public class Question : ContentEntity
     public string CorrectOption { get; set; }
     public DifficultyLevel Difficulty { get; set; }
     public int Grade { get; set; }
+    public int Chapter { get; set; }
     public int[] Feedbacks { get; set;}
     public QuestionTypeEnum QuestionType { get; set; }
     public int TotalCorrectAnswers { get; set; }

@@ -26,9 +26,7 @@ public class MonthlyProgress:BaseEntity
             {"December", 12}
         };
 
-        Console.WriteLine(month_year);
         var parts = month_year.Split(" ");
-        Console.WriteLine(parts[0]);
         var days = DateTime.DaysInMonth(int.Parse(parts[1]),months_to_number[parts[0]]);
         Questions = Enumerable.Range(0, days)
                              .Select(_ => new HashSet<string>())

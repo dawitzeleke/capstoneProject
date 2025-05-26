@@ -22,7 +22,7 @@ public class StudentProgressController : ControllerBase
     [HttpGet("{studentId}")]
     public async Task<IActionResult> GetStudentProgress(string studentId)
     {
-        var studentProgress = await _mediator.Send(new GetStudentProgressQuery { StudentId = studentId });
+        var studentProgress = await _mediator.Send(new GetStudentProgressQuery() {});
         if (studentProgress == null)
         {
             return NotFound();

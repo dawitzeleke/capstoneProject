@@ -9,17 +9,21 @@ public class GetStudentProgressQueryHandler : IRequestHandler<GetStudentProgress
 {
     private readonly IStudentProgressRepository _studentProgressRepository;
     private readonly IMonthlyProgressRepository _monthlyProgressRepository;
+    private readonly ICurrentUserService _currentUserService;
 
-    public GetStudentProgressQueryHandler(IStudentProgressRepository studentProgressRepository, IMonthlyProgressRepository monthlyProgressRepository)
+    public GetStudentProgressQueryHandler(IStudentProgressRepository studentProgressRepository, IMonthlyProgressRepository monthlyProgressRepository,
+        ICurrentUserService currentUserService)
     {
         _studentProgressRepository = studentProgressRepository;
         _monthlyProgressRepository = monthlyProgressRepository;
+        _currentUserService = currentUserService;
     }
 
     public async Task<List<object>> Handle(GetStudentProgressQuery request, CancellationToken cancellationToken)
     {
         var result = new List<object>();
-        var studentProgress = await _studentProgressRepository.GetStudentProgress(request.StudentId);
+        var studentId = _currentUserService.UserId.ToString();
+        var studentProgress = await _studentProgressRepository.GetStudentProgress(studentId);
         if (studentProgress == null)
         {
             return result;

@@ -55,4 +55,42 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
     {
         return (int)await _students.CountDocumentsAsync(new BsonDocument());
     }
+
+    public async Task<bool> SaveQuestionAsync(string studentId, string questionId)
+    {
+        var student = await _students.Find(x => x.Id == studentId).FirstOrDefaultAsync();
+        if (student == null) return false;
+
+        if (student.SavedQuestions == null)
+        {
+            student.SavedQuestions = new HashSet<string>();
+        }
+
+        student.SavedQuestions.Add(questionId);
+        await UpdateAsync(student);
+        return true;
+    }
+
+    public async Task<bool> SaveContentAsync(string studentId, string contentId)
+    {
+        var student = await _students.Find(x => x.Id == studentId).FirstOrDefaultAsync();
+        if (student == null) return false;
+
+        if (student.SavedContents == null)
+        {
+            student.SavedContents = new HashSet<string>();
+        }
+
+        student.SavedContents.Add(contentId);
+        await UpdateAsync(student);
+        return true;
+    }
+
+    public async Task<IEnumerable<string>> GetSavedQuestions(string studentId)
+    {
+        var student = await _students.Find(x => x.Id == studentId).FirstOrDefaultAsync();
+        if (student == null) return new HashSet<string>();
+
+        return student.SavedQuestions ?? new HashSet<string>();
+    }
 }
