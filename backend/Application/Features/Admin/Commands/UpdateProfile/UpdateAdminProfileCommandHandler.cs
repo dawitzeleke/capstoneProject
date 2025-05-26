@@ -81,7 +81,6 @@ public class UpdateAdminProfileCommandHandler : IRequestHandler<UpdateAdminProfi
             }
         }
 
-        // Update basic fields
         if (!string.IsNullOrWhiteSpace(request.FirstName)) admin.FirstName = request.FirstName;
         if (!string.IsNullOrWhiteSpace(request.LastName)) admin.LastName = request.LastName;
         if (!string.IsNullOrWhiteSpace(request.Email)) admin.Email = request.Email;

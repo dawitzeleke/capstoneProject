@@ -18,7 +18,7 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
     {
         _questions = context.GetCollection<Question>(typeof(Question).Name);
     }
-    
+
 
     public async Task<int> GetQuestionFeedbacks(string id)
     {
@@ -26,9 +26,10 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         return 0;
     }
 
-    public async Task<PaginatedList<Question>> GetFilteredQuestions(QuestionFilterDto filter,PaginationDto pagination, List<string> solvedQuestionIds = null){
-        var query = _questions.AsQueryable(); 
-           
+    public async Task<PaginatedList<Question>> GetFilteredQuestions(QuestionFilterDto filter,PaginationDto pagination, List<string> solvedQuestionIds = null)
+    {
+        var query = _questions.AsQueryable();
+
         if (filter.Grade.HasValue)
         {
             query = query.Where(q => q.Grade == filter.Grade);
@@ -69,13 +70,12 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         {
             return new List<Question>();
         }
-        
+
         var filter = Builders<Question>.Filter.In(q => q.Id, ids);
         return await _questions.Find(filter).ToListAsync();
     }
-
     public async Task<int> CountAsync()
     {
-        return (int)await _questions.CountDocumentsAsync(new BsonDocument());
+        return (int)await _questions.CountDocumentsAsync(_ => true);
     }
 }
