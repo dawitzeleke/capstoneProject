@@ -74,7 +74,6 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         var filter = Builders<Question>.Filter.In(q => q.Id, ids);
         return await _questions.Find(filter).ToListAsync();
     }
-
     public async Task<int> CountAsync()
     {
         return (int)await _questions.CountDocumentsAsync(_ => true);
