@@ -1,0 +1,6 @@
+
+export const SET_TEACHER_DATA = "SET_TEACHER_DATA";
+export const RESET_TEACHER_DATA = "RESET_TEACHER_DATA";
+
+
+

@@ -3,7 +3,6 @@ import {
   View, 
   Pressable, 
   Text, 
-  StyleSheet, 
   ViewStyle, 
   TextStyle, 
   useWindowDimensions 
@@ -15,6 +14,7 @@ type HeaderButton = {
   component?: React.ReactNode;
   onPress: () => void;
   side: 'left' | 'right';
+  key?: string;
 };
 
 interface AppHeaderProps {
@@ -47,12 +47,9 @@ const AppHeader = ({
 
   const renderButton = (button: HeaderButton) => (
     <Pressable
-      key={`${button.side}-${button.icon}`}
+      key={('key' in button && button.key) ? button.key : `${button.side}-${button.icon}`}
       onPress={button.onPress}
-      style={({ pressed }) => [
-        styles.buttonBase,
-        pressed && styles.pressedButton,
-      ]}
+      className="p-1.5 rounded-lg active:opacity-80"
       android_ripple={{ color: '#e0e7ff', borderless: true }}
     >
       {button.component || (
@@ -60,16 +57,16 @@ const AppHeader = ({
           name={button.icon!}
           size={isSmallScreen ? 20 : 24}
           color={backIconColor}
-          style={styles.buttonIcon}
+          className="mx-0.5"
         />
       )}
     </Pressable>
   );
 
   return (
-    <View style={[styles.headerContainer, headerStyle]}>
+    <View className="flex-row items-center justify-between py-3 px-4 bg-white" style={headerStyle}>
       {/* Left Section */}
-      <View style={[styles.leftContainer, { gap }]}>
+      <View className="flex-1 flex-row items-center flex-shrink" style={{ gap }}>
         {showBackButton && onBack && (
           renderButton({
             icon: 'arrow-back',
@@ -82,8 +79,8 @@ const AppHeader = ({
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
+            className="font-psemibold max-w-[80%] mt-0.5"
             style={[
-              styles.titleText,
               { 
                 color: titleColor,
                 fontSize: isSmallScreen ? 18 : 20,
@@ -100,51 +97,11 @@ const AppHeader = ({
       </View>
 
       {/* Right Section */}
-      <View style={styles.rightContainer}>
+      <View className="flex-row items-center gap-2 ml-3">
         {buttons?.filter(b => b.side === 'right').map(renderButton)}
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#ffffff',
-  },
-  leftContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexShrink: 1,
-  },
-  rightContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginLeft: 12,
-  },
-  titleText: {
-    fontWeight: '600',
-    maxWidth: '80%',
-    includeFontPadding: false,
-    marginTop: 2, // Fine-tune vertical alignment
-  },
-  buttonBase: {
-    padding: 6,
-    borderRadius: 6,
-    overflow: 'hidden',
-  },
-  pressedButton: {
-    opacity: 0.8,
-  },
-  buttonIcon: {
-    marginHorizontal: 2,
-  },
-});
 
 export default AppHeader;

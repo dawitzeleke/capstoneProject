@@ -38,6 +38,12 @@ const formatNumber = (number: number) => {
   }
 };
 
+const formatCount = (num: number) => {
+  if (num >= 1_000_000) return `+${(num / 1_000_000).toFixed(1)}M`;
+  if (num >= 1_000) return `+${(num / 1_000).toFixed(1)}k`;
+  return `+${num}`;
+};
+
 const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -103,12 +109,6 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
             </Text>
           </Pressable>
         </View>
-        <MaterialIcons
-          onPress={handleOpenOption}
-          name="more-vert"
-          size={24}
-          color={currentTheme === "dark" ? "white" : "black"}
-        />
       </View>
 
       {/* Question Text */}
@@ -125,7 +125,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
           key={index}
           disabled={!!selectedOption}
           onPress={() => handleAnswer(option)}
-          className={`flex flex-row items-center mb-2 p-3 rounded-xl border ${
+          className={`flex flex-row items-center w-[90%] mb-2 p-3 rounded-xl border ${
             option === correctAnswer && selectedOption
               ? "bg-correct border-green-400"
               : option === selectedOption && option !== correctAnswer
@@ -141,7 +141,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
             style={{ marginRight: 10 }}
           />
           <Text
-            className={`text-lg font-pmedium ${
+            className={`text-[14px] font-pmedium flex-1 ${
               currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
             }`}>
             {option}
@@ -149,48 +149,42 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
         </TouchableOpacity>
       ))}
 
-      {/* Social Buttons */}
-      <View className="absolute right-6 top-2/3 transform -translate-y-5">
-        <TouchableOpacity className="mb-4" onPress={() => setLiked(!liked)}>
+      {/* Social Actions */}
+      <View className="absolute right-2 bottom-20 bg-black/60 py-2 w-10 flex flex-col justify-center items-center rounded-full z-10">
+        {/* Like */}
+        <TouchableOpacity 
+          className="mb-4" 
+          onPress={() => setLiked(!liked)}>
           <AntDesign
-            name="heart"
-            size={22}
-            color={liked ? "red" : currentTheme === "dark" ? "white" : "black"}
+            name={liked ? "heart" : "hearto"}
+            size={26}
+            color={liked ? "red" : "white"}
           />
           <Text
-            className={`text-xs text-center font-pmedium ${
+            className={`text-xs text-center text-white font-pmedium ${
               currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
             }`}>
-            +1.2k
+            {formatCount(liked ? 1201 : 1200)}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="mb-4" onPress={() => setSaved(!saved)}>
           <Feather
-            name="star"
-            size={22}
-            color={saved ? "gold" : currentTheme === "dark" ? "white" : "black"}
+            name="bookmark"
+            size={26}
+            color={saved ? "#ffd700" : "white"}
           />
           <Text
-            className={`text-xs text-center font-pmedium ${
+            className={`text-xs text-center text-white font-pmedium ${
               currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
             }`}>
-            +1.2k
+            {formatCount(saved ? 800 : 799)}
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity>
-          <Feather
-            name="send"
-            size={22}
-            color={currentTheme === "dark" ? "white" : "black"}
-          />
-          <Text
-            className={`text-xs text-center font-pmedium ${
-              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
-            }`}>
-            +1.2k
-          </Text>
+        {/* More Options */}
+        <TouchableOpacity onPress={handleOpenOption}>
+          <Feather name="more-vertical" size={22} color="white" />
         </TouchableOpacity>
       </View>
 

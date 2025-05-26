@@ -6,7 +6,7 @@ const getBaseUrl = () => {
   if (Platform.OS === 'android' || Platform.OS === 'ios') {
     return 'https://cognify-d5we.onrender.com'; 
   } else {
-    return 'http://localhost:5019'; 
+    return 'https://cognify-d5we.onrender.com'; 
   }
 };
 

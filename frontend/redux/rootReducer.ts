@@ -2,9 +2,14 @@ import { combineReducers } from "redux";
 import optionReducer from "./optionReducer/optionReducer";
 import questionsReducer from "./questionsReducer/questionsReducer";
 import savedQuestionsReducer from "./savedQuestionsReducer/savedQuestionReducer";
-import teacherReducer from "./teacherReducer/teacherReducer";
-import animationReducer from "./AnimationReducer/animationReducer";
+import teacherReducer from "@/redux/teacherReducer/teacherSlice";
+import mediaReducer from "@/redux/teacherReducer/mediaSlice";
+import notificationsReducer from "@/redux/teacherReducer/notificationsSlice"
+import teacherQuestionReducer from "@/redux/teacherReducer/teacherQuestionSlice"
 import themeReducer from "./themeReducer/themeReducer";
+import userTeacherReducer from "@/redux/userTeacherReducer/userTeacherReducer";
+import teacherInsightsReducer from "@/redux/teacherReducer/teacherInsightsSlice";
+import animationReducer from "./AnimationReducer/animationReducer";
 
 const rootReducer = combineReducers({
   option: optionReducer,
@@ -12,9 +17,16 @@ const rootReducer = combineReducers({
   animation: animationReducer,
   questions: questionsReducer,
   teacher: teacherReducer,
-  savedQuestions: savedQuestionsReducer,
+  userTeacher: userTeacherReducer,
+  savedQuestions:  savedQuestionsReducer,
+  media: mediaReducer,
+  notifications: notificationsReducer,
+  teacherQuestions: teacherQuestionReducer,
+  teacherInsights: teacherInsightsReducer,
 });
+
+export type RootState = ReturnType<typeof rootReducer>;
 
 export default rootReducer;
 
-export type RootState = ReturnType<typeof rootReducer>;
+

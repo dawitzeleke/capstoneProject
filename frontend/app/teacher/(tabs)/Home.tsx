@@ -1,73 +1,259 @@
-import { View, TextInput, FlatList, TouchableOpacity } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+import { View, FlatList, TouchableOpacity, Text, Image, Pressable, Modal } from "react-native";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import ChatBubble from "../../../components/ChatBubble";
+import { useSelector } from "react-redux";
+import { useState } from "react";
 
-interface Message {
-  id: string;
-  message: string;
-  sender: string;
-  avatar: string;
-}
-
-const messages: Message[] = [
+const messages = [
   {
     id: "1",
     message:
-      "Student Tamiru has taken the lead of Rank #1 doing a total of 200 questions this month. Congratulations Tamiru! We are grateful to have such a valuable and energetic student!",
+      "Student Tamiru has taken the lead of Rank #1 doing a total of 200 questions this month. Congratulations Tamiru! 🎉",
     sender: "FunIQ Team",
     avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+    time: "1h ago",
+    likes: 45,
+    comments: 12,
+    reposts: 5
   },
   {
     id: "2",
-    message:
-      "Take part in my latest contest, where I have provided 40 biology questions ranging from grade 11 - grade 12. Test yourselves! Here is the link: http://100linktocontest",
+    message: "Take part in my latest contest...",
     sender: "Birhanu Temesgen",
     avatar: "https://randomuser.me/api/portraits/men/2.jpg",
+    time: "2h ago",
+    image: "https://picsum.photos/500/300",
+    likes: 23,
+    comments: 8,
+    reposts: 3
   },
   {
     id: "3",
-    message:
-      "Student Tamiru has taken the lead of Rank #1 doing a total of 200 questions this month. Congratulations Tamiru! We are grateful to have such a valuable and energetic student!",
-    sender: "FunIQ Team",
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-  },
-  {
-    id: "4",
-    message:
-      "Take part in my latest contest, where I have provided 40 biology questions ranging from grade 11 - grade 12. Test yourselves! Here is the link: http://100linktocontest",
-    sender: "Birhanu Temesgen",
-    avatar: "https://randomuser.me/api/portraits/men/2.jpg",
+    message: "Here's a brief video overview of the new module.",
+    sender: "Instructor",
+    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
+    video: "https://www.w3schools.com/html/movie.mp4",
+    time: "3h ago",
+    likes: 67,
+    comments: 15,
+    reposts: 9
   },
 ];
 
-const Home: React.FC = () => {
+const Home = () => {
+  const currentTheme = useSelector((state: any) => state.theme.mode);
+  const isDark = currentTheme === "dark";
+  const [likedPosts, setLikedPosts] = useState<string[]>([]);
+  const [showOptionsModal, setShowOptionsModal] = useState(false);
+  const [showReportCategories, setShowReportCategories] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<string | null>(null);
+
+  const reportCategories = [
+    { id: 1, title: "Subject Irrelevant", icon: "close-circle-outline" },
+    { id: 2, title: "Incorrect Information", icon: "alert-circle-outline" },
+    { id: 3, title: "Non-Educational", icon: "school-outline" },
+    { id: 4, title: "Spam", icon: "mail-unread-outline" },
+    { id: 5, title: "Inappropriate Content", icon: "warning-outline" }
+  ];
+
+  const handleLike = (postId: string) => {
+    setLikedPosts(prev => 
+      prev.includes(postId) 
+        ? prev.filter(id => id !== postId)
+        : [...prev, postId]
+    );
+  };
+
+  const handleOptionsPress = (postId: string) => {
+    setSelectedPost(postId);
+    setShowOptionsModal(true);
+    setShowReportCategories(false);
+  };
+
+  const handleReport = () => {
+    setShowReportCategories(true);
+  };
+
+  const handleReportCategory = (categoryId: number) => {
+    // Handle report submission here
+    setShowOptionsModal(false);
+    setShowReportCategories(false);
+    setSelectedPost(null);
+  };
+
+  const renderPostActions = (post: typeof messages[0]) => (
+    <View className="flex-row items-center justify-between mt-3 px-2">
+      <Pressable 
+        onPress={() => handleLike(post.id)}
+        className="flex-row items-center space-x-1"
+      >
+        <AntDesign 
+          name={likedPosts.includes(post.id) ? "heart" : "hearto"} 
+          size={20} 
+          color={likedPosts.includes(post.id) ? "#ef4444" : isDark ? "#e5e5e5" : "#64748b"} 
+        />
+        <Text className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+          {likedPosts.includes(post.id) ? post.likes + 1 : post.likes}
+        </Text>
+      </Pressable>
+
+      <Pressable className="flex-row items-center space-x-1">
+        <Ionicons 
+          name="chatbubble-outline" 
+          size={20} 
+          color={isDark ? "#e5e5e5" : "#64748b"} 
+        />
+        <Text className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+          {post.comments}
+        </Text>
+      </Pressable>
+
+      <Pressable className="flex-row items-center space-x-1">
+        <MaterialIcons 
+          name="repeat" 
+          size={20} 
+          color={isDark ? "#e5e5e5" : "#64748b"} 
+        />
+        <Text className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+          {post.reposts}
+        </Text>
+      </Pressable>
+
+      <Pressable>
+        <Ionicons 
+          name="share-outline" 
+          size={20} 
+          color={isDark ? "#e5e5e5" : "#64748b"} 
+        />
+      </Pressable>
+    </View>
+  );
+
   return (
-    <View className="flex-1 bg-[#f1f3fc]">
-      {/* Search Bar */}
-      <View className="flex-row items-center justify-end p-1 rounded-full mx-4 mt-6">
+    <View className={`flex-1 ${isDark ? "bg-black" : "bg-[#f1f3fc]"}`}>
+      {/* Header */}
+      <View className="flex-row justify-between items-center px-5 pt-6 pb-3 border-b border-gray-200">
+        <View className="flex-row items-center space-x-3">
+          <Image 
+            source={{ uri: "https://randomuser.me/api/portraits/men/1.jpg" }}
+            className="w-10 h-10 rounded-full"
+          />
+          <Text className={`text-xl font-pbold ${isDark ? "text-white" : "text-gray-900"}`}>
+            Teacher Feed
+          </Text>
+        </View>
         <TouchableOpacity
-          className="p-4 bg-[#4F46E5] rounded-full"
-          onPress={() => router.push("/student/SearchScreen")}>
-          <AntDesign name="search1" size={20} color="white" />
+          className={`p-3 rounded-full shadow-md ${
+            isDark ? "bg-gray-800" : "bg-[#4F46E5]"
+          }`}
+          onPress={() => router.push("/teacher/(tabs)/ContentList")}>
+          <AntDesign
+            name="search1"
+            size={20}
+            color={isDark ? "#e5e5e5" : "white"}
+          />
         </TouchableOpacity>
       </View>
 
-      {/* Chat Messages */}
+      {/* Message Feed */}
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View className="mb-4">
-            <ChatBubble
-              message={item.message}
-              sender={item.sender}
-              avatar={item.avatar}
-            />
+          <View>
+            <View className={`h-[1px] ${isDark ? "bg-gray-800" : "bg-gray-200"}`} />
+            <View className="mb-4">
+              <ChatBubble
+                message={item.message}
+                sender={item.sender}
+                avatar={item.avatar}
+                time={item.time}
+                image={item.image}
+                video={item.video}
+                onOptionsPress={() => handleOptionsPress(item.id)}
+              />
+              {renderPostActions(item)}
+            </View>
+            <View className={`h-[1px] ${isDark ? "bg-gray-800" : "bg-gray-200"}`} />
           </View>
         )}
-        contentContainerStyle={{ paddingBottom: 20 }} // Ensures space at the bottom
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
       />
+
+      {/* Options Modal */}
+      <Modal
+        visible={showOptionsModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          setShowOptionsModal(false);
+          setShowReportCategories(false);
+        }}
+      >
+        <Pressable 
+          className="flex-1 justify-end bg-black/50"
+          onPress={() => {
+            setShowOptionsModal(false);
+            setShowReportCategories(false);
+          }}
+        >
+          <View className={`${isDark ? "bg-gray-900" : "bg-white"} rounded-t-3xl`}>
+            <View className="w-12 h-1 bg-gray-400 rounded-full self-center my-3" />
+            
+            {!showReportCategories ? (
+              <Pressable 
+                onPress={handleReport}
+                className="flex-row items-center px-6 py-4 border-b border-gray-200"
+              >
+                <Ionicons 
+                  name="flag-outline" 
+                  size={24} 
+                  color="#ef4444" 
+                  className="mr-3"
+                />
+                <Text className="text-red-500 font-psemibold text-lg">Report</Text>
+              </Pressable>
+            ) : (
+              <View>
+                <Text className={`text-center font-pmedium text-lg mb-4 ${isDark ? "text-gray-300" : "text-gray-800"}`}>
+                  Why are you reporting this?
+                </Text>
+                {reportCategories.map((category) => (
+                  <Pressable
+                    key={category.id}
+                    onPress={() => handleReportCategory(category.id)}
+                    className="flex-row items-center px-6 py-4 border-b border-gray-200"
+                  >
+                    <Ionicons 
+                      name={category.icon as any}
+                      size={24} 
+                      color={isDark ? "#e5e5e5" : "#64748b"}
+                      className="mr-3"
+                    />
+                    <Text className={`font-pmedium text-base ${isDark ? "text-gray-300" : "text-gray-800"}`}>
+                      {category.title}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+
+            <Pressable 
+              onPress={() => {
+                setShowOptionsModal(false);
+                setShowReportCategories(false);
+              }}
+              className="p-4"
+            >
+              <Text className={`text-center font-pmedium ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                Cancel
+              </Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };

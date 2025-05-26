@@ -1,4 +1,4 @@
-import { SET_TEACHER_DATA, RESET_TEACHER_DATA } from "./teacherActionTypes";
+import { SET_TEACHER_DATA, RESET_TEACHER_DATA, UPDATE_TEACHER_IMAGE } from "./teacherActionTypes";
 
 export interface TeacherData {
   id: string;
@@ -9,6 +9,7 @@ export interface TeacherData {
   imageUrl: string;
 }
 
+
 export interface SetTeacherDataAction {
   type: typeof SET_TEACHER_DATA;
   payload: TeacherData;
@@ -18,7 +19,16 @@ export interface ResetTeacherDataAction {
   type: typeof RESET_TEACHER_DATA;
 }
 
-export type TeacherActionTypes = SetTeacherDataAction | ResetTeacherDataAction;
+export interface UpdateTeacherImageAction {
+  type: typeof UPDATE_TEACHER_IMAGE;
+  payload: string;
+}
+
+
+export type TeacherActionTypes =
+  | SetTeacherDataAction
+  | ResetTeacherDataAction
+  | UpdateTeacherImageAction;
 
 // Action Creators
 export const setTeacherData = (teacherData: TeacherData): SetTeacherDataAction => ({
@@ -28,4 +38,10 @@ export const setTeacherData = (teacherData: TeacherData): SetTeacherDataAction =
 
 export const resetTeacherData = (): ResetTeacherDataAction => ({
   type: RESET_TEACHER_DATA,
+});
+
+
+export const updateTeacherImage = (newImageUrl: string): UpdateTeacherImageAction => ({
+  type: UPDATE_TEACHER_IMAGE,
+  payload: newImageUrl,
 });

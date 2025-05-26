@@ -1,20 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { View, Text, Image, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, Image, TouchableOpacity, Animated } from "react-native";
 import { useRouter } from "expo-router";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from 'expo-linear-gradient';
 import { RootState } from "../../../redux/store";
+import { ScrollView } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const TeacherProfile = () => {
-  const teacherData = useSelector(
-    (state: RootState) => state.teacher.teacherData
-  );
+  const teacherData = useSelector((state: RootState) => state.userTeacher.teacherData);
   const currentTheme = useSelector((state: RootState) => state.theme.mode);
   const router = useRouter();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(0));
 
-  if (!teacherData) return null;
+  React.useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  if (!teacherData) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text>No teacher data found.</Text>
+      </View>
+    );
+  }
 
   const { name, title, followers, questions, imageUrl } = teacherData;
+  // Extract subject from title (e.g., "Teaches Math at HNS" -> "Math")
+  const subjectMatch = title.match(/Teaches ([^ ]+)/i);
+  const subject = subjectMatch ? subjectMatch[1] : "Subject";
 
   const suggestedTeachers = [
     {
@@ -33,131 +53,96 @@ const TeacherProfile = () => {
 
   const isDark = currentTheme === "dark";
 
+  const stats = [
+    {
+      icon: <AntDesign name="staro" size={20} color="#6366f1" />, label: "Rating", value: "4.2"
+    },
+    {
+      icon: <MaterialIcons name="group" size={20} color="#6366f1" />, label: "Followers", value: followers
+    },
+    {
+      icon: <MaterialIcons name="edit-note" size={20} color="#6366f1" />, label: "Questions", value: questions
+    },
+  ];
+
   return (
-    <View className={`flex-1 p-4 ${isDark ? "bg-black" : "bg-[#f1f3fc]"}`}>
-      {/* Back Button */}
-      <View className="absolute top-3 left-3 z-10">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons
-            name="chevron-back"
-            size={24}
-            color={isDark ? "white" : "black"}
-          />
-        </TouchableOpacity>
+    <SafeAreaView className={`flex-1 ${isDark ? "bg-black" : "bg-[#f1f3fc]"}`}> 
+      <View className="flex-1 justify-start items-stretch">
+        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+          <LinearGradient
+            colors={["#f1f3fc", "#e0e7ff"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            className="flex-1 rounded-3xl shadow-2xl items-center pb-8 justify-start pt-12"
+            style={{ elevation: 6, marginTop: 0, marginHorizontal: 0, borderRadius: 0 }}
+          >
+            <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              {/* Banner/Gradient */}
+              <LinearGradient
+                colors={["#6366f1", "#a5b4fc"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                className="w-full h-40 rounded-t-3xl"
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, zIndex: 1 }}
+              />
+              {/* Profile Image Overlapping Banner */}
+              <View className="items-center w-full" style={{ marginTop: 32, zIndex: 2 }}>
+                <View className="shadow-lg rounded-full" style={{ shadowColor: '#4F46E5', shadowOpacity: 0.3, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, zIndex: 2, position: 'relative' }}>
+                  <Image
+                    source={{ uri: imageUrl }}
+                    className="w-32 h-32 rounded-full border-4 border-white"
+                    style={{ backgroundColor: '#f1f3fc', marginTop: 10 }}
+                  />
+                  {/* Twitter-style Verified Check Mark */}
+                  <View style={{ position: 'absolute', bottom: 6, right: 6, backgroundColor: '#1DA1F2', borderRadius: 9999, borderWidth: 3, borderColor: 'white', padding: 2, shadowColor: '#1DA1F2', shadowOpacity: 0.4, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } }}>
+                    <Ionicons name="checkmark" size={18} color="white" />
+                  </View>
+                </View>
+                {/* Name and Subject Badge */}
+                <Text className="text-2xl font-pbold text-gray-900 mt-4">{name}</Text>
+                <View className="flex items-center mt-2">
+                  <View className="px-3 py-1 rounded-full bg-sky-100 border border-sky-400 mr-2 flex-row items-center">
+                    <Ionicons name="book" size={14} color="#1DA1F2" style={{ marginRight: 4 }} />
+                    <Text className="text-sky-600 font-psemibold text-xs">{subject}</Text>
+                  </View>
+                  <Text className="text-gray-400 mt-2 font-pregular text-xs">{title}</Text>
+                </View>
+              </View>
+              {/* About/Bio Section */}
+              <View className="w-full px-4 mt-8">
+                <Text className="text-base font-psemibold text-gray-800 mb-1">About</Text>
+                <Text className="text-gray-500 font-pregular text-sm mb-2">
+                  Passionate educator with a love for helping students succeed. Always ready to answer questions and provide support. (You can update this bio in the future!)
+                </Text>
+              </View>
+              {/* Divider */}
+              <View className="w-4/5 h-0.5 bg-gray-200 my-5 self-center rounded-full" />
+              {/* Stats Two-Column Layout */}
+              <View className="flex-row flex-wrap justify-between w-full px-4 mt-2">
+                {stats.map((stat, idx) => (
+                  <View key={stat.label} className="w-[48%] mb-4">
+                    <View className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-4 flex-col items-center justify-center shadow-sm">
+                      <View className="items-center justify-center mb-1">{stat.icon}</View>
+                      <Text className="text-indigo-700 font-pbold text-lg leading-tight text-center mt-1">{stat.value}</Text>
+                      <Text className="text-gray-500 font-pregular text-xs leading-tight text-center">{stat.label}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+              {/* Follow Button */}
+              <TouchableOpacity
+                className={`w-4/5 py-3 mt-8 rounded-xl items-center self-center ${isFollowing ? 'bg-gray-300' : 'bg-indigo-600'} shadow-md`}
+                style={{ elevation: 2 }}
+                activeOpacity={0.8}
+                onPress={() => setIsFollowing(f => !f)}
+              >
+                <Text className={`font-pbold text-lg ${isFollowing ? 'text-gray-700' : 'text-white'}`}>{isFollowing ? 'Following' : 'Follow'}</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </LinearGradient>
+        </Animated.View>
       </View>
-
-      {/* Profile Info */}
-      <View className="items-center justify-center mt-10">
-        <Image
-          source={{ uri: imageUrl }}
-          className="w-24 h-24 rounded-full border-2 border-gray-400"
-        />
-        <Text
-          className={`${
-            isDark ? "text-white" : "text-black"
-          } text-lg font-psemibold mt-2`}>
-          {name}
-        </Text>
-        <Text
-          className={`${
-            isDark ? "text-gray-400" : "text-gray-600"
-          } font-pregular`}>
-          {title}
-        </Text>
-      </View>
-
-      {/* Stats */}
-      <View className="flex-row justify-around mt-4">
-        <View className="items-center w-20">
-          <AntDesign
-            name="staro"
-            size={24}
-            color={isDark ? "white" : "black"}
-          />
-          <Text
-            className={`${
-              isDark ? "text-white" : "text-black"
-            } text-lg font-pbold text-center`}>
-            4.2 Rating
-          </Text>
-        </View>
-        <View className="items-center w-20">
-          <MaterialIcons
-            name="group"
-            size={24}
-            color={isDark ? "white" : "black"}
-          />
-          <Text
-            className={`${
-              isDark ? "text-white" : "text-black"
-            } text-lg text-center font-pbold`}>
-            {followers}
-          </Text>
-        </View>
-        <View className="items-center w-20">
-          <MaterialIcons
-            name="edit-note"
-            size={24}
-            color={isDark ? "white" : "black"}
-          />
-          <Text
-            className={`${
-              isDark ? "text-white" : "text-black"
-            } text-lg text-center font-pbold`}>
-            {questions}
-          </Text>
-        </View>
-      </View>
-
-      {/* Follow Button */}
-      <TouchableOpacity
-        className={`p-2 border ${
-          isDark ? "border-cyan-400" : "border-cyan-600"
-        } rounded-lg mt-4 items-center`}>
-        <Text
-          className={`${
-            isDark ? "text-cyan-400" : "text-cyan-600"
-          } font-psemibold`}>
-          Follow
-        </Text>
-      </TouchableOpacity>
-
-      {/* Suggested Title */}
-      <Text
-        className={`${
-          isDark ? "text-white" : "text-black"
-        } font-pbold mt-6 mb-2`}>
-        Suggested for you
-      </Text>
-
-      {/* Suggested List */}
-      <FlatList
-        horizontal
-        data={suggestedTeachers}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View className="m-2 items-center">
-            <Image
-              source={{ uri: item.image }}
-              className="w-16 h-16 rounded-full"
-            />
-            <Text
-              className={`${
-                isDark ? "text-white" : "text-black"
-              } mt-1 text-sm font-psemibold`}>
-              {item.name}
-            </Text>
-            <Text
-              className={`${
-                isDark ? "text-gray-400" : "text-gray-600"
-              } text-xs font-pregular`}>
-              {item.subject}
-            </Text>
-          </View>
-        )}
-        showsHorizontalScrollIndicator={false}
-      />
-    </View>
+    </SafeAreaView>
   );
 };
 

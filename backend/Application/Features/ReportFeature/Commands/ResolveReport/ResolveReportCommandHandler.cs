@@ -13,10 +13,13 @@ public class ResolveReportCommandHandler : IRequestHandler<ResolveReportCommand,
     private readonly IVideoContentRepository _videoRepository;
     private readonly IQuestionRepository _questionRepository;
 
-    public ResolveReportCommandHandler(IReportRepository reportRepository,IImageContentRepository imageRepository,
-        IVideoContentRepository videoRepository,IQuestionRepository questionRepository)
+    public ResolveReportCommandHandler(IReportRepository reportRepository, IImageContentRepository imageRepository,
+        IVideoContentRepository videoRepository, IQuestionRepository questionRepository)
     {
         _reportRepository = reportRepository;
+        _imageRepository = imageRepository;
+        _videoRepository = videoRepository;
+        _questionRepository = questionRepository;
 
     }
 
