@@ -97,6 +97,7 @@ const TabsLayout: React.FC = () => {
           options={{
             title: "AddQuestion",
             headerShown: false,
+            // href: "/teacher/AddQuestion",
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.upload}

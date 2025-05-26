@@ -1,200 +1,125 @@
-import { View, Text, ScrollView, StyleSheet, useWindowDimensions } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import AppHeader from "@/components/teacher/Header";
+// EngagementInsightsScreen.tsx
+import React, { useCallback, useState } from 'react';
+import { View, ScrollView, useWindowDimensions, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector, useDispatch } from 'react-redux';
+import RefreshButton from '@/components/teacher/Insights/RefreshButton';
+import { SummaryCard } from '@/components/teacher/Insights/SummaryCard';
+import { RootState, AppDispatch } from '@/redux/store';
+import { setFilters, FlaggedItem } from '@/redux/teacherReducer/teacherInsightsSlice';
+import FilterBar from '@/components/teacher/Insights/FilterBar';
+import { GradeEngagementChart } from '@/components/teacher/Insights/GradeEngagementChart';
+import { AttemptsDonutChart } from '@/components/teacher/Insights/AttemptsDonutChart';
+import { MonthlyWeekHeatmap } from '@/components/teacher/Insights/PostingHeatmap';
+import { fetchTeacherInsights } from '@/redux/teacherReducer/teacherInsightsSlice';
 
 const EngagementInsightsScreen = () => {
   const { width } = useWindowDimensions();
+  const navigation = useNavigation();
+  const dispatch = useDispatch<AppDispatch>();
+  const { summaryStats, flaggedItems, filters, loading } = useSelector((state: RootState) => state.teacherInsights);
+  const [detailPanelVisible, setDetailPanelVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<FlaggedItem | null>(null);
+
+  const cardColumns = width > 1024 ? 4 : width > 640 ? 2 : 1;
+
+  const handleReview = useCallback((item: FlaggedItem) => {
+    setSelectedItem(item);
+    setDetailPanelVisible(true);
+  }, []);
+
+  const handleMarkSafe = useCallback((item: FlaggedItem) => {
+    setDetailPanelVisible(false);
+  }, []);
+
+  const handleRemoveItem = useCallback((item: FlaggedItem) => {
+    setDetailPanelVisible(false);
+  }, []);
+
+  const handleRefresh = async () => {
+    try {
+      // Dispatch action to refresh data
+      await dispatch(fetchTeacherInsights(filters));
+    } catch (error) {
+      console.error('Failed to refresh data:', error);
+    }
+  };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View className="flex-1 bg-slate-50">
       {/* Header */}
-      <AppHeader
-        title="Engagement Insights"
-        onBack={() => navigation.navigate('Home')}
-      />
-
-      {/* Main Stats Section */}
-      <View style={styles.mainStatsContainer}>
-        <View style={styles.totalQuestionsCard}>
-          <Text style={styles.totalQuestionsLabel}>TOTAL POSTED QUESTIONS</Text>
-          <Text style={styles.totalQuestionsValue}>120</Text>
-        </View>
-
-        <View style={styles.attemptsCard}>
-          <Text style={styles.sectionTitle}>Correct Vs Incorrect Attempts</Text>
-
-          <View style={styles.attemptsGrid}>
-            {/* Correct Column */}
-            <View style={styles.attemptColumn}>
-              <View style={styles.attemptBadge}>
-                <Text style={styles.attemptValue}>54</Text>
-                <Text style={styles.attemptPercentage}>67%</Text>
-              </View>
-              <Text style={styles.attemptLabel}>Correctly answered</Text>
-            </View>
-
-            {/* Divider */}
-            <View style={styles.verticalDivider} />
-
-            {/* Incorrect Column */}
-            <View style={styles.attemptColumn}>
-              <View style={[styles.attemptBadge, styles.incorrectBadge]}>
-                <Text style={styles.attemptValue}>54</Text>
-                <Text style={styles.attemptPercentage}>33%</Text>
-              </View>
-              <Text style={styles.attemptLabel}>Incorrect attempts</Text>
-            </View>
-          </View>
-
-          {/* Bottom Stats */}
-          <View style={styles.bottomStatsContainer}>
-            <View style={styles.bottomStatItem}>
-              <Text style={styles.bottomStatLabel}>TOTAL STUDENTS</Text>
-              <Text style={styles.bottomStatValue}>54</Text>
-            </View>
-            <View style={styles.verticalDivider} />
-            <View style={styles.bottomStatItem}>
-              <Text style={styles.bottomStatLabel}>RATE</Text>
-              <Text style={styles.bottomStatValue}>67%</Text>
-            </View>
-          </View>
-        </View>
+      <View className="flex-row bg-[#4f46e5] p-4 items-center justify-between">
+        <TouchableOpacity onPress={() => navigation.goBack()} className="p-2">
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text className="flex-1 text-center text-xl font-pbold text-white">Analytics</Text>
+        <RefreshButton onPressAsync={handleRefresh} />
       </View>
-    </ScrollView>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+        {/* Filters */}
+        <FilterBar
+          dateRange={filters.dateRange}
+          onDateRangeChange={range => dispatch(setFilters({ dateRange: range }))}
+          contentTypes={filters.contentType as ('question'|'quiz'|'post')[]}
+          onContentTypeChange={type => {
+            const t = type as 'question'|'quiz'|'post';
+            const newTypes = filters.contentType.includes(t)
+              ? filters.contentType.filter(tt => tt !== t)
+              : [...filters.contentType, t];
+            dispatch(setFilters({ contentType: newTypes }));
+          }}
+          onRefresh={handleRefresh}
+          loading={loading}
+        />
+
+        {/* Summary Cards */}
+        <View className="flex-row gap-3 flex-wrap mt-4">
+          <View style={{ width: cardColumns === 1 ? '100%' : cardColumns === 2 ? '48%' : '24%', paddingHorizontal: 4, marginBottom: 8 }}>
+            <SummaryCard title="Total Followers" value={summaryStats?.totalFollowers?.toString() || '1.2K'} icon="people-outline" color="indigo" />
+          </View>
+          <View style={{ width: cardColumns === 1 ? '100%' : cardColumns === 2 ? '48%' : '24%', paddingHorizontal: 4, marginBottom: 8 }}>
+            <SummaryCard title="Total Questions Posted" value={summaryStats?.questionsThisWeek?.toString() || '78'} icon="help-circle-outline" color="emerald" />
+          </View>
+          <View style={{ width: cardColumns === 1 ? '100%' : cardColumns === 2 ? '48%' : '24%', paddingHorizontal: 4, marginBottom: 8 }}>
+            <SummaryCard title="Avg Likes" value={summaryStats?.avgLikesPerQ?.toString() || '32'} icon="heart-outline" color="rose" />
+          </View>
+          <View style={{ width: cardColumns === 1 ? '100%' : cardColumns === 2 ? '48%' : '24%', paddingHorizontal: 4, marginBottom: 8 }}>
+            <SummaryCard title="Avg Saves" value={summaryStats?.avgSavesPerQ?.toString() || '15'} icon="bookmark-outline" color="amber" />
+          </View>
+        </View>
+
+        {/* Charts */}
+        <GradeEngagementChart
+          data={[
+            { grade: '9', engagementPct: 72 },
+            { grade: '10', engagementPct: 85 },
+            { grade: '11', engagementPct: 63 },
+            { grade: '12', engagementPct: 90 },
+          ]}
+        />
+        <AttemptsDonutChart correct={320} wrong={80} />
+        <MonthlyWeekHeatmap
+          data={[
+            { date: '2025-01-03', count: 2 },
+            { date: '2025-01-10', count: 5 },
+            { date: '2025-02-14', count: 0 },
+            { date: '2025-03-21', count: 7 },
+            { date: '2025-04-05', count: 3 },
+            { date: '2025-05-12', count: 8 },
+            { date: '2025-06-18', count: 1 },
+            { date: '2025-07-25', count: 0 },
+            { date: '2025-08-02', count: 4 },
+            { date: '2025-09-09', count: 6 },
+            { date: '2025-10-16', count: 2 },
+            { date: '2025-11-23', count: 9 },
+          ]}
+        />
+
+      </ScrollView>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  content: {
-    paddingBottom: 40,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1E293B',
-    letterSpacing: -0.5,
-  },
-  mainStatsContainer: {
-    padding: 24,
-  },
-  totalQuestionsCard: {
-    backgroundColor: '#4F46E5',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  totalQuestionsLabel: {
-    color: '#E0E7FF',
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
-    letterSpacing: 0.5,
-  },
-  totalQuestionsValue: {
-    color: '#FFFFFF',
-    fontSize: 36,
-    fontWeight: '700',
-  },
-  attemptsCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1E293B',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  attemptsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  attemptColumn: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  attemptBadge: {
-    backgroundColor: '#EEF2FF',
-    borderRadius: 12,
-    padding: 16,
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  incorrectBadge: {
-    backgroundColor: '#FEE2E2',
-  },
-  attemptValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#4F46E5',
-  },
-  attemptPercentage: {
-    fontSize: 16,
-    color: '#64748B',
-    fontWeight: '500',
-  },
-  attemptLabel: {
-    fontSize: 14,
-    color: '#64748B',
-    textAlign: 'center',
-  },
-  verticalDivider: {
-    width: 1,
-    backgroundColor: '#E2E8F0',
-    marginHorizontal: 16,
-  },
-  bottomStatsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    padding: 16,
-  },
-  bottomStatItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  bottomStatLabel: {
-    fontSize: 12,
-    color: '#64748B',
-    fontWeight: '500',
-    marginBottom: 4,
-    letterSpacing: 0.5,
-  },
-  bottomStatValue: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-});
 
 export default EngagementInsightsScreen;

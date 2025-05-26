@@ -1,4 +1,4 @@
-import { SET_TEACHER_DATA, RESET_TEACHER_DATA } from "./teacherActionTypes";
+import { SET_TEACHER_DATA, RESET_TEACHER_DATA, UPDATE_TEACHER_IMAGE } from "./teacherActionTypes";
 import { TeacherData, TeacherActionTypes } from "./teacherActions";
 
 // Define the Teacher interface
@@ -13,6 +13,16 @@ interface Teacher {
 
 // Define the initial state with the list of teachers
 interface TeacherState {
+  loading: any;
+  errors: any;
+  profile: any;
+  loadingProfile: any;
+  errorProfile: any;
+  stats: any;
+  loadingStats: any;
+  errorStats: any;
+  uploadingImage: any;
+  errorUpload: any;
   teacherData: TeacherData | null;
   teachers: Teacher[];
 }
@@ -45,6 +55,16 @@ const initialState: TeacherState = {
       imageUrl: "https://i.pravatar.cc/150?img=33",
     },
   ],
+  loading: undefined,
+  errors: undefined,
+  profile: undefined,
+  loadingProfile: undefined,
+  errorProfile: undefined,
+  stats: undefined,
+  loadingStats: undefined,
+  errorStats: undefined,
+  uploadingImage: undefined,
+  errorUpload: undefined
 };
 
 const teacherReducer = (
@@ -62,6 +82,18 @@ const teacherReducer = (
       return {
         ...state,
         teacherData: null,
+      };
+
+    case UPDATE_TEACHER_IMAGE:
+      if (!state.teacherData) {
+        return state;
+      }
+      return {
+        ...state,
+        teacherData: {
+          ...state.teacherData,
+          imageUrl: action.payload,
+        },
       };
 
     default:

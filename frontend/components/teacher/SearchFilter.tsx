@@ -1,90 +1,46 @@
-// SearchFilter.tsx
-import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, Pressable } from 'react-native';
+import React from 'react';
+import { View, TextInput, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface SearchFilterProps {
-  data: any[];
-  searchKeys: string[];
-  onFilter: (filteredData: any[]) => void;
-  placeholder?: string;
-  debounceTime?: number;
+  searchTerm: string;
+  onSearchChange: (text: string) => void;
   onClose: () => void;
+  placeholder?: string;
 }
 
 const SearchFilter: React.FC<SearchFilterProps> = ({
-  data,
-  searchKeys,
-  onFilter,
-  placeholder = 'Search...',
-  debounceTime = 300,
+  searchTerm,
+  onSearchChange,
   onClose,
+  placeholder = 'Search...',
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const filtered = data.filter(item =>
-        searchKeys.some(key =>
-          item[key]?.toString().toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      );
-      onFilter(filtered);
-    }, debounceTime);
-
-    return () => clearTimeout(handler);
-  }, [searchQuery, data, searchKeys, debounceTime, onFilter]);
-
   const handleClose = () => {
-    setSearchQuery('');
+    onSearchChange('');
     onClose();
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
+    <View className="px-4 py-3">
+      <View className="flex-row items-center relative">
         <TextInput
-          style={styles.input}
+          className="flex-1 rounded-lg p-3 text-gray-900 text-base border border-[#4F46E5] pr-10 bg-white shadow-md shadow-indigo-100"
           placeholder={placeholder}
-          placeholderTextColor="#94a3b8"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
+          placeholderTextColor="#8A8A8A"
+          value={searchTerm}
+          onChangeText={onSearchChange}
           autoFocus
         />
-        <Pressable style={styles.closeButton} onPress={handleClose}>
-          <Ionicons name="close-circle" size={24} color="#64748b" />
+        
+        <Pressable
+          className="absolute right-3 p-1"
+          onPress={handleClose}
+        >
+          <Ionicons name="close-circle" size={24} color="#B2B2B2" />
         </Pressable>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
-    backgroundColor: '#f8fafc',
-  },
-  input: {
-    flex: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: '#1f2937',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    paddingRight: 40, 
-  },
-  closeButton: {
-    position: 'absolute',
-    right: 12,
-    padding: 4,
-  },
-});
 
 export default SearchFilter;
