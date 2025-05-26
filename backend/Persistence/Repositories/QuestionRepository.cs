@@ -4,6 +4,10 @@ using backend.Domain.Entities;
 using backend.Persistence.DatabaseContext;
 using backend.Application.Dtos.QuestionDtos;
 using backend.Domain.Enums;
+using backend.Domain.Common;
+using backend.Application.Dtos.PaginationDtos;
+using MongoDB.Bson;
+
 
 namespace backend.Persistence.Repositories;
 
@@ -22,10 +26,10 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         return 0;
     }
 
-    public async Task<List<Question>> GetFilteredQuestions(QuestionFilterDto filter){
+    public async Task<PaginatedList<Question>> GetFilteredQuestions(QuestionFilterDto filter,PaginationDto pagination, List<string> solvedQuestionIds = null){
         var query = _questions.AsQueryable(); 
            
-        if (!filter.Grade.HasValue)
+        if (filter.Grade.HasValue)
         {
             query = query.Where(q => q.Grade == filter.Grade);
         }
@@ -40,11 +44,22 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
             query = query.Where(q => q.CourseName == filter.CourseName);
         }
 
-        Console.WriteLine("Filter: " + filter.CourseName);
-        var questions = query.ToList();
-        Console.WriteLine("Questions: " + questions.Count);
+        if (solvedQuestionIds != null && solvedQuestionIds.Any())
+            {
+                query = query.Where(q => !solvedQuestionIds.Contains(q.Id));
+            }
 
-        return questions;
+        var results = query
+            .Take(pagination.Limit +1)
+            .ToList();
+        
+        var paginatedResult = new PaginatedList<Question>(null);
+
+        // Set Items and HasMore
+        paginatedResult.Items = results.Take(pagination.Limit).ToList();
+        paginatedResult.HasMore = results.Count > pagination.Limit;
+        
+        return paginatedResult;
     }
 
     public async Task<List<Question>> GetQuestionByIdList(IEnumerable<string> questionIds)
@@ -57,5 +72,10 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         
         var filter = Builders<Question>.Filter.In(q => q.Id, ids);
         return await _questions.Find(filter).ToListAsync();
+    }
+
+    public async Task<int> CountAsync()
+    {
+        return (int)await _questions.CountDocumentsAsync(new BsonDocument());
     }
 }
