@@ -9,6 +9,7 @@ using backend.Infrastructure;
 using backend.webApi.ExceptionHandlerMiddleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +19,32 @@ DotNetEnv.Env.Load("../.env");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c=>{
+    c.SwaggerDoc("v1", new OpenApiInfo{ Title = "API",Version = "v1"});
+    c.AddSecurityDefinition("Bearer",new OpenApiSecurityScheme{
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        Description = "Enter valid JWT token"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference{ Type = ReferenceType.SecurityScheme, Id = "Bearer"},
+                Scheme = "Bearer",
+                Name = "Bearer",
+                In = ParameterLocation.Header
+            },
+            new List<string>()
+        }
+    });
+
+});
+
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddInfrastructureServices();
 

@@ -13,10 +13,12 @@ public class Question : ContentEntity
     public string CorrectOption { get; set; }
     public DifficultyLevel Difficulty { get; set; }
     public int Grade { get; set; }
+    public int Chapter { get; set; }
     public int[] Feedbacks { get; set;}
     public QuestionTypeEnum QuestionType { get; set; }
     public int TotalCorrectAnswers { get; set; }
     public string Explanation { get; set; }
     public string Hint { get; set; }
     public string Report { get; set;}
+    public StreamEnum? Stream { get; set; } 
 }

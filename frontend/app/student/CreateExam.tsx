@@ -176,22 +176,22 @@ export default function CreateCustomExamScreen() {
           <View
             className="flex-1 justify-center items-center bg-black opacity-80"
             style={{ zIndex: 999 }}>
-            <View className="rounded-xl p-6 shadow-lg" style={{ zIndex: 1000 }}>
+            <View className="rounded-xl justify-center items-center p-6 shadow-lg" style={{ zIndex: 1000 }}>
               <LottieView
                 ref={animationRef}
                 source={require("../../assets/animations/generating.json")}
                 autoPlay
                 loop
                 style={{
-                  width: 700,
-                  height: 700,
+                  width: 70,
+                  height: 70,
                   transform: [{ scale: 3 }], // force magnify
                 }}
               />
-              <Text className="mt-4 text-lg text-center font-semibold text-gray-100">
-                Generating Exam...
-              </Text>
             </View>
+              <Text className="mt-6 text-lg text-center font-semibold text-gray-100">
+                Preparing Exam...
+              </Text>
           </View>
         </Modal>
       )}
