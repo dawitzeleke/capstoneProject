@@ -12,5 +12,6 @@ public class UpdateStudentSettingsCommand : IRequest<bool>
     public string? ProgressLevel { get; set; }
     public int? Grade { get; set; }
     public bool RemoveProfilePicture { get; set; }
+    public string School { get; set; }
 
 }   

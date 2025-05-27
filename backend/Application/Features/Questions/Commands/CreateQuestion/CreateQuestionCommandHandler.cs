@@ -20,12 +20,12 @@ public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand
 
     public async Task<Question> Handle(CreateQuestionCommand request, CancellationToken cancellationToken)
     {
-        var userId = _currentUserService.UserId.ToString();
-        if (string.IsNullOrEmpty(userId))
-        {
-            throw new UnauthorizedAccessException("User is not authenticated.");
-        }
-        request.CreatedBy = userId;
+        // var userId = _currentUserService.UserId.ToString();
+        // if (string.IsNullOrEmpty(userId))
+        // {
+        //     throw new UnauthorizedAccessException("User is not authenticated.");
+        // }
+        // request.CreatedBy = userId;
 
         var question = new Question{
             QuestionText = request.QuestionText,
