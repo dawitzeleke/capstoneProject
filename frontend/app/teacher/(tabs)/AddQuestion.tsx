@@ -34,7 +34,7 @@ import DifficultySelector from "@/components/teacher/QuestionForm/DifficultySele
 import GradeSelector from "@/components/teacher/QuestionForm/GradeSelector";
 import PointSelector from "@/components/teacher/QuestionForm/PointSelector";
 import QuestionPreviewModal from "@/components/teacher/popups/QuestionPreviewModal";
-import CourseNameInput from '@/components/teacher/QuestionForm/CourseNameInput ';
+import CourseNameInput from '@/components/teacher/QuestionForm/CourseNameInput';
 import ResetFormButton from '@/components/teacher/ResetFormButton';
 import MatrikCheckbox from '@/components/teacher/QuestionForm/MatrikCheckbox';
 import StreamDropdown from '@/components/teacher/QuestionForm/StreamDropdown';
@@ -191,15 +191,17 @@ const AddQuestion = () => {
     const errors = {
       questionText: formState.questionText.trim() === "",
       courseName: formState.courseName.trim() === "",
-      description: formState.description.trim() === "",
+      description: false,
       grade: !formState.grade,
       difficulty: !formState.difficulty,
-      options: formState.options.map(opt => opt.trim() === ""),
+      options: formState.options.map((opt, i) => 
+        i < 2 ? opt.trim() === "" : false
+      ),
       tags: formState.tags.length === 0,
       correctOption: !formState.correctOption || !formState.options.includes(formState.correctOption),
       stream: formState.stream.trim() === "",
-      chapter: formState.chapter.trim() === "",
-      isMatrik: !formState.isMatrik,
+      chapter: false,
+      isMatrik: false,
       year: formState.isMatrik && !formState.year.trim(),
       hint: false,
     };
@@ -207,17 +209,17 @@ const AddQuestion = () => {
     setValidationErrors({
       questionText: submitted && errors.questionText,
       courseName: submitted && errors.courseName,
-      description: submitted && errors.description,
+      description: false,
       grade: submitted && errors.grade,
       difficulty: submitted && errors.difficulty,
       options: submitted ? errors.options : [false, false, false, false, false],
       tags: submitted && errors.tags,
       correctOption: submitted && errors.correctOption,
       stream: submitted && errors.stream,
-      chapter: submitted && errors.chapter,
-      isMatrik: submitted && errors.isMatrik,
+      chapter: false,
+      isMatrik: false,
       year: submitted && errors.year,
-      hint: submitted && errors.hint,
+      hint: false,
     });
 
     return !Object.values(errors).some(error =>
@@ -246,19 +248,19 @@ const AddQuestion = () => {
     setIsPosting(true);
     try {
       const questionPayload = {
-        questionText: formState.questionText,
-        description: formState.description,
-        options: formState.options,
-        correctOption: formState.correctOption,
-        courseName: formState.courseName,
-        point: formState.point,
-        grade: formState.grade,
-        difficulty: formState.difficulty,
-        questionType: formState.questionType,
-        createdBy: formState.createdBy,
-        stream: formState.stream,
-        hint: formState.hint,
-        tags: formState.tags,
+        QuestionText: formState.questionText,
+        Description: formState.description,
+        Options: formState.options,
+        CorrectOption: formState.correctOption,
+        CourseName: formState.courseName,
+        Point: formState.point,
+        Grade: formState.grade,
+        Difficulty: formState.difficulty,
+        QuestionType: formState.questionType,
+        CreatedBy: formState.createdBy,
+        Stream: formState.stream,
+        Hint: formState.hint,
+        Tags: formState.tags,
       };
 
       const response = await httpRequest("/api/Questions", questionPayload, "POST");
@@ -374,7 +376,7 @@ const AddQuestion = () => {
           <View className="mt-2">
             <CourseNameInput
               value={formState.courseName}
-              onChange={(text) => setFormState({ ...formState, courseName: text })}
+              onChange={(text: string) => setFormState({ ...formState, courseName: text })}
               error={validationErrors.courseName}
               submitted={submitted}
             />

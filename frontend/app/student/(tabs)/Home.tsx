@@ -185,7 +185,7 @@ export default function Home() {
                         router.push("/student/Game");
                         break;
                       case "Exam":
-                        router.push("/student/Exam");
+                        router.push("/student/CreateExam");
                         break;
                       case "News":
                         router.push("/student/(tabs)/Blog");

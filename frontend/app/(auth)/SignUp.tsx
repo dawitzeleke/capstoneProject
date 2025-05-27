@@ -72,7 +72,7 @@ const SignUp = () => {
 
   const submitForm = async () => {
     if (!validate()) return;
-console.log("here")
+    console.log("here");
     setSubmitting(true);
     try {
       const formData = new FormData();
@@ -90,8 +90,8 @@ console.log("here")
 
       const endpoint =
         userType === "Student"
-          ? "/api/auth/student/signup"
-          : "/api/auth/teacher/signup";
+          ? "auth/student/signup"
+          : "auth/teacher/signup";
 
       const response = await httpRequest(endpoint, formData, "POST", {
         headers: { "Content-Type": "multipart/form-data" },

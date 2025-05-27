@@ -4,12 +4,14 @@ import questionsReducer from "./questionsReducer/questionsReducer";
 import savedQuestionsReducer from "./savedQuestionsReducer/savedQuestionReducer";
 import teacherReducer from "@/redux/teacherReducer/teacherSlice";
 import mediaReducer from "@/redux/teacherReducer/mediaSlice";
-import notificationsReducer from "@/redux/teacherReducer/notificationsSlice"
-import teacherQuestionReducer from "@/redux/teacherReducer/teacherQuestionSlice"
+import notificationsReducer from "@/redux/teacherReducer/notificationsSlice";
+import teacherQuestionReducer from "@/redux/teacherReducer/teacherQuestionSlice";
 import themeReducer from "./themeReducer/themeReducer";
 import userTeacherReducer from "@/redux/userTeacherReducer/userTeacherReducer";
 import teacherInsightsReducer from "@/redux/teacherReducer/teacherInsightsSlice";
 import animationReducer from "./AnimationReducer/animationReducer";
+import { userReducer } from "./userReducer/userReducer";
+import customExamReducer from "./CustomExamReducer/customExamReducer";
 
 const rootReducer = combineReducers({
   option: optionReducer,
@@ -18,15 +20,15 @@ const rootReducer = combineReducers({
   questions: questionsReducer,
   teacher: teacherReducer,
   userTeacher: userTeacherReducer,
-  savedQuestions:  savedQuestionsReducer,
+  savedQuestions: savedQuestionsReducer,
   media: mediaReducer,
   notifications: notificationsReducer,
   teacherQuestions: teacherQuestionReducer,
   teacherInsights: teacherInsightsReducer,
+  user: userReducer,
+  customExam: customExamReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
 
 export default rootReducer;
-
-

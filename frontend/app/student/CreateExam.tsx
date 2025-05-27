@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,13 +14,16 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import LottieView from "lottie-react-native"; // ✅ Lottie
+import LottieView from "lottie-react-native"; 
+import { setCustomExam } from "@/redux/CustomExamReducer/customExamReducerActions";
 import { useRef } from "react";
 import { useRouter } from "expo-router";
+import { useDispatch } from "react-redux";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import { useSelector } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
+import httpRequest from "@/util/httpRequest";
 
 // Enable layout animation on Android
 if (
@@ -50,28 +53,45 @@ export default function CreateCustomExamScreen() {
     subject: "",
     difficulty: "Easy",
   });
-
+  
   const [stream, setStream] = useState<StreamType>("Natural");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const animationRef = useRef(null);
-
+  const dispatch = useDispatch();
   const toggleDropdown = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setDropdownOpen(!dropdownOpen);
   };
-
-  const handleSubmit = () => {
-    // Show overlay
+  
+  const handleSubmit = async () => {
     setShowOverlay(true);
-
-    // Hide overlay after 7 seconds
-    setTimeout(() => {
+    setError(null);
+    try {
+      const params = {
+        grade: 10, // You can make this dynamic if needed
+        stream:"NaturalScience", // You can make this dynamic if needed
+        courseName: form.subject,
+        limit: parseInt(form.questions, 10),
+        lastSolveCount: 0,
+        lastId: "",
+        DifficultyLevel: form.difficulty,
+      };
+      const queryString = Object.entries(params)
+        .filter(([_, v]) => v !== undefined && v !== "")
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join("&");
+      const response = await httpRequest(`/api/Questions?${queryString}`, null, "GET");
+      console.log("Fetched questions:", response.data.items);
+      dispatch(setCustomExam(response.data.items));
       setShowOverlay(false);
-      console.log("Form:", { ...form, stream });
-      // Your submission logic here
+      // You can pass response to the next page if needed
       router.replace("../../../student/Exam");
-    }, 7000);
+    } catch (err) {
+      setShowOverlay(false);
+      setError("Failed to fetch questions. Please try again.");
+    }
   };
 
   return (
@@ -293,9 +313,14 @@ export default function CreateCustomExamScreen() {
                     }}
                   />
                 </View>
-                  <Text className="mt-6 text-lg text-center font-semibold text-gray-100">
-                    Preparing Exam...
+                <Text className="mt-6 text-lg text-center font-semibold text-gray-100">
+                  Preparing Exam...
+                </Text>
+                {error && (
+                  <Text className="mt-4 text-center text-red-400 font-semibold">
+                    {error}
                   </Text>
+                )}
               </View>
             </Modal>
           )}

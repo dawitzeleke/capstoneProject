@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: 'https://your-api.example.com', // ← replace with your real base URL
+  baseURL: 'https://cognify-d5we.onrender.com/api', // ← replace with your real base URL
   timeout: 10000,                          // 10s timeout
 });
 

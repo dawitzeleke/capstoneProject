@@ -26,24 +26,12 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const sampleQuestions = [
-  {
-    id: 1,
-    question: "What is the capital of France?",
-    options: ["Berlin", "Madrid", "Paris", "Rome"],
-    correct: "Paris",
-  },
-  {
-    id: 2,
-    question: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Mars", "Venus", "Jupiter"],
-    correct: "Mars",
-  },
-];
-
 export default function ExamScreen() {
   const router = useRouter();
   const currentTheme = useSelector((state: any) => state.theme.mode);
+  // Get custom exam questions from redux
+  const customExam = useSelector((state: any) => state.customExam.exam);
+  const questions = customExam || [];
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(5 * 60);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
@@ -93,8 +81,8 @@ export default function ExamScreen() {
 
   const handleSubmit = () => {
     let correct = 0;
-    sampleQuestions.forEach((q) => {
-      if (answers[q.id] && answers[q.id] === q.correct) correct++;
+    questions.forEach((q: any) => {
+      if (answers[q.id] && answers[q.id] === q.correctOption) correct++;
     });
     setScore(correct);
     setStarted(false);
@@ -117,7 +105,7 @@ export default function ExamScreen() {
     setShowResults(false);
     handleStart();
   };
-
+console.log("here", customExam)
   return (
     <View className={`flex-1 px-4 pt-8 relative ${
       currentTheme === "dark" ? "bg-gray-900" : "bg-[#f1f3fc]"
@@ -175,7 +163,7 @@ export default function ExamScreen() {
             className="mt-4"
             contentContainerStyle={{ paddingBottom: 20 }}
           >
-            {sampleQuestions.map((q, idx) => (
+            {questions.map((q: any, idx: number) => (
               <ExamCard
                 key={q.id}
                 question={q}
@@ -216,7 +204,7 @@ export default function ExamScreen() {
         <ResultModal
           visible={true}
           score={score}
-          totalQuestions={sampleQuestions.length}
+          totalQuestions={questions.length}
           onClose={() => setShowResults(true)}
           onRetake={handleRetake}
         />
@@ -227,7 +215,7 @@ export default function ExamScreen() {
           className="mt-4"
           contentContainerStyle={{ paddingBottom: 20 }}
         >
-          {sampleQuestions.map((q, idx) => (
+          {questions.map((q: any, idx: number) => (
             <ExamCard
               key={q.id}
               question={q}
