@@ -1,5 +1,6 @@
 ﻿using Application.Dtos.AuthDtos;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -56,9 +57,17 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(query);
             return Ok(result);
         }
-        
-        [HttpPost("reset-password")]    
+
+        [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Student,Teacher,Admin")]
+        [HttpPost("reset-password-from-profile")]
+        public async Task<IActionResult> ResetPasswordFromProfile([FromBody] ResetPasswordFromProfileCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(result);
