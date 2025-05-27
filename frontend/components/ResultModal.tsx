@@ -38,7 +38,7 @@ export default function ResultModal({
 
   const handleRetake = () => {
     onClose();
-    router.replace("/student/CreateExam");
+    onRetake();
   };
 
   return (

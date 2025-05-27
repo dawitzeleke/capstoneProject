@@ -5,9 +5,9 @@ import { useSelector } from "react-redux";
 
 type Question = {
   id: number;
-  question: string;
+  questionText: string;
   options: string[];
-  correct: string;
+  correctOption: string;
 };
 
 type ExamCardProps = {
@@ -31,7 +31,10 @@ export default function ExamCard({
 
   const getOptionStyle = (opt: string) => {
     const isSelected = selectedAnswer === opt;
-    const isCorrect = question.correct === opt;
+    const isCorrect = question.correctOption === opt;
+
+    console.log("isSelected", isSelected);
+    console.log("isCorrect", isCorrect);
 
     if (mode === "exam") {
       return {
@@ -100,21 +103,22 @@ export default function ExamCard({
         <Text className={`flex-1 font-pmedium text-base ${
           currentTheme === "dark" ? "text-gray-200" : "text-gray-800"
         }`}>
-          {question.question}
+          {question.questionText}
         </Text>
       </View>
 
       {question.options.map((opt, i) => {
         const styles = getOptionStyle(opt);
-        const isCorrect = question.correct === opt;
+        const isCorrect = question.correctOption === opt;
         const isSelected = selectedAnswer === opt;
 
         if (mode === "exam") {
           return (
             <Pressable
               key={i}
-              onPress={() => !disabled && onSelect && onSelect(question.id, opt)}
+              onPress={() => !disabled && onSelect && typeof onSelect === "function" && onSelect(question.id, opt)}
               className={`${styles.container} active:opacity-70`}
+              disabled={!!disabled}
             >
               <Text className={styles.text}>{opt}</Text>
             </Pressable>
