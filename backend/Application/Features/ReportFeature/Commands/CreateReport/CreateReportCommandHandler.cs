@@ -12,18 +12,25 @@ public class CreateReportCommandHandler : IRequestHandler<CreateReportCommand, R
     private readonly IQuestionRepository _questionRepository;
     private readonly IVideoContentRepository _videoRepository;
     private readonly IImageContentRepository _imageRepository;
+    private readonly ICurrentUserService _currentUserService;
 
     public CreateReportCommandHandler(IReportRepository reportRepository,IQuestionRepository questionRepository,
-        IVideoContentRepository videoRepository,IImageContentRepository imageRepository)
+        IVideoContentRepository videoRepository,IImageContentRepository imageRepository, ICurrentUserService currentUserService)
     {
         _reportRepository = reportRepository;
         _questionRepository = questionRepository;
         _videoRepository = videoRepository;
         _imageRepository = imageRepository;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Report> Handle(CreateReportCommand request, CancellationToken cancellationToken)
     {
+        var userId = _currentUserService.UserId.ToString();
+        if (string.IsNullOrEmpty(userId))
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
         var reportid="";
         if(request.ContentType==ContentTypeEnum.Question){
             var content = await _questionRepository.GetByIdAsync(request.ContentId);
@@ -57,7 +64,7 @@ public class CreateReportCommandHandler : IRequestHandler<CreateReportCommand, R
             }
             report.Reports.Add(new SingleReport
             {
-                ReportedBy = request.ReportedBy,
+                ReportedBy = userId,
                 ReportType = request.ReportType
             });
             report.UpdatedAt = DateTime.UtcNow;
@@ -72,7 +79,7 @@ public class CreateReportCommandHandler : IRequestHandler<CreateReportCommand, R
                 {
                     new SingleReport
                     {
-                        ReportedBy = request.ReportedBy,
+                        ReportedBy = userId,
                         ReportType = request.ReportType
                     }
                 },

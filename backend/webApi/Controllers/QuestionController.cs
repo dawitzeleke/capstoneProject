@@ -73,6 +73,7 @@ public class QuestionsController : ControllerBase
         return Ok(new ApiResponse(true, "Question retrieved successfully", question));
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<IActionResult> CreateQuestion([FromForm] CreateQuestionCommand question)
     {
@@ -84,6 +85,7 @@ public class QuestionsController : ControllerBase
         return Ok(new ApiResponse(true, "Question created successfully", response));
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpPut]
     public async Task<IActionResult> UpdateQuestion([FromBody] UpdateQuestionCommand question)
     {
@@ -94,7 +96,8 @@ public class QuestionsController : ControllerBase
         }
         return Ok(question);
     }
-
+    
+    [Authorize(Roles = "Teacher")]
     [HttpDelete]
     public async Task<IActionResult> DeleteQuestion(DeleteQuestionCommand request)
     {
@@ -105,7 +108,7 @@ public class QuestionsController : ControllerBase
         }
         return NotFound();
     }
-
+    [Authorize(Roles = "Student")]
     [HttpGet("custom-exam")]
     public async Task<IActionResult> GetCustomExam(
         [FromQuery] int? grade,

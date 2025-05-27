@@ -27,22 +27,13 @@ public class CreateQuestionCommandValidator : AbstractValidator<CreateQuestionCo
         RuleFor(x => x.CourseName)
             .NotEmpty().WithMessage("Course name is required.");
 
-        RuleFor(x => x.Point)
-            .GreaterThan(0).WithMessage("Point must be greater than 0.");
-
         RuleFor(x => x.Grade)
-            .InclusiveBetween(1, 12).WithMessage("Grade must be between 1 and 12.");
+            .InclusiveBetween(9, 12).WithMessage("Grade must be between 1 and 12.");
 
         RuleFor(x => x.Difficulty)
             .IsInEnum().WithMessage("Invalid difficulty level.");
 
-        RuleFor(x => x.QuestionType)
-            .IsInEnum().WithMessage("Invalid question type.");
-
         RuleFor(x => x.Stream)
             .IsInEnum().WithMessage("Invalid stream.");
-
-        RuleFor(x => x.CreatedBy)
-            .NotEmpty().WithMessage("CreatedBy is required.");
     }
 }

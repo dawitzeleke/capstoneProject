@@ -10,14 +10,23 @@ namespace backend.Application.Features.Questions.Commands.CreateQuestion;
 public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand, Question>
 {
     private readonly IQuestionRepository _questionRepository;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreateQuestionCommandHandler(IQuestionRepository questionRepository)
+    public CreateQuestionCommandHandler(IQuestionRepository questionRepository, ICurrentUserService currentUserService)
     {
         _questionRepository = questionRepository;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Question> Handle(CreateQuestionCommand request, CancellationToken cancellationToken)
     {
+        var userId = _currentUserService.UserId.ToString();
+        if (string.IsNullOrEmpty(userId))
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
+        request.CreatedBy = userId;
+
         var question = new Question{
             QuestionText = request.QuestionText,
             Description = request.Description,
@@ -32,8 +41,11 @@ public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand
             Feedbacks = [],
             QuestionType = request.QuestionType,
             CreatedBy = request.CreatedBy,
+            Tags = request.Tags,
+            Hint = request.Hint,
             Report = null,
             Stream = request.Stream,
+            Explanation = request.Explanation
         };
         // System.Console.WriteLine(question);
         var newQuestion = await _questionRepository.CreateAsync(question);
