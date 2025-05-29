@@ -13,4 +13,5 @@ public interface IStudentRepository : IGenericRepository<Student>
     Task<bool> SaveQuestionAsync(string studentId, string questionId);
     Task<bool> SaveContentAsync(string studentId, string contentId);
     Task<IEnumerable<string>> GetSavedQuestions(string studentId);
+    Task<bool> UpdateTotalPointsAsync(string studentId, int points);
 }
