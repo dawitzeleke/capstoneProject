@@ -93,4 +93,14 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
 
         return student.SavedQuestions ?? new HashSet<string>();
     }
+
+    public async Task<bool> UpdateTotalPointsAsync(string studentId, int points)
+    {
+        var student = await _students.Find(x => x.Id == studentId).FirstOrDefaultAsync();
+        if (student == null) return false;
+
+        student.TotalPoints += points;
+        var result = await _students.ReplaceOneAsync(x => x.Id == studentId, student);
+        return result.IsAcknowledged && result.ModifiedCount > 0;
+    }
 }

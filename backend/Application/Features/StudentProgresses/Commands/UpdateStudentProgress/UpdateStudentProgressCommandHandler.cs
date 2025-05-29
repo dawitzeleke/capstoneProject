@@ -1,5 +1,6 @@
 using MediatR;
 using backend.Domain.Entities;
+using backend.Domain.Enums;
 using backend.Application.Contracts.Persistence;
 using backend.Application.Dtos.QuestionDtos;
 
@@ -14,10 +15,11 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
     private readonly IStudentQuestionAttemptsRepository _studentQuestionAttemptsRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IQuestionRepository _questionRepository;
+    private readonly IStudentRepository _studentRepository;
 
     public UpdateStudentProgressCommandHandler(IStudentProgressRepository studentProgressRepository, IMonthlyProgressRepository monthlyProgress,
         IStudentSolvedQuestionsRepository studentSolvedQuestionsRepository, IStudentQuestionAttemptsRepository studentQuestionAttemptsRepository, 
-        ICurrentUserService currentUserService, IQuestionRepository questionRepository)
+        ICurrentUserService currentUserService, IQuestionRepository questionRepository, IStudentRepository studentRepository)
     {
         _studentProgressRepository = studentProgressRepository;
         _monthlyProgressRepository = monthlyProgress;
@@ -25,6 +27,7 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         _studentQuestionAttemptsRepository = studentQuestionAttemptsRepository;
         _currentUserService = currentUserService;
         _questionRepository = questionRepository;
+        _studentRepository = studentRepository;
         
     }
 
@@ -98,6 +101,7 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
 
     public async Task<bool> updateSolvedAttemptedQuestions(UpdateStudentProgressCommand request)
     {
+        var totalPoints = 0;
         var studentId = _currentUserService.UserId.ToString();
         // Get the previously solved questionIds and attempted questionIds for the student
         var previous_solved_question_Ids = await _studentSolvedQuestionsRepository.GetSolvedQuestionIds(new QuestionFilterDto
@@ -210,11 +214,11 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
 
         // send create request to => create new AttemptedQuestion
         var create_attempted_response = await _studentQuestionAttemptsRepository.InsertManyAsync(newAttemptedQuestion);
-        if (create_attempted_response == null)
+        if (create_attempted_response != null)
         {
-            return false;
+            Console.WriteLine("Attempted Questions created successfully");
+
         }
-        Console.WriteLine("Attempted Questions created successfully");
 
         // previously attempted questions 
         var attemptedQuestions = await _studentQuestionAttemptsRepository.GetAttemptedQuestions(studentId);
@@ -225,8 +229,35 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
             .ToList(); 
         //  send remove request to => remove from attempted questions
         await _studentQuestionAttemptsRepository.RemoveManyAsync(attemptedToRemove);
-       
+        
         Console.WriteLine("Attempted Questions removed successfully");
+
+        // prepare list of previously attempted but currently solved questions as new solved questions
+        var newSolvedFromAttempted = attemptedToRemove
+            .Select(q => new StudentSolvedQuestions
+            {
+                QuestionId = q.QuestionId,
+                StudentId = studentId,
+                SolveCount = 1,
+                CreatorId = q.CreatorId,
+                CourseName = q.CourseName,
+                Chapter = q.Chapter,
+                LastAttempt = DateTime.UtcNow,
+                Grade = q.Grade,
+                Stream = q.Stream?? null,
+                Difficulty = q.Difficulty
+            })
+            .ToList();
+        // send create request to => create new SolvedQuestion from previously attempted questions
+        var create_solved_from_attempted_response = await _studentSolvedQuestionsRepository.InsertManyAsync(newSolvedFromAttempted);
+        // check if the create request was successful
+        if (create_solved_from_attempted_response == null)
+        {
+            Console.WriteLine("Failed to create solved questions from attempted questions");
+        }
+        Console.WriteLine("Solved Questions created from Attempted Questions successfully");
+        
+
         // ## previously attempted also currently attempted questions
         var attemptedToUpdate = attemptedQuestions
             .Where(q => request.AttemptedQuestions.Contains(q.QuestionId))
@@ -235,9 +266,58 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         var update_result = await _studentQuestionAttemptsRepository.UpdateAttemptedQuestions(attemptedToUpdate, studentId, 1);
         if (update_result == null)
         {
-            return false;
+            Console.WriteLine("Failed to update attempted questions");
         }
         Console.WriteLine("Attempted Questions updated successfully");
+        string[] newSOlvedFromAttemptedIds = [];
+        foreach(var question in newSolvedFromAttempted){
+            newSOlvedFromAttemptedIds.Append(question.QuestionId);
+            switch (question.Difficulty)
+            {
+                case DifficultyLevel.Easy:
+                    totalPoints += 1;
+                    break;
+                case DifficultyLevel.Medium:
+                    totalPoints += 2;
+                    break;
+                case DifficultyLevel.Hard:
+                    totalPoints += 3;
+                    break;
+                default:
+                    totalPoints += 0; // Default case if no match
+                    break;
+            }
+            
+        }
+
+        foreach(var question in newSolvedQuestions)
+        {
+            switch (question.Difficulty)
+            {
+                case DifficultyLevel.Easy:
+                    totalPoints += 1;
+                    break;
+                case DifficultyLevel.Medium:
+                    totalPoints += 2;
+                    break;
+                case DifficultyLevel.Hard:
+                    totalPoints += 3;
+                    break;
+                default:
+                    totalPoints += 0; // Default case if no match
+                    break;
+            }
+        }
+        // Update the student's total points in the student progress
+        var response = await _studentRepository.UpdateTotalPointsAsync(studentId, totalPoints);
+        if (response == null)
+        {
+            Console.WriteLine("Failed to update total points");
+        }
+
+        // update the question's total correct answers
+        var questionIds = new_solved_question_Ids.Union(newSOlvedFromAttemptedIds).ToList();
+        var updateQuestionResponse = await _questionRepository.UpdateTotalCorrectAnswers(questionIds, 1);
         return true;
     }
 }
