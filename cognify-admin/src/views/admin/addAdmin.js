@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { CCard, CCardBody, CCardHeader, CForm, CFormInput, CFormSelect, CButton, CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter } from '@coreui/react'
+import { CCard, CCardBody, CCardHeader, CForm, CFormInput, CButton, CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CFormSelect } from '@coreui/react'
 import { httpRequest } from '../../util/httpRequest'
 import { useSelector } from 'react-redux'
 
@@ -24,7 +24,6 @@ const AddAdmin = () => {
         lastName: adminName.split(' ').slice(1).join(' ') || '',
         email,
         phoneNumber,
-        role,
       }
       const headers = token ? { Authorization: `Bearer ${token}` } : {}
       const res = await httpRequest('/admin/invite-admin', payload, 'POST', { headers })

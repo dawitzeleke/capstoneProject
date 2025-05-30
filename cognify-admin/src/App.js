@@ -15,7 +15,6 @@ const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 
 const App = () => {
   const authenticatedUser = useSelector((state) => state.auth.authenticatedUser)
-  console.log('Authenticated User:', authenticatedUser.token)
 
   return (
     <HashRouter>
