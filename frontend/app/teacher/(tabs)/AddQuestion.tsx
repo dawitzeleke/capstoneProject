@@ -189,20 +189,20 @@ const AddQuestion = () => {
   // Validation
   const validateForm = useCallback(() => {
     const errors = {
-      questionText: formState.questionText.trim() === "",
-      courseName: formState.courseName.trim() === "",
+      questionText: !formState.questionText || formState.questionText.trim() === "",
+      courseName: !formState.courseName || formState.courseName.trim() === "",
       description: false,
       grade: !formState.grade,
       difficulty: !formState.difficulty,
       options: formState.options.map((opt, i) => 
-        i < 2 ? opt.trim() === "" : false
+        i < 2 ? !opt || opt.trim() === "" : false
       ),
       tags: formState.tags.length === 0,
       correctOption: !formState.correctOption || !formState.options.includes(formState.correctOption),
-      stream: formState.stream.trim() === "",
+      stream: !formState.stream || formState.stream.trim() === "",
       chapter: false,
       isMatrik: false,
-      year: formState.isMatrik && !formState.year.trim(),
+      year: formState.isMatrik && (!formState.year || formState.year.trim() === ""),
       hint: false,
     };
 
