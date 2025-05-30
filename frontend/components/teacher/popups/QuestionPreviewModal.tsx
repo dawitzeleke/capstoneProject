@@ -54,23 +54,28 @@ const QuestionPreviewModal: React.FC<QuestionPreviewModalProps> = ({
                                 <Text className="text-base">{question.description}</Text>
                             </View>
 
-                            <View className="flex-row justify-between">
+                            <View>
+                                <Text className="text-sm text-gray-500">Grade</Text>
+                                <Text className="text-base">{question.grade}</Text>
+                            </View>
+
+                            {question.stream && (
                                 <View>
-                                    <Text className="text-sm text-gray-500">Grade</Text>
-                                    <Text className="text-base">{question.grade}</Text>
+                                    <Text className="text-sm text-gray-500">Stream</Text>
+                                    <Text className="text-base">{question.stream}</Text>
                                 </View>
-                                {question.stream && (
-                                    <View>
-                                        <Text className="text-sm text-gray-500">Stream</Text>
-                                        <Text className="text-base">{question.stream}</Text>
-                                    </View>
-                                )}
-                                {question.chapter && (
-                                    <View>
-                                        <Text className="text-sm text-gray-500">Chapter</Text>
-                                        <Text className="text-base">{question.chapter}</Text>
-                                    </View>
-                                )}
+                            )}
+
+                            {question.chapter && (
+                                <View>
+                                    <Text className="text-sm text-gray-500">Chapter</Text>
+                                    <Text className="text-base">{question.chapter}</Text>
+                                </View>
+                            )}
+
+                            <View>
+                                <Text className="text-sm text-gray-500">Difficulty</Text>
+                                <Text className="text-base">{question.difficulty}</Text>
                             </View>
 
                             <View>
@@ -107,17 +112,6 @@ const QuestionPreviewModal: React.FC<QuestionPreviewModalProps> = ({
                                             <Text className="text-sm">{tag}</Text>
                                         </View>
                                     ))}
-                                </View>
-                            </View>
-
-                            <View className="flex-row justify-between">
-                                <View>
-                                    <Text className="text-sm text-gray-500">Difficulty</Text>
-                                    <Text className="text-base">{question.difficulty}</Text>
-                                </View>
-                                <View>
-                                    <Text className="text-sm text-gray-500">Points</Text>
-                                    <Text className="text-base">{question.point}</Text>
                                 </View>
                             </View>
                         </View>

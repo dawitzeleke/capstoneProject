@@ -60,15 +60,11 @@ const ManageQuestionCard = ({
           <Text className="text-base font-psemibold text-gray-800">
             {item.courseName}
           </Text>
-          <View className="flex-row gap-2 mt-1">
+          <View className="flex-row items-center mt-1">
             <Text className="text-sm text-gray-600 font-pregular">Grade {item.grade}</Text>
-            <Text className="text-sm text-gray-600 font-pregular">•</Text>
-            <Text className="text-sm text-gray-600 font-pregular">
-              {item.point} pts
-            </Text>
             {item.stream && (
               <>
-                <Text className="text-sm text-gray-600 font-pregular">•</Text>
+                <Text className="text-sm text-gray-600 font-pregular mx-1">•</Text>
                 <Text className="text-sm text-gray-600 font-pregular">
                   {item.stream}
                 </Text>
@@ -76,7 +72,7 @@ const ManageQuestionCard = ({
             )}
             {item.chapter && (
               <>
-                <Text className="text-sm text-gray-600 font-pregular">•</Text>
+                <Text className="text-sm text-gray-600 font-pregular mx-1">•</Text>
                 <Text className="text-sm text-gray-600 font-pregular">
                   Ch. {item.chapter}
                 </Text>
