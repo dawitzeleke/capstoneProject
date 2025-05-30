@@ -224,7 +224,7 @@ const SignUp = () => {
                 Stream
               </Text>
               <View className="flex-row gap-5 mb-2">
-                {["Natural", "Social"].map((stream) => (
+                {["NaturalScience", "SocialSience"].map((stream) => (
                   <Pressable
                     key={stream}
                     onPress={() =>
