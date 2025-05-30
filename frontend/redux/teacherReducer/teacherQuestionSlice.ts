@@ -48,13 +48,17 @@ const initialState: QuestionState = {
       createdBy: "teacher_abc123",
       createdAt: "2025-03-16T00:00:00Z",
       updatedAt: "2025-03-16T00:00:00Z",
+      isMatrik: false,
+      year: "",
+      stream: "Natural Science",
+      chapter: "2"
     },
     {
       id: "2",
       questionText: "What is the process of cell division called?",
       description: "Cell Biology",
       options: ["Mitosis", "Meiosis", "Both A and B", "None"],
-      correctOption: "Mitosis", // index 0
+      correctOption: "Mitosis",
       courseName: "Biology",
       grade: 10,
       difficulty: DifficultyLevel.Medium,
@@ -67,13 +71,17 @@ const initialState: QuestionState = {
       createdBy: "teacher_abc123",
       createdAt: "2025-02-25T00:00:00Z",
       updatedAt: "2025-02-29T00:00:00Z",
+      isMatrik: true,
+      year: "2024",
+      stream: "Natural Science",
+      chapter: "3"
     },
     {
       id: "3",
       questionText: "What molecule carries genetic information in most living organisms?",
       description: "Genetics",
       options: ["RNA", "Lipid", "Protein", "DNA"],
-      correctOption: "DNA", // index 3
+      correctOption: "DNA",
       courseName: "Biology",
       grade: 10,
       difficulty: DifficultyLevel.Medium,
@@ -86,6 +94,10 @@ const initialState: QuestionState = {
       createdBy: "teacher_abc123",
       createdAt: "2024-03-14T00:00:00Z",
       updatedAt: "2024-03-14T00:00:00Z",
+      isMatrik: false,
+      year: "",
+      stream: "Natural Science",
+      chapter: "4"
     },
   ],
 
