@@ -27,11 +27,8 @@ const Questions = () => {
       try {
         const response = await httpRequest("/api/Questions/", null, "GET");
         console.log("here", response);
-        const resonse2 = await httpRequest("/api/Video", null, "GET");
-        const resonse3 = await httpRequest("/api/imagecontent", null, "GET");
-        console.log(resonse2.data, "herey");
-        console.log(resonse3.data);
-        dispatch(setQuestions(response));
+        dispatch(setQuestions(response.data.items));
+         dispatch(setLoading());
       } catch (err) {
         console.error("Failed to load user", err);
         console.log(err);
@@ -118,6 +115,7 @@ const Questions = () => {
     (state: RootState) => state.option.isReportOpen
   );
 
+
   console.log(questions);
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -140,7 +138,9 @@ const Questions = () => {
           onPress={() => dispatch(closeOption())}
           className="absolute top-0 left-0 w-full flex items-center justify-center z-10 "
           style={{ height: height, backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-          <ReportOption />
+          <ReportOption
+            onClose={() => dispatch(closeOption())}
+          />
         </Pressable>
       )}
 

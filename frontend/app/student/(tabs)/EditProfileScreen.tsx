@@ -15,12 +15,67 @@ import { Field } from "@/components/Field";
 import { useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import httpRequest from "@/util/httpRequest";
 
 export default function EditProfileScreen() {
   const currentTheme = useSelector((state: any) => state.theme.mode);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const router = useRouter();
   const isDark = currentTheme === "dark";
+  const [form, setForm] = useState({
+    FirstName: "",
+    LastName: "",
+    Email: "",
+    UserName: "",
+    Phone: "",
+    GradeLevel: "",
+    Stream: "",
+    School: "",
+    CurrentPassword: "",
+    NewPassword: "",
+    ConfirmPassword: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  // Handler for field changes
+  const handleFieldChange = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Handler for submit
+  const handleSave = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      // Only send fields that are filled
+      const formData = new FormData();
+      let hasField = false;
+      Object.entries(form).forEach(([key, value]) => {
+        if (value && value.trim() !== "") {
+          formData.append(key, value);
+          hasField = true;
+        }
+      });
+      if (!hasField) {
+        setError("Please fill at least one field to update.");
+        setLoading(false);
+        return;
+      }
+      console.log("Updating profile with payload (FormData):", formData);
+      const res = await httpRequest("/api/students/settings", formData, "PATCH", {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      console.log("response", res);
+      setSuccess(true);
+    } catch (err: any) {
+      setError("Failed to update profile. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView className={`flex-1 ${isDark ? "bg-black" : "bg-[#f1f3fc]"}`}>
@@ -34,28 +89,6 @@ export default function EditProfileScreen() {
           contentContainerStyle={{ flexGrow: 1 }}
         >
           {/* Header */}
-          <LinearGradient
-            colors={isDark ? ['#000000', '#111827'] : ['#f1f3fc', '#ffffff']}
-            className="px-6 pt-4 pb-6"
-          >
-            <View className="flex-row justify-between items-center">
-              <TouchableOpacity 
-                onPress={() => router.back()} 
-                className={`p-2 rounded-full ${isDark ? "bg-gray-800" : "bg-white"} shadow-sm`}
-              >
-                <Ionicons name="arrow-back" size={24} color={isDark ? "white" : "black"} />
-              </TouchableOpacity>
-              <Text className={`text-lg font-pbold ${isDark ? "text-white" : "text-gray-900"}`}>
-                Edit Profile
-              </Text>
-              <TouchableOpacity 
-                className={`p-2 rounded-full ${isDark ? "bg-gray-800" : "bg-white"} shadow-sm`}
-              >
-                <Ionicons name="checkmark" size={24} color={isDark ? "white" : "black"} />
-              </TouchableOpacity>
-            </View>
-          </LinearGradient>
-
           <ScrollView className="flex-1 px-4">
             {/* Profile Image and Back Button */}
             <View className="flex-row items-center justify-between mt-4 mb-6">
@@ -90,25 +123,40 @@ export default function EditProfileScreen() {
               isDark ? "bg-gray-900" : "bg-white"
             } shadow-sm`}>
               <Field
-                label="Full Name"
-                placeholder="Enter your full name"
+                label="First Name"
+                placeholder="Enter your first name"
+                value={form.FirstName}
+                onChangeText={(val) => handleFieldChange("FirstName", val)}
+                theme={currentTheme}
+              />
+              <Field
+                label="Last Name"
+                placeholder="Enter your second name"
+                value={form.LastName}
+                onChangeText={(val) => handleFieldChange("LastName", val)}
                 theme={currentTheme}
               />
               <Field
                 label="Email Address"
                 placeholder="Enter your email"
                 type="email"
+                value={form.Email}
+                onChangeText={(val) => handleFieldChange("Email", val)}
                 theme={currentTheme}
               />
               <Field
                 label="Username"
                 placeholder="Enter your username"
+                value={form.UserName}
+                onChangeText={(val) => handleFieldChange("UserName", val)}
                 theme={currentTheme}
               />
               <Field
                 label="Phone Number"
                 placeholder="Enter your phone number"
                 type="phone"
+                value={form.Phone}
+                onChangeText={(val) => handleFieldChange("Phone", val)}
                 theme={currentTheme}
               />
             </View>
@@ -124,16 +172,15 @@ export default function EditProfileScreen() {
                 <Field
                   label="Grade Level"
                   placeholder="Select your grade"
-                  theme={currentTheme}
-                />
-                <Field
-                  label="Stream"
-                  placeholder="Select your stream"
+                  value={form.GradeLevel}
+                  onChangeText={(val) => handleFieldChange("GradeLevel", val)}
                   theme={currentTheme}
                 />
                 <Field
                   label="School"
                   placeholder="Enter your school name"
+                  value={form.School}
+                  onChangeText={(val) => handleFieldChange("School", val)}
                   theme={currentTheme}
                 />
               </View>
@@ -151,18 +198,24 @@ export default function EditProfileScreen() {
                   label="Current Password"
                   type="password"
                   placeholder="Enter current password"
+                  value={form.CurrentPassword}
+                  onChangeText={(val) => handleFieldChange("CurrentPassword", val)}
                   theme={currentTheme}
                 />
                 <Field
                   label="New Password"
                   type="password"
                   placeholder="Enter new password"
+                  value={form.NewPassword}
+                  onChangeText={(val) => handleFieldChange("NewPassword", val)}
                   theme={currentTheme}
                 />
                 <Field
                   label="Confirm Password"
                   type="password"
                   placeholder="Confirm new password"
+                  value={form.ConfirmPassword}
+                  onChangeText={(val) => handleFieldChange("ConfirmPassword", val)}
                   theme={currentTheme}
                 />
                 <TouchableOpacity 
@@ -174,6 +227,25 @@ export default function EditProfileScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
+            </View>
+
+            {/* Save Button and Feedback */}
+            <View className="mt-6 mb-8 px-4">
+              <TouchableOpacity
+                onPress={handleSave}
+                className={`py-4 rounded-xl ${isDark ? "bg-indigo-500" : "bg-indigo-600"} items-center`}
+                disabled={loading}
+              >
+                <Text className="text-white font-psemibold text-base">
+                  {loading ? "Saving..." : "Save Changes"}
+                </Text>
+              </TouchableOpacity>
+              {error && (
+                <Text className="mt-3 text-center text-red-500 font-pmedium">{error}</Text>
+              )}
+              {success && (
+                <Text className="mt-3 text-center text-green-600 font-pmedium">Profile updated successfully!</Text>
+              )}
             </View>
           </ScrollView>
         </ScrollView>

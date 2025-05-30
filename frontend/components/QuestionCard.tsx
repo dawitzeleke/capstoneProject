@@ -15,6 +15,7 @@ import {
   Feather,
 } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
+import { setReportedContent } from "@/redux/questionsReducer/questionAction";
 import { setDisplayOption } from "@/redux/optionReducer/optionActions";
 
 interface QuestionProps {
@@ -25,6 +26,7 @@ interface QuestionProps {
     correctOption: string;
     TotalCorrectAnswers: number;
     description: string;
+    type: string;
   };
 }
 
@@ -59,6 +61,9 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
 
   const handleOpenOption = () => {
     dispatch(setDisplayOption());
+    dispatch(
+      setReportedContent({ contentId: question.id, contentType: question.type })
+    );
   };
 
   const handleAnswer = (option: string) => {
@@ -152,9 +157,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
       {/* Social Actions */}
       <View className="absolute right-2 bottom-20 bg-black/60 py-2 w-10 flex flex-col justify-center items-center rounded-full z-10">
         {/* Like */}
-        <TouchableOpacity 
-          className="mb-4" 
-          onPress={() => setLiked(!liked)}>
+        <TouchableOpacity className="mb-4" onPress={() => setLiked(!liked)}>
           <AntDesign
             name={liked ? "heart" : "hearto"}
             size={26}

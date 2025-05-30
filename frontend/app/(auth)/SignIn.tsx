@@ -7,9 +7,17 @@ import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import httpRequest from "@/util/httpRequest";
 import { saveToken } from "@/scripts/storage";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/userReducer/userActions";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import type { AppDispatch } from "@/redux/store";
 
 const SignIn = () => {
   const router = useRouter();
+  const user = useSelector((state: RootState) => state.user.user);
+  console.log("User in SignIn:", user);
+  const dispatch = useDispatch<AppDispatch>();
   const [form, setForm] = useState({
     Email: "",
     Password: "",
@@ -70,6 +78,7 @@ const SignIn = () => {
       } else {
         router.replace("/teacher/TeacherVerification");
       }
+      dispatch(setUser(response.user));
     } catch (error: any) {
       const serverError =
         error?.response?.data?.message || "Login failed. Please try again.";
