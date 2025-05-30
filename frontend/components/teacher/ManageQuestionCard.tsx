@@ -66,6 +66,22 @@ const ManageQuestionCard = ({
             <Text className="text-sm text-gray-600 font-pregular">
               {item.point} pts
             </Text>
+            {item.stream && (
+              <>
+                <Text className="text-sm text-gray-600 font-pregular">•</Text>
+                <Text className="text-sm text-gray-600 font-pregular">
+                  {item.stream}
+                </Text>
+              </>
+            )}
+            {item.chapter && (
+              <>
+                <Text className="text-sm text-gray-600 font-pregular">•</Text>
+                <Text className="text-sm text-gray-600 font-pregular">
+                  Ch. {item.chapter}
+                </Text>
+              </>
+            )}
           </View>
         </View>
 
