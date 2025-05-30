@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using backend.Domain.Entities;
+using backend.Domain.Enums;
 using backend.Application.Contracts.Persistence;
 
 namespace backend.Application.Features.Questions.Commands.CreateQuestion;
@@ -26,28 +27,40 @@ public class CreateQuestionCommandHandler: IRequestHandler<CreateQuestionCommand
             throw new UnauthorizedAccessException("User is not authenticated.");
         }
         request.CreatedBy = userId;
+        switch (request.Difficulty){
+            case DifficultyLevel.Easy:
+                request.Point = 1;
+                break;
+            case DifficultyLevel.Medium:
+                request.Point = 2;
+                break;
+            case DifficultyLevel.Hard:
+                request.Point = 3;
+                break;
+            default:
+                request.Point = 1; // Default point for unspecified difficulty
+                break;
+        }
 
         var question = new Question{
             QuestionText = request.QuestionText,
             Description = request.Description,
             Options = request.Options,
             CorrectOption = request.CorrectOption,
-            CreatedAt = DateTime.Now,
             Grade = request.Grade,
-            TotalCorrectAnswers=0,
             CourseName = request.CourseName,
-            Point = request.Point,
             Difficulty = request.Difficulty,
-            Feedbacks = [],
             QuestionType = request.QuestionType,
-            CreatedBy = request.CreatedBy,
             Tags = request.Tags,
             Hint = request.Hint,
-            Report = null,
+            Explanation = request.Explanation,
+            CreatedBy = request.CreatedBy,
             Stream = request.Stream,
-            Explanation = request.Explanation
+            CreatedAt = DateTime.Now,
+            Report = null,
+            Point = request.Point,
+            TotalCorrectAnswers=0,
         };
-        // System.Console.WriteLine(question);
         var newQuestion = await _questionRepository.CreateAsync(question);
         return newQuestion;
     }

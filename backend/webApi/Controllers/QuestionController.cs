@@ -10,9 +10,13 @@ using backend.Application.Features.Questions.Commands.DeleteQuestion;
 using backend.Application.Features.Questions.Commands.UpdateQuestion;
 using backend.Application.Features.Students.Commands.SaveQuestion;
 using backend.Application.Features.Questions.Queries.GetCustomExam;
+using backend.Application.Features.Questions.Commands.LikeQuestion;
+using backend.Application.Features.Questions.Commands.AddRelatedBlog;
+using backend.Application.Features.Questions.Commands.RemoveRelatedBlog;
 using backend.Application.Dtos.PaginationDtos;
 using backend.webApi.PresentationDtos;
 using backend.Domain.Enums;
+
 
 
 namespace backend.webApi.Controllers;
@@ -34,27 +38,27 @@ public class QuestionsController : ControllerBase
         [FromQuery] int? grade,
         [FromQuery] StreamEnum? stream,
         [FromQuery] string? courseName,
-        [FromQuery] int? limit, 
+        [FromQuery] int? limit,
         [FromQuery] int? lastSolveCount,
         [FromQuery] string? lastId,
         [FromQuery] DifficultyLevel? DifficultyLevel = null)
     {
         var query = new GetQuestionListQuery
+        {
+            Grade = grade,
+            Stream = stream,
+            CourseName = courseName,
+            DifficultyLevel = DifficultyLevel, 
+            Pagination = new PaginationDto
             {
-                Grade = grade,
-                Stream = stream,
-                CourseName = courseName,
-                DifficultyLevel = DifficultyLevel, // Default difficulty level if not provided
-                Pagination = new PaginationDto
-                {
-                    Limit = limit?? 20, // Default limit if not provided
-                    LastSolveCount = lastSolveCount,
-                    LastId = lastId
-                }
-            };
+                Limit = limit ?? 20, // Default limit if not provided
+                LastSolveCount = lastSolveCount,
+                LastId = lastId
+            }
+        };
         var questions = await _mediator.Send(query);
         Console.WriteLine($"Questions count: {questions?.Items?.Count ?? 0}");
-        if (questions == null || questions.Items ==null || questions.Items.Count == 0)
+        if (questions == null || questions.Items == null || questions.Items.Count == 0)
         {
             return NotFound(ApiResponse.ErrorResponse("No questions found"));
         }
@@ -96,7 +100,7 @@ public class QuestionsController : ControllerBase
         }
         return Ok(question);
     }
-    
+
     [Authorize(Roles = "Teacher")]
     [HttpDelete]
     public async Task<IActionResult> DeleteQuestion(DeleteQuestionCommand request)
@@ -108,6 +112,9 @@ public class QuestionsController : ControllerBase
         }
         return NotFound();
     }
+
+
+
     [Authorize(Roles = "Student")]
     [HttpGet("custom-exam")]
     public async Task<IActionResult> GetCustomExam(
@@ -116,13 +123,50 @@ public class QuestionsController : ControllerBase
         [FromQuery] string? courseName)
     {
         var filter = new GetCustomExamQuery
-            {
-                Grade = grade,
-                DifficultyLevel = difficultyLevel,
-                CourseName = courseName,
-            };
+        {
+            Grade = grade,
+            DifficultyLevel = difficultyLevel,
+            CourseName = courseName,
+        };
         var questions = await _mediator.Send(filter);
         return Ok(questions);
-    }   
+    } 
+
+    [Authorize(Roles = "Student")]
+    [HttpPost("{id}/like")]  
+    public async Task<IActionResult> LikeQuestion(string questionId)
+    {
+        var response = await _mediator.Send(new LikeQuestionCommand(questionId));
+        if (response)
+        {
+            return Ok(ApiResponse.SuccessResponse(null, "Question liked successfully"));
+        }
+        return BadRequest(ApiResponse.ErrorResponse("Failed to like question"));
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpPost("{id}/related-blog")]
+    public async Task<IActionResult> AddRelatedBlog(string id, [FromBody] string blogId)
+    {
+        var response = await _mediator.Send(new AddRelatedBlogCommand { QuestionId = id, BlogId = blogId });
+        if (response)
+        {
+            return Ok(ApiResponse.SuccessResponse(null, "Related blog added successfully"));
+        }
+        return BadRequest(ApiResponse.ErrorResponse("Failed to add related blog"));
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpDelete("{id}/related-blog")]
+    public async Task<IActionResult> RemoveRelatedBlog(string id, [FromBody] string blogId)
+    {
+        var response = await _mediator.Send(new RemoveRelatedBlogCommand { QuestionId = id, BlogId = blogId });
+        if (response)
+        {
+            return Ok(ApiResponse.SuccessResponse(null, "Related blog removed successfully"));
+        }
+        return BadRequest(ApiResponse.ErrorResponse("Failed to remove related blog"));
+    }
+
     
 }

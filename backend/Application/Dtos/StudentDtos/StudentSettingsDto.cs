@@ -9,4 +9,5 @@ public class StudentSettingsDto
     public List<string> CompletedQuestions { get; set; }
     public List<string> Badges { get; set; }
     public int Grade { get; set; }
+    public string School { get; set; }
 }

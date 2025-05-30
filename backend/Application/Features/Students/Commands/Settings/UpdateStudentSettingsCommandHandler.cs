@@ -91,9 +91,12 @@ public class UpdateStudentSettingsCommandHandler : IRequestHandler<UpdateStudent
 
         if (!string.IsNullOrWhiteSpace(request.ProgressLevel))
             student.ProgressLevel = request.ProgressLevel;
+        if (!string.IsNullOrWhiteSpace(request.School))
+            student.School = request.School;
 
         if (request.Grade.HasValue)
             student.Grade = request.Grade.Value;
+        
 
         await _studentRepository.UpdateAsync(student);
         return true;

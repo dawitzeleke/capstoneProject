@@ -15,10 +15,10 @@ public class CreateQuestionCommand: IRequest<Question>
     public int Grade { get; set; }
     public DifficultyLevel Difficulty { get; set; }
     public QuestionTypeEnum QuestionType { get; set; }
-    public string CreatedBy { get; set; }
+    public string? CreatedBy { get; set; }
     public StreamEnum Stream { get; set;}
-    public string Hint { get; set; }
+    public string? Hint { get; set; }
     public string[] Tags { get; set; }
-    public string Explanation { get; set; }
+    public string? Explanation { get; set; }
     // public string RelatedBlog { get; set; }
 }

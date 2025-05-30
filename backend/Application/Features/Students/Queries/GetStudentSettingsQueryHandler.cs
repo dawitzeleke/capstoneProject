@@ -31,7 +31,8 @@ public class GetStudentSettingsQueryHandler : IRequestHandler<GetStudentSettings
             ProgressLevel = student.ProgressLevel,
             CompletedQuestions = student.CompletedQuestions,
             Badges = student.Badges,
-            Grade = student.Grade
+            Grade = student.Grade,
+            School = student.School,
         };
       
     }
