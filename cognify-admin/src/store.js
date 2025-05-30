@@ -3,6 +3,7 @@ import { legacy_createStore as createStore, combineReducers } from 'redux'
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
 import { teachersReducer } from './redux/teachersReducer'
+import { statsReducer } from './redux/statsReducer'
 
 // 1️⃣ Auth reducer - for user persistence only
 const initialAuthState = {
@@ -41,6 +42,7 @@ const rootReducer = combineReducers({
   app: changeState,
   teachers: teachersReducer,
   auth: authReducer, // persist this only
+  stats: statsReducer, // add stats reducer
 })
 
 // 4️⃣ Persist config
