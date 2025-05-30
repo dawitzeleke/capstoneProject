@@ -56,7 +56,7 @@ const SignIn = () => {
       formData.append("email", form.Email);
       formData.append("password", form.Password);
 
-      const endpoint = "/api/auth/signin";
+      const endpoint = "auth/signin";
       const response = await httpRequest(endpoint, formData, "POST", {
         headers: {
           "Content-Type": "multipart/form-data",
