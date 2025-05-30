@@ -39,6 +39,7 @@ export interface QuestionItem {
     isMatrik: boolean;
     year: string;
     chapter: string;
+    explanation?: string;
 }
 
 export interface QuestionFormState {
