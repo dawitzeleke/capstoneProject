@@ -21,8 +21,9 @@ import navigation from "../_nav";
 
 const AppSidebar = () => {
   const dispatch = useDispatch();
-  const unfoldable = useSelector((state) => state.sidebarUnfoldable);
-  const sidebarShow = useSelector((state) => state.sidebarShow);
+const sidebarShow = useSelector((state) => state.app.sidebarShow);
+const unfoldable = useSelector((state) => state.app.sidebarUnfoldable);
+
 
   return (
     <CSidebar
@@ -62,7 +63,7 @@ const AppSidebar = () => {
       <AppSidebarNav items={navigation} />
       <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
-          onClick={() => dispatch({ type: "set", sidebarShow: false })}
+          onClick={() => dispatch({ type: "set", sidebarShow: !sidebarShow })}
         />
       </CSidebarFooter>
     </CSidebar>
