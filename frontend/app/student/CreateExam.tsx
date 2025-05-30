@@ -82,7 +82,7 @@ export default function CreateCustomExamScreen() {
         .filter(([_, v]) => v !== undefined && v !== "")
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join("&");
-      const response = await httpRequest(`/api/Questions?${queryString}`, null, "GET");
+      const response = await httpRequest(`/Questions?${queryString}`, null, "GET");
       console.log("Fetched questions:", response.data.items);
       dispatch(setCustomExam(response.data.items));
       setShowOverlay(false);
