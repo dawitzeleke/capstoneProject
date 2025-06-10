@@ -9,6 +9,7 @@ const TeacherList = React.lazy(() => import('./views/Teacher/TeacherList'))
 const Reports = React.lazy(() => import('./views/Reports/Reports'))
 const Content = React.lazy(() => import('./views/Content/Content'))
 const AddAdmin = React.lazy(() => import('./views/admin/addAdmin'))
+const ReportDetail = React.lazy(() => import('./views/Reports/ReportDetail')) // Import ReportDetail component
 
 // Base
 const Collapses = React.lazy(() => import('./views/base/collapses/Collapses'))
@@ -65,6 +66,7 @@ const routes = [
   { path: '/admin/add', name: 'Add Admin', element: AddAdmin },
   { path: '/reports', name: 'Reports', element: Reports },
   { path: '/content', name: 'Content', element: Content },
+  { path: '/reports/:id', name: 'Report Detail', element: ReportDetail }, // Report detail route
 
   // Other routes
   { path: '/theme', name: 'Theme', element: Colors, exact: true },

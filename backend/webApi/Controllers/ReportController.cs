@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using backend.Domain.Enums;
+using backend.Application.Dtos.ReportDtos;
 using backend.Application.Features.ReportFeature.Commands.CreateReport;
 using backend.Application.Features.ReportFeature.Queries.GetReport;
 using backend.Application.Features.ReportFeature.Queries.GetReports;
@@ -21,12 +23,19 @@ public class ReportController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpGet]
-    public async Task<IActionResult> GetAllReports()
+    public async Task<IActionResult> GetAllReports([FromQuery]ContentTypeEnum[] contentTypes = null)
     {
-        var reports = await _mediator.Send(new GetReportsQuery());
+        var filter = new ReportFilterDto();
+        
+        if (contentTypes != null)
+        {
+            filter.ContentTypes=contentTypes;
+        }
+        var reports = await _mediator.Send(new GetReportsQuery(filter));
         return Ok(reports);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetReportById(string id)
     {

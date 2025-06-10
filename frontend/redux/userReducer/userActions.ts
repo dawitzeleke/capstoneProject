@@ -1,4 +1,4 @@
-import { User } from '@/types/userTypes';
+import { User } from './userReducer';
 import { GET_USER, SET_USER, CLEAR_USER, SET_LOADING, SET_ERROR } from './userActionTypes';
 
 // Action Types

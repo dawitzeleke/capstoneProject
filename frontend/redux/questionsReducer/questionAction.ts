@@ -1,5 +1,10 @@
 import { questionsActionTypes } from "./questionActionTypes"; // Import the enum
 
+interface ReportedContent {
+  contentId: string;
+  contentType: string;
+}
+
 // Action to load initial questions
 export const loadQuestions = () => ({
   type: questionsActionTypes.LOAD_QUESTIONS,
@@ -25,4 +30,10 @@ export const setLoading = () => ({
 export const setHasMore = (hasMore: boolean) => ({
   type: questionsActionTypes.SET_HAS_MORE,
   payload: hasMore,
+});
+
+// Action to set any reported content related to questions
+export const setReportedContent = (reportedContent: ReportedContent) => ({
+  type: questionsActionTypes.SET_REPORTED_CONTENT,
+  payload: reportedContent,
 });

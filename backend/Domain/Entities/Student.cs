@@ -13,9 +13,9 @@ namespace backend.Domain.Entities
         public int Grade { get; set; }
         public HashSet<string> SavedQuestions { get; set; } = new HashSet<string>();
         public HashSet<string> SavedContents { get; set; } = new HashSet<string>();
-
         public StreamEnum Stream { get; set; }
         public string School { get; set; }
 
+        public int TotalPoints { get; set; }
     }
 }
