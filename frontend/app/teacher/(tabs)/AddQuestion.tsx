@@ -263,7 +263,7 @@ const AddQuestion = () => {
         Tags: formState.tags,
       };
 
-      const response = await httpRequest("/api/Questions", questionPayload, "POST");
+      const response = await httpRequest("/Questions", questionPayload, "POST");
 
       const questionToSubmit: QuestionItem = {
         ...formState,

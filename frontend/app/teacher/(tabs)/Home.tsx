@@ -135,25 +135,10 @@ const Home = () => {
       {/* Header */}
       <View className="flex-row justify-between items-center px-5 pt-6 pb-3 border-b border-gray-200">
         <View className="flex-row items-center space-x-3">
-          <Image 
-            source={{ uri: "https://randomuser.me/api/portraits/men/1.jpg" }}
-            className="w-10 h-10 rounded-full"
-          />
-          <Text className={`text-xl font-pbold ${isDark ? "text-white" : "text-gray-900"}`}>
-            Teacher Feed
+          <Text className={`text-xl mt-2 font-pbold ${isDark ? "text-white" : "text-gray-900"}`}>
+            Feed
           </Text>
         </View>
-        <TouchableOpacity
-          className={`p-3 rounded-full shadow-md ${
-            isDark ? "bg-gray-800" : "bg-[#4F46E5]"
-          }`}
-          onPress={() => router.push("/teacher/(tabs)/ContentList")}>
-          <AntDesign
-            name="search1"
-            size={20}
-            color={isDark ? "#e5e5e5" : "white"}
-          />
-        </TouchableOpacity>
       </View>
 
       {/* Message Feed */}
