@@ -7,4 +7,5 @@ public class CreateBlogCommand : IRequest<BlogDto>
     public string Description { get; set; }
     public IFormFile ContentFile { get; set; }
     public List<string> Tags { get; set; }
+
 }
