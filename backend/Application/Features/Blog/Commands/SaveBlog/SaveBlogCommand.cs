@@ -1,6 +1,6 @@
 using MediatR;
 
-public class LikeBlogCommand : IRequest<LikeBlogResponse>
+public class SaveBlogCommand : IRequest<SaveBlogResponse>
 {
     public string BlogId { get; set; }
 }

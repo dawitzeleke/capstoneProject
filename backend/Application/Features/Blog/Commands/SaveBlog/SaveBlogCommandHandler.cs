@@ -1,28 +1,28 @@
 using backend.Domain.Enums;
 using MediatR;
 
-public class LikeBlogCommandHandler : IRequestHandler<LikeBlogCommand, LikeBlogResponse>
+public class SaveBlogCommandHandler : IRequestHandler<SaveBlogCommand, SaveBlogResponse>
 {
     private readonly IBlogRepository _blogRepository;
-    private readonly ILikeRepository _likeRepository;
+    private readonly ISaveRepository _saveRepository;
     private readonly ICurrentUserService _currentUserService;
 
-    public LikeBlogCommandHandler(
+    public SaveBlogCommandHandler(
         IBlogRepository blogRepository,
-        ILikeRepository likeRepository,
+        ISaveRepository saveRepository,
         ICurrentUserService currentUserService)
     {
         _blogRepository = blogRepository;
-        _likeRepository = likeRepository;
+        _saveRepository = saveRepository;
         _currentUserService = currentUserService;
     }
 
-    public async Task<LikeBlogResponse> Handle(LikeBlogCommand request, CancellationToken cancellationToken)
+    public async Task<SaveBlogResponse> Handle(SaveBlogCommand request, CancellationToken cancellationToken)
     {
         var blog = await _blogRepository.GetByIdAsync(request.BlogId);
         if (blog == null)
         {
-            return new LikeBlogResponse
+            return new SaveBlogResponse
             {
                 Success = false,
                 Error = "Blog not found",
@@ -33,7 +33,7 @@ public class LikeBlogCommandHandler : IRequestHandler<LikeBlogCommand, LikeBlogR
         var userId = _currentUserService.UserId;
         if (string.IsNullOrEmpty(userId))
         {
-            return new LikeBlogResponse
+            return new SaveBlogResponse
             {
                 Success = false,
                 Error = "Unauthorized",
@@ -41,20 +41,20 @@ public class LikeBlogCommandHandler : IRequestHandler<LikeBlogCommand, LikeBlogR
             };
         }
 
-        // Check if the user already liked this blog
-        var existingLike = await _likeRepository.GetByUserAndContentAsync(userId, request.BlogId, ContentTypeEnum.Blog);
+        // Check if already saved
+        var existingSave = await _saveRepository.GetByUserAndContentAsync(userId, request.BlogId, ContentTypeEnum.Blog);
 
-        bool liked;
-        if (existingLike != null)
+        bool saved;
+        if (existingSave != null)
         {
-            // Unlike: remove the like entry
-            await _likeRepository.DeleteAsync(existingLike);
-            liked = false;
+            // Unsave: remove the save entry
+            await _saveRepository.DeleteAsync(existingSave);
+            saved = false;
         }
         else
         {
-            // Like: create a new like entry
-            var newLike = new Like
+            // Save: create a new save entry
+            var newSave = new Save
             {
                 UserId = userId,
                 ContentId = request.BlogId,
@@ -62,18 +62,18 @@ public class LikeBlogCommandHandler : IRequestHandler<LikeBlogCommand, LikeBlogR
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-            await _likeRepository.CreateAsync(newLike);
-            liked = true;
+            await _saveRepository.CreateAsync(newSave);
+            saved = true;
         }
 
-        // Get the updated like count for this blog
-        var likeCount = await _likeRepository.CountByContentAsync(request.BlogId, ContentTypeEnum.Blog);
+        // Get the updated save count for this blog
+        var saveCount = await _saveRepository.CountByContentAsync(request.BlogId, ContentTypeEnum.Blog);
 
-        return new LikeBlogResponse
+        return new SaveBlogResponse
         {
             Success = true,
-            Liked = liked,
-            LikeCount = likeCount,
+            Saved = saved,
+            SaveCount = saveCount,
             BlogId = request.BlogId
         };
     }
