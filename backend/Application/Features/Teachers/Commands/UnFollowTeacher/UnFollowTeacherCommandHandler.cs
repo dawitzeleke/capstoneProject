@@ -5,7 +5,7 @@ public class UnFollowTeacherCommandHandler : IRequestHandler<UnFollowTeacherComm
 {
     private readonly IFollowRepository _followRepository;
     private readonly ITeacherRepository _teacherRepository;
-
+    private readonly ICurrentUserService _currentUserService;
     public UnFollowTeacherCommandHandler(IFollowRepository followRepository, ITeacherRepository teacherRepository)
     {
         _followRepository = followRepository;
@@ -14,12 +14,13 @@ public class UnFollowTeacherCommandHandler : IRequestHandler<UnFollowTeacherComm
 
     public async Task<bool> Handle(UnFollowTeacherCommand request, CancellationToken cancellationToken)
     {
-        var existingFollow = await _followRepository.IsFollowing(request.StudentId, request.TeacherId);
+        var currentUserId = _currentUserService.UserId;
+        var existingFollow = await _followRepository.IsFollowing(currentUserId, request.TeacherId);
         if (!existingFollow)
         {
             throw new Exception("You are not following this teacher");
         }
          
-        return await _followRepository.UnFollow(request.StudentId, request.TeacherId);
+        return await _followRepository.UnFollow(currentUserId, request.TeacherId);
     }
 }

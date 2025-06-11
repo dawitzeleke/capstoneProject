@@ -51,7 +51,11 @@ public class SignInQueryHandler : IRequestHandler<SignInQuery, AuthResponseDto>
                 {
                     Email = student.Email,
                     Token = _jwtTokenGenerator.GenerateToken(student.Id, student.Email, UserRole.Student.ToString()),
-                    Role = UserRole.Student
+                    Role = UserRole.Student,
+                    FirstName = student.FirstName,
+                    LastName = student.LastName,
+                    ProfilePictureUrl = student.ProfilePictureUrl,
+                    Id = student.Id
                 };
             }
         }
@@ -67,7 +71,11 @@ public class SignInQueryHandler : IRequestHandler<SignInQuery, AuthResponseDto>
                 {
                     Email = teacher.Email,
                     Token = _jwtTokenGenerator.GenerateToken(teacher.Id, teacher.Email, UserRole.Teacher.ToString()),
-                    Role = UserRole.Teacher
+                    Role = UserRole.Teacher,
+                    FirstName = teacher.FirstName,
+                    LastName = teacher.LastName,
+                    ProfilePictureUrl = teacher.ProfilePictureUrl,
+                    Id = teacher.Id
                 };
             }
         }
@@ -85,7 +93,11 @@ public class SignInQueryHandler : IRequestHandler<SignInQuery, AuthResponseDto>
                 {
                     Email = admin.Email,
                     Token = _jwtTokenGenerator.GenerateToken(admin.Id, admin.Email, role.ToString()),
-                    Role = role
+                    Role = role,
+                    FirstName = admin.FirstName,
+                    LastName = admin.LastName,
+                    ProfilePictureUrl = admin.ProfilePictureUrl,
+                    Id = admin.Id
                 };
             }
         }
