@@ -61,11 +61,17 @@ const SignIn = () => {
       formData.append("password", form.Password);
 
       const endpoint = "auth/signin";
-      const response = await httpRequest(endpoint, formData, "POST", {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await httpRequest(
+        endpoint,
+        formData,
+        "POST",
+        undefined,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       dispatch(
         setUser({

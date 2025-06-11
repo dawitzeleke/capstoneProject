@@ -12,11 +12,15 @@ import { Cognify } from "../constants/images";
 import LottieView from "lottie-react-native";
 import { useEffect, useRef, useState } from "react";
 import { getUserData } from "@/scripts/storage";
+import { rehydrateApp } from "@/redux/rehydrate";
+import { AppDispatch } from "@/redux/store";
 import { useRouter } from "expo-router";
+import { useDispatch } from "react-redux";
 
 export default function App() {
   const animationRef = useRef(null);
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,6 +29,13 @@ export default function App() {
   useEffect(() => {
     const loadUser = async () => {
       const user = await getUserData();
+      try {
+        await rehydrateApp(dispatch);
+      } catch (error) {
+        console.error("Failed to load user data:", error);
+        setLoading(false);
+        return;
+      }
       if (user?.role === "Teacher") setUserRole("Teacher");
       else if (user?.role === "Student") setUserRole("Student");
       else setUserRole(null);
@@ -33,7 +44,7 @@ export default function App() {
 
     loadUser();
   }, []);
-
+console.log("User Role:0000000000000000000000000000000000000", userRole);
   // 👇 Redirect to role-based tab layouts
   useEffect(() => {
     if (!loading) {

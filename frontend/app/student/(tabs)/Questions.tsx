@@ -19,13 +19,13 @@ const { height } = Dimensions.get("window"); // Get device height
 
 const Questions = () => {
   const dispatch = useDispatch();
-
-  // Dispatch loadQuestions when component mounts
+  const user = useSelector((state: RootState) => state.user.user);
+  const token = user?.token; // Get the token from the user state
   useEffect(() => {
     const loadQuest = async () => {
       dispatch(setLoading());
       try {
-        const response = await httpRequest("/Questions/", null, "GET");
+        const response = await httpRequest("/Questions/", null, "GET", token);
         console.log("here", response);
         // const resonse2 = await httpRequest("/Video", null, "GET");
         // const resonse3 = await httpRequest("/imagecontent", null, "GET");
@@ -33,7 +33,7 @@ const Questions = () => {
         // console.log(resonse3.data);
         dispatch(setQuestions(response.data.items));
       } catch (err) {
-        console.error("Failed to load user", err);
+        console.error(err);
         console.log(err);
       } finally {
         dispatch(setLoading());
@@ -115,13 +115,6 @@ const Questions = () => {
   const displayReport = useSelector(
     (state: RootState) => state.option.isReportOpen
   );
-  const user = useSelector(
-    (state: RootState) => state.user.user
-  );
-
-  console.log(user, "user");
-  console.log(questions);
-  console.log(isLoading)
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar
