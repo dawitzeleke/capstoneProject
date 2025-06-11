@@ -1,8 +1,18 @@
-import { View, FlatList, TouchableOpacity, Text, Image, Pressable, Modal } from "react-native";
+import {
+  View,
+  FlatList,
+  TouchableOpacity,
+  Text,
+  Image,
+  Pressable,
+  Modal,
+} from "react-native";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import ChatBubble from "../../../components/ChatBubble";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { rehydrateApp } from "@/redux/rehydrate";
 import { useState } from "react";
 
 const messages = [
@@ -15,7 +25,7 @@ const messages = [
     time: "1h ago",
     likes: 45,
     comments: 12,
-    reposts: 5
+    reposts: 5,
   },
   {
     id: "2",
@@ -26,7 +36,7 @@ const messages = [
     image: "https://picsum.photos/500/300",
     likes: 23,
     comments: 8,
-    reposts: 3
+    reposts: 3,
   },
   {
     id: "3",
@@ -37,11 +47,24 @@ const messages = [
     time: "3h ago",
     likes: 67,
     comments: 15,
-    reposts: 9
+    reposts: 9,
   },
 ];
 
 const Home = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const prepareApp = async () => {
+      try {
+        await rehydrateApp(dispatch);
+      } catch (e) {
+        console.error("Rehydrate failed:", e);
+      }
+    };
+
+    prepareApp();
+  }, []);
   const currentTheme = useSelector((state: any) => state.theme.mode);
   const isDark = currentTheme === "dark";
   const [likedPosts, setLikedPosts] = useState<string[]>([]);
@@ -54,13 +77,13 @@ const Home = () => {
     { id: 2, title: "Incorrect Information", icon: "alert-circle-outline" },
     { id: 3, title: "Non-Educational", icon: "school-outline" },
     { id: 4, title: "Spam", icon: "mail-unread-outline" },
-    { id: 5, title: "Inappropriate Content", icon: "warning-outline" }
+    { id: 5, title: "Inappropriate Content", icon: "warning-outline" },
   ];
 
   const handleLike = (postId: string) => {
-    setLikedPosts(prev => 
-      prev.includes(postId) 
-        ? prev.filter(id => id !== postId)
+    setLikedPosts((prev) =>
+      prev.includes(postId)
+        ? prev.filter((id) => id !== postId)
         : [...prev, postId]
     );
   };
@@ -82,49 +105,57 @@ const Home = () => {
     setSelectedPost(null);
   };
 
-  const renderPostActions = (post: typeof messages[0]) => (
+  const renderPostActions = (post: (typeof messages)[0]) => (
     <View className="flex-row items-center justify-between mt-3 px-2">
-      <Pressable 
+      <Pressable
         onPress={() => handleLike(post.id)}
-        className="flex-row items-center space-x-1"
-      >
-        <AntDesign 
-          name={likedPosts.includes(post.id) ? "heart" : "hearto"} 
-          size={20} 
-          color={likedPosts.includes(post.id) ? "#ef4444" : isDark ? "#e5e5e5" : "#64748b"} 
+        className="flex-row items-center space-x-1">
+        <AntDesign
+          name={likedPosts.includes(post.id) ? "heart" : "hearto"}
+          size={20}
+          color={
+            likedPosts.includes(post.id)
+              ? "#ef4444"
+              : isDark
+              ? "#e5e5e5"
+              : "#64748b"
+          }
         />
-        <Text className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+        <Text
+          className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
           {likedPosts.includes(post.id) ? post.likes + 1 : post.likes}
         </Text>
       </Pressable>
 
       <Pressable className="flex-row items-center space-x-1">
-        <Ionicons 
-          name="chatbubble-outline" 
-          size={20} 
-          color={isDark ? "#e5e5e5" : "#64748b"} 
+        <Ionicons
+          name="chatbubble-outline"
+          size={20}
+          color={isDark ? "#e5e5e5" : "#64748b"}
         />
-        <Text className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+        <Text
+          className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
           {post.comments}
         </Text>
       </Pressable>
 
       <Pressable className="flex-row items-center space-x-1">
-        <MaterialIcons 
-          name="repeat" 
-          size={20} 
-          color={isDark ? "#e5e5e5" : "#64748b"} 
+        <MaterialIcons
+          name="repeat"
+          size={20}
+          color={isDark ? "#e5e5e5" : "#64748b"}
         />
-        <Text className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+        <Text
+          className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
           {post.reposts}
         </Text>
       </Pressable>
 
       <Pressable>
-        <Ionicons 
-          name="share-outline" 
-          size={20} 
-          color={isDark ? "#e5e5e5" : "#64748b"} 
+        <Ionicons
+          name="share-outline"
+          size={20}
+          color={isDark ? "#e5e5e5" : "#64748b"}
         />
       </Pressable>
     </View>
@@ -135,7 +166,10 @@ const Home = () => {
       {/* Header */}
       <View className="flex-row justify-between items-center px-5 pt-6 pb-3 border-b border-gray-200">
         <View className="flex-row items-center space-x-3">
-          <Text className={`text-xl mt-2 font-pbold ${isDark ? "text-white" : "text-gray-900"}`}>
+          <Text
+            className={`text-xl mt-2 font-pbold ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}>
             Feed
           </Text>
         </View>
@@ -147,7 +181,9 @@ const Home = () => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View>
-            <View className={`h-[1px] ${isDark ? "bg-gray-800" : "bg-gray-200"}`} />
+            <View
+              className={`h-[1px] ${isDark ? "bg-gray-800" : "bg-gray-200"}`}
+            />
             <View className="mb-4">
               <ChatBubble
                 message={item.message}
@@ -160,7 +196,9 @@ const Home = () => {
               />
               {renderPostActions(item)}
             </View>
-            <View className={`h-[1px] ${isDark ? "bg-gray-800" : "bg-gray-200"}`} />
+            <View
+              className={`h-[1px] ${isDark ? "bg-gray-800" : "bg-gray-200"}`}
+            />
           </View>
         )}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
@@ -175,49 +213,54 @@ const Home = () => {
         onRequestClose={() => {
           setShowOptionsModal(false);
           setShowReportCategories(false);
-        }}
-      >
-        <Pressable 
+        }}>
+        <Pressable
           className="flex-1 justify-end bg-black/50"
           onPress={() => {
             setShowOptionsModal(false);
             setShowReportCategories(false);
-          }}
-        >
-          <View className={`${isDark ? "bg-gray-900" : "bg-white"} rounded-t-3xl`}>
+          }}>
+          <View
+            className={`${isDark ? "bg-gray-900" : "bg-white"} rounded-t-3xl`}>
             <View className="w-12 h-1 bg-gray-400 rounded-full self-center my-3" />
-            
+
             {!showReportCategories ? (
-              <Pressable 
+              <Pressable
                 onPress={handleReport}
-                className="flex-row items-center px-6 py-4 border-b border-gray-200"
-              >
-                <Ionicons 
-                  name="flag-outline" 
-                  size={24} 
-                  color="#ef4444" 
+                className="flex-row items-center px-6 py-4 border-b border-gray-200">
+                <Ionicons
+                  name="flag-outline"
+                  size={24}
+                  color="#ef4444"
                   className="mr-3"
                 />
-                <Text className="text-red-500 font-psemibold text-lg">Report</Text>
+                <Text className="text-red-500 font-psemibold text-lg">
+                  Report
+                </Text>
               </Pressable>
             ) : (
               <View>
-                <Text className={`text-center font-pmedium text-lg mb-4 ${isDark ? "text-gray-300" : "text-gray-800"}`}>
+                <Text
+                  className={`text-center font-pmedium text-lg mb-4 ${
+                    isDark ? "text-gray-300" : "text-gray-800"
+                  }`}>
                   Why are you reporting this?
                 </Text>
                 {reportCategories.map((category) => (
                   <Pressable
                     key={category.id}
                     onPress={() => handleReportCategory(category.id)}
-                    className="flex-row items-center px-6 py-4 border-b border-gray-200"
-                  >
-                    <Ionicons 
+                    className="flex-row items-center px-6 py-4 border-b border-gray-200">
+                    <Ionicons
                       name={category.icon as any}
-                      size={24} 
+                      size={24}
                       color={isDark ? "#e5e5e5" : "#64748b"}
                       className="mr-3"
                     />
-                    <Text className={`font-pmedium text-base ${isDark ? "text-gray-300" : "text-gray-800"}`}>
+                    <Text
+                      className={`font-pmedium text-base ${
+                        isDark ? "text-gray-300" : "text-gray-800"
+                      }`}>
                       {category.title}
                     </Text>
                   </Pressable>
@@ -225,14 +268,16 @@ const Home = () => {
               </View>
             )}
 
-            <Pressable 
+            <Pressable
               onPress={() => {
                 setShowOptionsModal(false);
                 setShowReportCategories(false);
               }}
-              className="p-4"
-            >
-              <Text className={`text-center font-pmedium ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+              className="p-4">
+              <Text
+                className={`text-center font-pmedium ${
+                  isDark ? "text-gray-400" : "text-gray-600"
+                }`}>
                 Cancel
               </Text>
             </Pressable>

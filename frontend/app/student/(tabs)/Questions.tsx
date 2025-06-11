@@ -25,13 +25,13 @@ const Questions = () => {
     const loadQuest = async () => {
       dispatch(setLoading());
       try {
-        const response = await httpRequest("/api/Questions/", null, "GET");
+        const response = await httpRequest("/Questions/", null, "GET");
         console.log("here", response);
-        const resonse2 = await httpRequest("/api/Video", null, "GET");
-        const resonse3 = await httpRequest("/api/imagecontent", null, "GET");
-        console.log(resonse2.data, "herey");
-        console.log(resonse3.data);
-        dispatch(setQuestions(response));
+        // const resonse2 = await httpRequest("/Video", null, "GET");
+        // const resonse3 = await httpRequest("/imagecontent", null, "GET");
+        // console.log(resonse2.data, "herey");
+        // console.log(resonse3.data);
+        dispatch(setQuestions(response.data.items));
       } catch (err) {
         console.error("Failed to load user", err);
         console.log(err);
@@ -52,8 +52,6 @@ const Questions = () => {
     likes: string;
     isLike: boolean;
   };
-
-  const sampleQuestions = [];
 
   const videos: VideoItem[] = [
     {
@@ -108,7 +106,7 @@ const Questions = () => {
 
   // Function to load more questions (dispatch an action)
   const loadMoreQuestions = () => {
-    // dispatch(setLoading());
+    dispatch(setLoading());
   };
 
   const displayOption = useSelector(
@@ -117,8 +115,13 @@ const Questions = () => {
   const displayReport = useSelector(
     (state: RootState) => state.option.isReportOpen
   );
+  const user = useSelector(
+    (state: RootState) => state.user.user
+  );
 
+  console.log(user, "user");
   console.log(questions);
+  console.log(isLoading)
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar
@@ -145,7 +148,7 @@ const Questions = () => {
       )}
 
       {/* Render the list of questions only if not loading */}
-      {!isLoading && questions.length > 0 ? (
+      {isLoading && questions.length > 0 ? (
         <QuestionsList
           questions={questions}
           loadMoreQuestions={loadMoreQuestions}

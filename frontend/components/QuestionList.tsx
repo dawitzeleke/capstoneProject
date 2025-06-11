@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { FlatList, useWindowDimensions, View, ViewToken } from "react-native";
 import { useSelector } from "react-redux";
+import {loadMoreQuestions} from "../redux/questionsReducer/questionAction"; // Adjust the import path as needed
 import QuestionCard from "./QuestionCard";
 import QuestionSkeleton from "./QuestionSkeleton";
 import VideoCard from "./VideoCard";
@@ -117,7 +118,7 @@ const QuestionsList: React.FC<QuestionsListProps> = ({
       onEndReached={hasMoreQuestions ? loadMoreQuestions : undefined}
       onEndReachedThreshold={0.1}
       ListFooterComponent={
-        !isLoading ? (
+        isLoading ? (
           <View
             className="flex justify-center items-center"
             style={{ height: adjustedHeight, width: "100%" }}>
