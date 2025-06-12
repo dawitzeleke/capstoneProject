@@ -41,8 +41,7 @@ namespace backend.Persistence.Repositories
             {
                 return entity;
             }
-
-            throw new Exception($"Update failed. Entity with Id {entity.Id} may not exist.");
+            return null;
         }
 
 

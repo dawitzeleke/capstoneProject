@@ -31,7 +31,13 @@ public class UpdateStudentSettingsCommandHandler : IRequestHandler<UpdateStudent
 
     public async Task<bool> Handle(UpdateStudentSettingsCommand request, CancellationToken cancellationToken)
     {
-        var student = await _studentRepository.GetByIdAsync(_currentUserService.UserId);
+        var studentId = _currentUserService.UserId;
+        if (string.IsNullOrWhiteSpace(studentId))
+            Console.WriteLine("User ID is not available");
+            throw new Exception("User ID is not available");
+
+        Console.WriteLine($"Updating student settings for studentId: {studentId}");
+        var student = await _studentRepository.GetByIdAsync(studentId);
         if (student == null)
             throw new Exception("Student not found");
 
