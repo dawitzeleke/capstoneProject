@@ -12,6 +12,7 @@ using backend.Domain.Common;
 using backend.Domain.Entities;
 using Domain.Entities;
 using backend.Application.Mappings;
+using backend.Application.Services;
 
 namespace backend.Persistence;
 
@@ -66,6 +67,9 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IStudentQuestionAttemptsRepository, StudentQuestionAttemptsRepository>();
         services.AddScoped<ILikeRepository, LikeRepository>();
         services.AddScoped<ISaveRepository, SaveRepository>();
+        services.AddScoped<IQuestionRecommendationRepository, QuestionRecommendationRepository>();
+        services.AddScoped<QuestionRecommendationService>();
+
         return services;
     }
 }
