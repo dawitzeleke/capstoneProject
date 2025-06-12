@@ -54,4 +54,11 @@ public class TeachersController : ControllerBase
 
         return Ok("Settings updated successfully.");
     }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchByName([FromQuery] SearchTeacherByNameQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
 }
