@@ -17,10 +17,11 @@ public class StudentsController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize(Roles = "Student")]
     [HttpGet("settings")]
-    public async Task<IActionResult> GetSettings([FromQuery] string email)
+    public async Task<IActionResult> GetSettings()
     {
-        var query = new GetStudentSettingsQuery { Email = email };
+        var query = new GetStudentSettingsQuery {};
         var result = await _mediator.Send(query);
         return Ok(result);
     }
