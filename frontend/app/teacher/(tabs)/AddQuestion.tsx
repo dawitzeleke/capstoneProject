@@ -247,7 +247,7 @@ const AddQuestion = () => {
   const handleConfirmPost = useCallback(async () => {
     setIsPosting(true);
     try {
-    
+   
       const questionPayload = new FormData();
       questionPayload.append("QuestionText", formState.questionText);
       questionPayload.append("Description", formState.description);

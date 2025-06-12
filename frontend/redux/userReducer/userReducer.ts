@@ -1,33 +1,41 @@
-// userReducer.ts
-
-import { GET_USER, SET_USER, CLEAR_USER, SET_LOADING, SET_ERROR } from './userActionTypes';
-import { UserAction } from './userActions';
-
-// ✅ User interface based on your correct structure
-export interface User {
+// Define User type with the required properties
+interface User {
+  id: string;
+  image: string;
+  name: string;
   token: string;
-  email: string;
-  role: string;
+  role: string; // role can be student, teacher, or other string
 }
 
-// ✅ State interface for the user slice
-export interface UserState {
+// Define UserState using the User type
+interface UserState {
   user: User | null;
   loading: boolean;
   error: string | null;
 }
 
-// ✅ Initial state
+// Action types constants (should match your userActionTypes)
+const GET_USER = "GET_USER";
+const SET_USER = "SET_USER";
+const CLEAR_USER = "CLEAR_USER";
+const SET_LOADING = "SET_LOADING";
+const SET_ERROR = "SET_ERROR";
+const REHYDRATE_USER = "REHYDRATE_USER";
+
+// You probably already have UserAction imported; 
+// but if not, define UserAction union here with appropriate payloads.
+
+// Initial state
 const initialState: UserState = {
   user: null,
   loading: false,
   error: null,
 };
 
-// ✅ Reducer function
+// Reducer function
 export const userReducer = (
   state = initialState,
-  action: UserAction
+  action: any // You can replace 'any' with your UserAction union type
 ): UserState => {
   switch (action.type) {
     case GET_USER:
@@ -57,6 +65,14 @@ export const userReducer = (
       return {
         ...state,
         loading: action.payload,
+      };
+
+    case REHYDRATE_USER:
+      return {
+        ...state,
+        user: action.payload,
+        loading: false,
+        error: null,
       };
 
     case SET_ERROR:
