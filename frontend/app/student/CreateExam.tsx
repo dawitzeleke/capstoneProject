@@ -14,14 +14,13 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import LottieView from "lottie-react-native"; 
+import LottieView from "lottie-react-native";
 import { setCustomExam } from "@/redux/CustomExamReducer/customExamReducerActions";
 import { useRef } from "react";
 import { useRouter } from "expo-router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
-import { useSelector } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
 import httpRequest from "@/util/httpRequest";
 
@@ -53,25 +52,26 @@ export default function CreateCustomExamScreen() {
     subject: "",
     difficulty: "Easy",
   });
-  
+
   const [stream, setStream] = useState<StreamType>("Natural");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const animationRef = useRef(null);
+  const user = useSelector((state: any) => state.user.user);
   const dispatch = useDispatch();
   const toggleDropdown = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setDropdownOpen(!dropdownOpen);
   };
-  
+
   const handleSubmit = async () => {
     setShowOverlay(true);
     setError(null);
     try {
       const params = {
         grade: 10, // You can make this dynamic if needed
-        stream:"NaturalScience", // You can make this dynamic if needed
+        stream: "NaturalScience", // You can make this dynamic if needed
         courseName: form.subject,
         limit: parseInt(form.questions, 10),
         lastSolveCount: 0,
@@ -82,7 +82,13 @@ export default function CreateCustomExamScreen() {
         .filter(([_, v]) => v !== undefined && v !== "")
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join("&");
-      const response = await httpRequest(`/api/Questions?${queryString}`, null, "GET");
+      const response = await httpRequest(
+        `/Questions?${queryString}`,
+        null,
+        "GET",
+        user?.token
+      );
+      console.log("Fetched questions:", response.data.items);
       dispatch(setCustomExam(response.data.items));
       setShowOverlay(false);
       // You can pass response to the next page if needed
@@ -94,54 +100,59 @@ export default function CreateCustomExamScreen() {
   };
 
   return (
-    <SafeAreaView className={`flex-1 ${currentTheme === "dark" ? "bg-gray-900" : "bg-[#f1f3fc]"}`}>
+    <SafeAreaView
+      className={`flex-1 ${
+        currentTheme === "dark" ? "bg-gray-900" : "bg-[#f1f3fc]"
+      }`}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
-      >
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}>
         <ScrollView
           className="flex-1 px-6 pt-10"
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ flexGrow: 1 }}
-        >
+          contentContainerStyle={{ flexGrow: 1 }}>
           {/* Header */}
           <View className="mb-8">
             <View className="flex-row items-center justify-between mb-6">
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => router.back()}
                 style={{
-                  backgroundColor: currentTheme === "dark" ? "#1f2937" : "#f1f3fc",
+                  backgroundColor:
+                    currentTheme === "dark" ? "#1f2937" : "#f1f3fc",
                   borderRadius: 100,
                   padding: 10,
-                }}
-              >
+                }}>
                 <Ionicons
                   name="chevron-back"
                   size={24}
                   color={currentTheme === "dark" ? "#fff" : "#000"}
                 />
               </TouchableOpacity>
-              <Text className={`text-xl font-psemibold ${
-                currentTheme === "dark" ? "text-white" : "text-gray-800"
-              }`}>
+              <Text
+                className={`text-xl font-psemibold ${
+                  currentTheme === "dark" ? "text-white" : "text-gray-800"
+                }`}>
                 Create Custom Exam
               </Text>
               <View className="w-10" />
             </View>
           </View>
 
-
           {/* Questions Input */}
           <View className="mb-6">
-            <Text className={`text-base font-pmedium mb-3 ${
-              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
-            }`}>
+            <Text
+              className={`text-base font-pmedium mb-3 ${
+                currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+              }`}>
               Number of Questions
             </Text>
-            <View className={`flex-row items-center px-4 py-3 rounded-xl border ${
-              currentTheme === "dark" ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
-            }`}>
+            <View
+              className={`flex-row items-center px-4 py-3 rounded-xl border ${
+                currentTheme === "dark"
+                  ? "border-gray-700 bg-gray-800"
+                  : "border-gray-200 bg-white"
+              }`}>
               <MaterialIcons
                 name="help-outline"
                 size={24}
@@ -157,21 +168,27 @@ export default function CreateCustomExamScreen() {
                 className={`flex-1 ml-3 text-base font-pregular ${
                   currentTheme === "dark" ? "text-white" : "text-gray-900"
                 }`}
-                placeholderTextColor={currentTheme === "dark" ? "#9CA3AF" : "#6B7280"}
+                placeholderTextColor={
+                  currentTheme === "dark" ? "#9CA3AF" : "#6B7280"
+                }
               />
             </View>
           </View>
 
           {/* Exam Time Input */}
           <View className="mb-6">
-            <Text className={`text-base font-pmedium mb-3 ${
-              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
-            }`}>
+            <Text
+              className={`text-base font-pmedium mb-3 ${
+                currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+              }`}>
               Exam Duration (minutes)
             </Text>
-            <View className={`flex-row items-center px-4 py-3 rounded-xl border ${
-              currentTheme === "dark" ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
-            }`}>
+            <View
+              className={`flex-row items-center px-4 py-3 rounded-xl border ${
+                currentTheme === "dark"
+                  ? "border-gray-700 bg-gray-800"
+                  : "border-gray-200 bg-white"
+              }`}>
               <MaterialIcons
                 name="timer"
                 size={24}
@@ -187,16 +204,19 @@ export default function CreateCustomExamScreen() {
                 className={`flex-1 ml-3 text-base font-pregular ${
                   currentTheme === "dark" ? "text-white" : "text-gray-900"
                 }`}
-                placeholderTextColor={currentTheme === "dark" ? "#9CA3AF" : "#6B7280"}
+                placeholderTextColor={
+                  currentTheme === "dark" ? "#9CA3AF" : "#6B7280"
+                }
               />
             </View>
           </View>
 
           {/* Difficulty Selection */}
           <View className="mb-6">
-            <Text className={`text-base font-pmedium mb-3 ${
-              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
-            }`}>
+            <Text
+              className={`text-base font-pmedium mb-3 ${
+                currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+              }`}>
               Difficulty Level
             </Text>
             <View className="flex-row space-x-3">
@@ -206,12 +226,11 @@ export default function CreateCustomExamScreen() {
                   onPress={() => setForm({ ...form, difficulty: level })}
                   className={`flex-1 py-3 px-4 rounded-xl border ${
                     form.difficulty === level
-                      ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30"
+                      ? "border-indigo-500 bg-white dark:bg-indigo-900/30"
                       : currentTheme === "dark"
                       ? "border-gray-700 bg-gray-800"
                       : "border-gray-200 bg-white"
-                  }`}
-                >
+                  }`}>
                   <Text
                     className={`text-center font-pmedium ${
                       form.difficulty === level
@@ -219,8 +238,7 @@ export default function CreateCustomExamScreen() {
                         : currentTheme === "dark"
                         ? "text-gray-400"
                         : "text-gray-600"
-                    }`}
-                  >
+                    }`}>
                     {level}
                   </Text>
                 </Pressable>
@@ -230,20 +248,23 @@ export default function CreateCustomExamScreen() {
 
           {/* Subject Selection */}
           <View className="mb-8">
-            <Text className={`text-base font-pmedium mb-3 ${
-              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
-            }`}>
+            <Text
+              className={`text-base font-pmedium mb-3 ${
+                currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+              }`}>
               Subject
             </Text>
             <Pressable
               onPress={toggleDropdown}
               className={`px-4 py-3 rounded-xl border flex-row justify-between items-center ${
-                currentTheme === "dark" ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
-              }`}
-            >
-              <Text className={`font-pregular ${
-                currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
+                currentTheme === "dark"
+                  ? "border-gray-700 bg-gray-800"
+                  : "border-gray-200 bg-white"
               }`}>
+              <Text
+                className={`font-pregular ${
+                  currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
+                }`}>
                 {form.subject || "Select a subject"}
               </Text>
               <FontAwesome
@@ -254,9 +275,12 @@ export default function CreateCustomExamScreen() {
             </Pressable>
 
             {dropdownOpen && (
-              <View className={`mt-2 rounded-xl border overflow-hidden ${
-                currentTheme === "dark" ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
-              }`}>
+              <View
+                className={`mt-2 rounded-xl border overflow-hidden ${
+                  currentTheme === "dark"
+                    ? "border-gray-700 bg-gray-800"
+                    : "border-gray-200 bg-white"
+                }`}>
                 {subjectsByStream[stream].map((subj) => (
                   <Pressable
                     key={subj}
@@ -265,12 +289,16 @@ export default function CreateCustomExamScreen() {
                       setDropdownOpen(false);
                     }}
                     className={`px-4 py-3 border-b ${
-                      currentTheme === "dark" ? "border-gray-700" : "border-gray-100"
-                    }`}
-                  >
-                    <Text className={`font-pregular ${
-                      currentTheme === "dark" ? "text-gray-300" : "text-gray-800"
+                      currentTheme === "dark"
+                        ? "border-gray-700"
+                        : "border-gray-100"
                     }`}>
+                    <Text
+                      className={`font-pregular ${
+                        currentTheme === "dark"
+                          ? "text-gray-300"
+                          : "text-gray-800"
+                      }`}>
                       {subj}
                     </Text>
                   </Pressable>
@@ -291,7 +319,7 @@ export default function CreateCustomExamScreen() {
 
           {/* Overlay */}
           {showOverlay && (
-              <Modal
+            <Modal
               transparent={true}
               visible={showOverlay}
               animationType="fade"
@@ -299,7 +327,9 @@ export default function CreateCustomExamScreen() {
               <View
                 className="flex-1 justify-center items-center bg-black opacity-80"
                 style={{ zIndex: 999 }}>
-                <View className="rounded-xl justify-center items-center p-6 shadow-lg" style={{ zIndex: 1000 }}>
+                <View
+                  className="rounded-xl justify-center items-center p-6 shadow-lg"
+                  style={{ zIndex: 1000 }}>
                   <LottieView
                     ref={animationRef}
                     source={require("../../assets/animations/generating.json")}

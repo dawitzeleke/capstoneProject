@@ -14,10 +14,10 @@ public class FollowRepository : GenericRepository<Follow>, IFollowRepository
 
 
 
-    public async Task<bool> IsFollowing(string studentId, string teacherId)
+    public async Task<bool> IsFollowing(string followerId, string teacherId)
     {
         var filter = Builders<Follow>.Filter.And(
-            Builders<Follow>.Filter.Eq(f => f.StudentId, studentId),
+            Builders<Follow>.Filter.Eq(f => f.FollowerId, followerId),
             Builders<Follow>.Filter.Eq(f => f.TeacherId, teacherId)
         );
 
@@ -25,10 +25,10 @@ public class FollowRepository : GenericRepository<Follow>, IFollowRepository
         return count > 0;
     }
     
-    public async Task<bool> UnFollow(string studentId, string teacherId)
+    public async Task<bool> UnFollow(string followerId, string teacherId)
     {
         var filter = Builders<Follow>.Filter.And(
-            Builders<Follow>.Filter.Eq(f => f.StudentId, studentId),
+            Builders<Follow>.Filter.Eq(f => f.FollowerId, followerId),
             Builders<Follow>.Filter.Eq(f => f.TeacherId, teacherId)
         );
 
@@ -36,9 +36,9 @@ public class FollowRepository : GenericRepository<Follow>, IFollowRepository
         return result.DeletedCount > 0;
     }
 
-    public async Task<List<Follow>> GetByStudentIdAsync(string studentId)
+    public async Task<List<Follow>> GetByStudentIdAsync(string followerId)
     {
-        var filter = Builders<Follow>.Filter.Eq(f => f.StudentId, studentId);
+        var filter = Builders<Follow>.Filter.Eq(f => f.FollowerId, followerId);
         return await _follows.Find(filter).ToListAsync();
     }
 }

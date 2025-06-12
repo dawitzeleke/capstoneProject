@@ -40,7 +40,9 @@ public class VerificationRequestCommandHandler : IRequestHandler<VerificationReq
         teacher.VerificationStatus = VerificationStatus.Pending;
         teacher.VerificationRequestDate = DateTime.UtcNow;
         teacher.LicenseDocumentUrl = UploadTeacherLicense.Url;
-        teacher.GraduationDocumentUrl = UploadTeacherGraduation.Url;  
+        teacher.GraduationDocumentUrl = UploadTeacherGraduation.Url;
+        teacher.SchoolName = request.SchoolName;
+        teacher.NationalId = request.NationalId; 
 
         await _teacherRepository.UpdateAsync(teacher);
         return true;

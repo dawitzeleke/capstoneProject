@@ -9,7 +9,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import httpRequest from "@/util/httpRequest";
 import { saveToken } from "@/scripts/storage";
 
-type Stream = "Natural" | "Social";
+type Stream = "NaturalScience" | "SocialSience";
 
 type UserForm = {
   firstName: string;
@@ -25,8 +25,8 @@ type UserForm = {
 type FormErrors = Partial<Record<keyof UserForm, string>>;
 
 const subjectsByStream: Record<Stream, string[]> = {
-  Natural: ["Biology", "Physics", "Chemistry", "Mathematics"],
-  Social: ["History", "Geography", "Economics", "Civics"],
+  NaturalScience: ["Biology", "Physics", "Chemistry", "Mathematics"],
+  SocialSience: ["History", "Geography", "Economics", "Civics"],
 };
 
 const grades = ["9", "10", "11", "12"];
@@ -40,7 +40,7 @@ const SignUp = () => {
     password: "",
     phoneNumber: "",
     grade: "",
-    stream: "Natural",
+    stream: "NaturalScience",
     subject: "",
   });
   const [userType, setUserType] = useState<"Student" | "Teacher">("Student");
@@ -118,6 +118,7 @@ const SignUp = () => {
           <View className="flex-row justify-between mt-10 rounded-lg p-2 gap-2">
             {["Student", "Teacher"].map((type) => (
               <CustomButton
+              id="UserTypeButton"
                 key={type}
                 title={type}
                 handlePress={() => setUserType(type as "Student" | "Teacher")}
@@ -159,6 +160,7 @@ const SignUp = () => {
             keyboardType="email-address"
             placeholder="Enter your email"
             errorMessage={errors.email}
+            id="Email"
           />
           <FormField
             title="Password"
@@ -168,6 +170,7 @@ const SignUp = () => {
             secureTextEntry
             placeholder="Enter your password"
             errorMessage={errors.password}
+            id="Password"
           />
           <FormField
             title="Phone Number"
@@ -221,7 +224,7 @@ const SignUp = () => {
                 Stream
               </Text>
               <View className="flex-row gap-5 mb-2">
-                {["Natural", "Social"].map((stream) => (
+                {["NaturalScience", "SocialSience"].map((stream) => (
                   <Pressable
                     key={stream}
                     onPress={() =>
@@ -253,6 +256,7 @@ const SignUp = () => {
             disabled={submitting}
             containerStyles="mt-7 bg-blue-500"
             textStyles="text-white text-lg"
+            id ="SignUpButton"
           />
 
           <View className="justify-center pt-5 flex-row gap-2">

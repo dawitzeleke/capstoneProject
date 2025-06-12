@@ -2,21 +2,17 @@ import { View, Text, Image } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView } from "react-native-gesture-handler";
+import { useDispatch } from "react-redux";
 import { Link, useRouter } from "expo-router";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import httpRequest from "@/util/httpRequest";
-import { saveToken } from "@/scripts/storage";
-import { useDispatch } from "react-redux";
+import { saveUserData } from "@/scripts/storage";
 import { setUser } from "@/redux/userReducer/userActions";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-import type { AppDispatch } from "@/redux/store";
+import { AppDispatch } from "@/redux/store";
 
 const SignIn = () => {
   const router = useRouter();
-  const user = useSelector((state: RootState) => state.user.user);
-  console.log("User in SignIn:", user);
   const dispatch = useDispatch<AppDispatch>();
   const [form, setForm] = useState({
     Email: "",
@@ -64,21 +60,36 @@ const SignIn = () => {
       formData.append("email", form.Email);
       formData.append("password", form.Password);
 
-      const endpoint = "/api/auth/signin";
-      const response = await httpRequest(endpoint, formData, "POST", {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const endpoint = "auth/signin";
+      const response = await httpRequest(
+        endpoint,
+        formData,
+        "POST",
+        undefined,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      await saveToken(response.token);
+      dispatch(
+        setUser({
+          id: "1212",
+          image: "121",
+          name: "dagim",
+          token: response.token,
+          role: response.role,
+          email: response.email,
+        })
+      );
+      await saveUserData(response);
 
       if (response.role === "Student") {
         router.replace("/student/(tabs)/Home");
       } else {
         router.replace("/teacher/TeacherVerification");
       }
-      dispatch(setUser(response.user));
     } catch (error: any) {
       const serverError =
         error?.response?.data?.message || "Login failed. Please try again.";

@@ -41,7 +41,20 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(new DeleteBlogCommand { Id = id });
             return Ok(result);
         }
-
+        [Authorize(Roles = "Teacher, Student")]
+        [HttpPost("like")]
+        public async Task<IActionResult> LikeBlog([FromBody] LikeBlogCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+        [Authorize(Roles = "Teacher, Student")]
+        [HttpPost("save")]
+        public async Task<IActionResult> SaveBlog([FromBody] SaveBlogCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
         // [Authorize(Roles = "Teacher")]
         // [HttpGet("get/{id}")]
         // public async Task<IActionResult> GetBlog(string id)
@@ -89,5 +102,6 @@ namespace WebApi.Controllers
         //     var result = await _mediator.Send(query);
         //     return Ok(result);
         // }
+
     }
 }
