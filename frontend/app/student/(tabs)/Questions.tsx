@@ -19,18 +19,21 @@ const { height } = Dimensions.get("window"); // Get device height
 
 const Questions = () => {
   const dispatch = useDispatch();
-
-  // Dispatch loadQuestions when component mounts
+  const user = useSelector((state: RootState) => state.user.user);
+  const token = user?.token; // Get the token from the user state
   useEffect(() => {
     const loadQuest = async () => {
       dispatch(setLoading());
       try {
-        const response = await httpRequest("/api/Questions/", null, "GET");
+        const response = await httpRequest("/Questions/", null, "GET", token);
         console.log("here", response);
+        // const resonse2 = await httpRequest("/Video", null, "GET");
+        // const resonse3 = await httpRequest("/imagecontent", null, "GET");
+        // console.log(resonse2.data, "herey");
+        // console.log(resonse3.data);
         dispatch(setQuestions(response.data.items));
-         dispatch(setLoading());
       } catch (err) {
-        console.error("Failed to load user", err);
+        console.error(err);
         console.log(err);
       } finally {
         dispatch(setLoading());
@@ -49,8 +52,6 @@ const Questions = () => {
     likes: string;
     isLike: boolean;
   };
-
-  const sampleQuestions = [];
 
   const videos: VideoItem[] = [
     {
@@ -105,7 +106,7 @@ const Questions = () => {
 
   // Function to load more questions (dispatch an action)
   const loadMoreQuestions = () => {
-    // dispatch(setLoading());
+    dispatch(setLoading());
   };
 
   const displayOption = useSelector(
@@ -114,9 +115,6 @@ const Questions = () => {
   const displayReport = useSelector(
     (state: RootState) => state.option.isReportOpen
   );
-
-
-  console.log(questions);
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar
@@ -138,14 +136,12 @@ const Questions = () => {
           onPress={() => dispatch(closeOption())}
           className="absolute top-0 left-0 w-full flex items-center justify-center z-10 "
           style={{ height: height, backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-          <ReportOption
-            onClose={() => dispatch(closeOption())}
-          />
+          <ReportOption />
         </Pressable>
       )}
 
       {/* Render the list of questions only if not loading */}
-      {!isLoading && questions.length > 0 ? (
+      {isLoading && questions.length > 0 ? (
         <QuestionsList
           questions={questions}
           loadMoreQuestions={loadMoreQuestions}
