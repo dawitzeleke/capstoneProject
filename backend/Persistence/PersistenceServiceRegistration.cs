@@ -64,6 +64,8 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IMonthlyProgressRepository, MonthlyProgressRepository>();
         services.AddScoped<IStudentSolvedQuestionsRepository, StudentSolvedQuestionsRepository>();
         services.AddScoped<IStudentQuestionAttemptsRepository, StudentQuestionAttemptsRepository>();
+        services.AddScoped<ILikeRepository, LikeRepository>();
+        services.AddScoped<ISaveRepository, SaveRepository>();
         return services;
     }
 }

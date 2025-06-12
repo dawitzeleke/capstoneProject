@@ -247,23 +247,37 @@ const AddQuestion = () => {
   const handleConfirmPost = useCallback(async () => {
     setIsPosting(true);
     try {
-      const questionPayload = {
-        QuestionText: formState.questionText,
-        Description: formState.description,
-        Options: formState.options,
-        CorrectOption: formState.correctOption,
-        CourseName: formState.courseName,
-        Point: formState.point,
-        Grade: formState.grade,
-        Difficulty: formState.difficulty,
-        QuestionType: formState.questionType,
-        CreatedBy: formState.createdBy,
-        Stream: formState.stream,
-        Hint: formState.hint,
-        Tags: formState.tags,
-      };
+   
+      const questionPayload = new FormData();
+      questionPayload.append("QuestionText", formState.questionText);
+      questionPayload.append("Description", formState.description);
+      questionPayload.append("Options", JSON.stringify(formState.options));
+      questionPayload.append("CorrectOption", formState.correctOption);
+      questionPayload.append("CourseName", formState.courseName);
+      questionPayload.append("Point", formState.point.toString());
+      questionPayload.append("Grade", formState.grade.toString());
+      questionPayload.append("Difficulty", "0");
+      questionPayload.append("QuestionType", "0");
+      questionPayload.append("CreatedBy", formState.createdBy);
+      questionPayload.append("Stream", "0");
+      questionPayload.append("Hint", formState.hint);
+      questionPayload.append("Tags", JSON.stringify(formState.tags));
+      questionPayload.append("Explanation", "test explanation"); 
+      if (editingQuestionId) {
+        questionPayload.append("Id", editingQuestionId);
+      }
+      
+      
+      const method = editingQuestionId ? "PUT" : "POST";
+      const url = "/api/Questions";
 
-      const response = await httpRequest("/Questions", questionPayload, "POST");
+      const response = await httpRequest(url, questionPayload, method, {
+          headers: { "Content-Type": "multipart/form-data",
+          Accept: "application/json", 
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODJhZGE0Yzg3MWYwMjdmMzA0OTI2NmQiLCJlbWFpbCI6ImRhd2l0dGVhY2hlckBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjY4MmFkYTRjODcxZjAyN2YzMDQ5MjY2ZCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImRhd2l0dGVhY2hlckBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJUZWFjaGVyIiwianRpIjoiNGQ0MjRlNmMtNzFiZi00ZmJhLWE1NzItNjU5M2Y3YjJkYzg0IiwiZXhwIjoxNzUxMjA3OTEzLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMTkiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAifQ.GvFSaN2rynQLz92Iyw3yZUHujjcuirXn_RPpeNIg3qs`  // Include token if needed
+          },
+
+        });
 
       const questionToSubmit: QuestionItem = {
         ...formState,

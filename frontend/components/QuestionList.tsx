@@ -19,6 +19,7 @@ interface Question {
   feedbacks?: any[];
   grade?: number;
   point?: number;
+  type: "question"; // Assuming type is a string, adjust if necessary
   questionType?: string;
   report?: any;
 }

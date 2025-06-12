@@ -117,6 +117,8 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
     {
         if (solvedQuestions == null || !solvedQuestions.Any())
             return false;
+        
+        
 
         await _studentSolvedQuestions.InsertManyAsync(solvedQuestions);
         return true;

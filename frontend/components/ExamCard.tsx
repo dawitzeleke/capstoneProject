@@ -33,9 +33,6 @@ export default function ExamCard({
     const isSelected = selectedAnswer === opt;
     const isCorrect = question.correctOption === opt;
 
-    console.log("isSelected", isSelected);
-    console.log("isCorrect", isCorrect);
-
     if (mode === "exam") {
       return {
         container: `px-6 py-4 mb-3 rounded-xl border ${

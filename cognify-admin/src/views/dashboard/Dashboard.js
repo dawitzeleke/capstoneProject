@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import classNames from 'classnames'
+import { useDispatch } from 'react-redux'
 
 import {
   CAvatar,
@@ -53,8 +54,25 @@ import avatar6 from 'src/assets/images/avatars/6.jpg'
 import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import MainChart from './MainChart'
+import { httpRequest } from '../../util/httpRequest'
+import { fetchStatsRequest, fetchStatsSuccess, fetchStatsFailure } from '../../redux/statsReducer'
 
 const Dashboard = () => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    const fetchStats = async () => {
+      dispatch(fetchStatsRequest())
+      try {
+        const data = await httpRequest('/get-dashboard-stats', null, 'GET')
+        console.log('Dashboard stats:', data)
+        dispatch(fetchStatsSuccess(data))
+      } catch (err) {
+        dispatch(fetchStatsFailure(err.message || 'Failed to fetch stats'))
+      }
+    }
+    fetchStats()
+  }, [dispatch])
+
   const progressExample = [
     { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
     { title: 'Unique', value: '24.093 Users', percent: 20, color: 'info' },

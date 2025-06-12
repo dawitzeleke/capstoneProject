@@ -78,4 +78,47 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
     {
         return (int)await _questions.CountDocumentsAsync(_ => true);
     }
+
+    public async Task<bool> ToggleLike(string questionId, string userId)
+    {
+        var question = await _questions.Find(q => q.Id == questionId).FirstOrDefaultAsync();
+        if (question == null) return false;
+
+        bool hasLiked = question.Likes.Contains(userId);
+
+        UpdateDefinition<Question> update = hasLiked
+            ? Builders<Question>.Update.Pull(q => q.Likes, userId)
+            : Builders<Question>.Update.AddToSet(q => q.Likes, userId);
+
+        var result = await _questions.UpdateOneAsync(q => q.Id == questionId, update);
+        return result.ModifiedCount > 0;
+    }
+
+    public async Task<bool> AddRelatedBlog(string questionId, string blogId)
+    {
+        var update = Builders<Question>.Update.AddToSet(q => q.RelatedBlog, blogId);
+        var result = await _questions.UpdateOneAsync(q => q.Id == questionId, update);
+        return result.ModifiedCount > 0;
+    }
+
+    public async Task<bool> RemoveRelatedBlog(string questionId, string blogId)
+    {
+        var update = Builders<Question>.Update.Pull(q => q.RelatedBlog, blogId);
+        var result = await _questions.UpdateOneAsync(q => q.Id == questionId, update);
+        return result.ModifiedCount > 0;
+    }
+
+    public async Task<bool> UpdateTotalCorrectAnswers(List<string> questionIds, int value)
+    {
+        if (questionIds == null || !questionIds.Any())
+            return false;
+
+        var filter = Builders<Question>.Filter.In(q => q.Id, questionIds);
+        var update = Builders<Question>.Update.Inc(q => q.TotalCorrectAnswers, value);
+
+        var result = await _questions.UpdateManyAsync(filter, update);
+
+        return result.ModifiedCount > 0;
+    }
+
 }
