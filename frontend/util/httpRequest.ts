@@ -20,7 +20,6 @@ export const httpRequest = async (
 ) => {
   console.log("Making request to:", endpoint);
 
-  console.log("here", data);
   try {
     const response = await axiosInstance.request({
       url: endpoint,
