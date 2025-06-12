@@ -20,6 +20,7 @@ interface TabIconProps {
   size?: object;
   isProfile?: boolean;
   profileImage?: ImageSourcePropType;
+  testID?: string;
 }
 
 const TabIcon: React.FC<TabIconProps> = ({
@@ -30,9 +31,10 @@ const TabIcon: React.FC<TabIconProps> = ({
   focused,
   isProfile = false,
   profileImage,
+  testID,
 }) => {
   return (
-    <View className="items-center justify-center gap-1">
+    <View className="items-center justify-center gap-1" testID={testID}>
       {isProfile && profileImage ? (
         <View
           className={`w-6 h-6 rounded-full items-center justify-center overflow-hidden 
@@ -116,7 +118,7 @@ const TabsLayout: React.FC = () => {
             tabBarButton: CustomTabButton,
           }}
         />
-        <Tabs.Screen
+        <Tabs.Screen   
           name="Questions"
           options={{
             title: "Question",
@@ -127,6 +129,7 @@ const TabsLayout: React.FC = () => {
                 size={{ width: 18, height: 18 }}
                 name="Question"
                 focused={focused}
+                testID="tab-questions"
               />
             ),
             tabBarButton: CustomTabButton,

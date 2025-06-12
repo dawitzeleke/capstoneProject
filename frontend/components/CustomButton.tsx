@@ -13,6 +13,7 @@ interface CustomButtonProps {
   textStyles?: string;
   isLoading?: boolean;
   disabled?: boolean;
+  id?: string;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -22,9 +23,12 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   textStyles = "",
   isLoading = false,
   disabled = false,
+  id,
+
 }) => {
   return (
     <TouchableOpacity
+      id={id}
       onPress={handlePress}
       activeOpacity={0.7}
       className={`bg-[#4F46E5] font-pmedium rounded-xl min-h-[62px] justify-center items-center px-4 ${containerStyles} ${

@@ -51,7 +51,7 @@ const RootLayout = () => {
       <Provider store={store}>
         <Stack
           screenOptions={{
-            animation: "slide_from_right",
+            animation: "none",
             animationDuration: 300, // Smoother transition
             headerShown: false,
             presentation: "transparentModal", // Keep previous screen visible

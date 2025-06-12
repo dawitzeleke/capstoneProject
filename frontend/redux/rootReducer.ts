@@ -29,6 +29,7 @@ const rootReducer = combineReducers({
   customExam: customExamReducer,
 });
 
+// Export RootState type from rootReducer
 export type RootState = ReturnType<typeof rootReducer>;
 
 export default rootReducer;

@@ -4,3 +4,4 @@
 backend/.vs/
 backend/Application/obj/
 backend/Application.Tests/obj/
+cognify-admin/node_modules/
