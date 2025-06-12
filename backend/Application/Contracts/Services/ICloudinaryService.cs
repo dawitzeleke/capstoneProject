@@ -1,7 +1,7 @@
 using backend.Application.Dtos.CloudinaryDtos;
+using Microsoft.AspNetCore.Http;
 
 namespace backend.Application.Contracts.Services;
-using Microsoft.AspNetCore.Http;
 public interface ICloudinaryService
 {
     Task<UploadResponse> UploadImageAsync(Stream image);

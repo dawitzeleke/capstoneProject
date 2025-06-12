@@ -3,6 +3,7 @@
 export const SET_SAVED_QUESTIONS = "SET_SAVED_QUESTIONS";
 export const CLEAR_SAVED_QUESTIONS = "CLEAR_SAVED_QUESTIONS";
 export const REMOVE_SAVED_QUESTION = "REMOVE_SAVED_QUESTION";
+export const UPDATE_SAVED_QUESTION = "UPDATE_SAVED_QUESTION";
 
 export interface RemoveSavedQuestionAction {
   type: typeof REMOVE_SAVED_QUESTION;
@@ -27,7 +28,13 @@ export interface ClearSavedQuestionsAction {
   type: typeof CLEAR_SAVED_QUESTIONS;
 }
 
+export interface UpdateSavedQuestionAction {
+  type: typeof UPDATE_SAVED_QUESTION;
+  payload: Question; // Updated question object
+}
+
 export type SavedQuestionsActionTypes =
   | SetSavedQuestionsAction
   | ClearSavedQuestionsAction
-  | RemoveSavedQuestionAction;
+  | RemoveSavedQuestionAction
+  | UpdateSavedQuestionAction;

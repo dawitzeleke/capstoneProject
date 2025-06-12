@@ -21,7 +21,7 @@ public class ReportController : ControllerBase
         _mediator = mediator;
     }
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllReports([FromQuery]ContentTypeEnum[] contentTypes = null)
     {

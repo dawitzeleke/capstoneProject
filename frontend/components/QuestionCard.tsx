@@ -17,6 +17,9 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setReportedContent } from "@/redux/questionsReducer/questionAction";
 import { setDisplayOption } from "@/redux/optionReducer/optionActions";
+import httpRequest from "@/util/httpRequest";
+import { updateSavedQuestion } from "@/redux/savedQuestionsReducer/savedQuestionActions";
+import { AppDispatch } from "@/redux/store";
 
 interface QuestionProps {
   question: {
@@ -54,7 +57,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const { height } = useWindowDimensions();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch() as AppDispatch;
   const currentTheme = useSelector((state: any) => state.theme.mode);
 
   const correctAnswer = question.correctOption;
@@ -78,6 +81,29 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
     }).start();
     setExpanded(!expanded);
   };
+
+  const saveQuestion = async () => {
+    // Logic to save the question
+    // call an API to update the saved state
+    setSaved(!saved);
+    try{
+      var response = await httpRequest('/api/students/save-question',
+        {
+          QuestionId: question.id,
+          studentId: '67f62af02a53696c6eec6a58', // Replace with actual student ID
+        },
+        'POST'  
+      );
+      console.log("Question saved successfully:", response);
+      dispatch(updateSavedQuestion(response.data)); 
+    }
+    catch (error) {
+      console.log("Error saving question:", response);
+      console.error("Error saving question:", error);
+    }
+  }
+
+
 
   return (
     <View
@@ -171,7 +197,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="mb-4" onPress={() => setSaved(!saved)}>
+        <TouchableOpacity className="mb-4" onPress={saveQuestion}>
           <Feather
             name="bookmark"
             size={26}

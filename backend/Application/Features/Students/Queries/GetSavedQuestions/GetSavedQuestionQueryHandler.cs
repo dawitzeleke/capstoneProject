@@ -21,6 +21,10 @@ public class GetSavedQuestionsQueryHandler : IRequestHandler<GetSavedQuestionsQu
     public async Task<List<Question>> Handle(GetSavedQuestionsQuery request, CancellationToken cancellationToken)
     {
         var studentId = _currentUserService.UserId.ToString();
+        if (string.IsNullOrEmpty(studentId))
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
         var savedQuestionIds = await _studentRepository.GetSavedQuestions(studentId);
         var questions = await _questionRepository.GetQuestionByIdList(savedQuestionIds);
         return questions;

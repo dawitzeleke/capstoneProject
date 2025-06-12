@@ -33,6 +33,7 @@ public class QuestionsController : ControllerBase
         _mediator = mediator;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllQuestions(
         [FromQuery] int? grade,
@@ -43,6 +44,7 @@ public class QuestionsController : ControllerBase
         [FromQuery] string? lastId,
         [FromQuery] DifficultyLevel? DifficultyLevel = null)
     {
+
         var query = new GetQuestionListQuery
         {
             Grade = grade,
@@ -64,7 +66,6 @@ public class QuestionsController : ControllerBase
         }
         return Ok(ApiResponse.SuccessResponse(questions, "Questions retrieved successfully"));
     }
-
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetQuestionById(string id)

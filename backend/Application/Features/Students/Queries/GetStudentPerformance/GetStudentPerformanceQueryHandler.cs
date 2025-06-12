@@ -46,5 +46,6 @@ public class GetStudentPerformanceQueryHandler : IRequestHandler<GetStudentPerfo
                 SuccessRate = successRate
             }
         };
+        
     }
 }

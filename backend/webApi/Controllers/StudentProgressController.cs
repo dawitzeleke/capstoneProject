@@ -19,6 +19,7 @@ public class StudentProgressController : ControllerBase
         _mediator = mediator;
     }
 
+    // [Authorize]
     [HttpGet("{studentId}")]
     public async Task<IActionResult> GetStudentProgress(string studentId)
     {

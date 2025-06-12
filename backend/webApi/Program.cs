@@ -66,11 +66,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:8081", "http://localhost:3000")
+        policy.WithOrigins("http://localhost:8081")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
-
 });
 
 builder.Services.AddHttpContextAccessor();
@@ -120,7 +119,6 @@ using (var scope = app.Services.CreateScope())
         // throw new InvalidOperationException("MongoDB connection failed", ex);
     }
 }
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
