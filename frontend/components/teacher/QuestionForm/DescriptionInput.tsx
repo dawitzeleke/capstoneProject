@@ -21,8 +21,8 @@ const DescriptionInput = ({ value, onChange, error, submitted }: DescriptionInpu
       multiline
       placeholder="Enter question description"
       placeholderTextColor="#94a3b8"
-      className={`text-base text-black font-pregular border-b border-slate-200 ${
-        submitted && error ? "border-2 border-red-200 bg-red-50 rounded px-2" : ""
+      className={`text-base text-black font-pregular border-b border-slate-200 px-2 ${
+        submitted && error ? "border-2 border-red-200 bg-red-50 rounded" : ""
       }`}
       value={value}
       onChangeText={onChange}
