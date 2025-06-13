@@ -21,25 +21,75 @@ import {
   QuestionItem,
   ContentStatus,
   DifficultyLevel,
-  ValidationErrors,
-  QuestionTypeEnum
+  QuestionTypeEnum,
+  ValidationErrors
 } from "@/types/questionTypes";
 import QuestionInputSection from "@/components/teacher/QuestionForm/QuestionInputSection";
 import AnswerInput from "@/components/teacher/QuestionForm/AnswerInput";
 import HintInput from "@/components/teacher/QuestionForm/HintInput";
 import FormActions from "@/components/teacher/QuestionForm/FormActions";
 import DescriptionInput from "@/components/teacher/QuestionForm/DescriptionInput";
-import QuestionTypeDropdown from "@/components/teacher/QuestionForm/QuestionTypeDropdown";
-import DifficultySelector from "@/components/teacher/QuestionForm/DifficultySelector";
+
 import GradeSelector from "@/components/teacher/QuestionForm/GradeSelector";
-import PointSelector from "@/components/teacher/QuestionForm/PointSelector";
-import QuestionPreviewModal from "@/components/teacher/popups/QuestionPreviewModal";
+
+import QuestionPreviewModal from '@/components/teacher/popups/QuestionPreviewModal';
 import CourseNameInput from '@/components/teacher/QuestionForm/CourseNameInput';
 import ResetFormButton from '@/components/teacher/ResetFormButton';
-import MatrikCheckbox from '@/components/teacher/QuestionForm/MatrikCheckbox';
+import MatrikCheckbox from "@/components/teacher/QuestionForm/MatrikCheckbox";
 import StreamDropdown from '@/components/teacher/QuestionForm/StreamDropdown';
-import ChapterInput from '@/components/teacher/QuestionForm/ChapterInput';
+import ChapterInput from "@/components/teacher/QuestionForm/ChapterInput";
 import httpRequest from "@/util/httpRequest";
+import QuestionTypeDropdown from "@/components/teacher/QuestionForm/QuestionTypeDropdown";
+import DifficultySelector from "@/components/teacher/QuestionForm/DifficultySelector";
+import PointSelector from "@/components/teacher/QuestionForm/PointSelector";
+import ExplanationInput from "@/components/teacher/QuestionForm/ExplanationInput";
+
+interface AddQuestionValidationErrors extends ValidationErrors {
+  questionType: boolean;
+  explanation: boolean;
+}
+
+// Utility function to map frontend enums to backend values
+const mapDifficultyToBackend = (difficulty: DifficultyLevel): number => {
+  switch (difficulty) {
+    case DifficultyLevel.Easy:
+      return 0; // Easy
+    case DifficultyLevel.Medium:
+      return 1; // Medium
+    case DifficultyLevel.Hard:
+      return 2; // Hard
+    default:
+      return 0;
+  }
+};
+
+const mapQuestionTypeToBackend = (questionType: QuestionTypeEnum): number => {
+  switch (questionType) {
+    case QuestionTypeEnum.MultipleChoice:
+      return 0;
+    case QuestionTypeEnum.TrueFalse:
+      return 1;
+    case QuestionTypeEnum.ProblemSolving:
+      return 2;
+    case QuestionTypeEnum.Code:
+      return 3;
+    default:
+      return 0;
+  }
+};
+
+const mapStreamToBackend = (stream: string): number => {
+  switch (stream) {
+    case 'NaturalScience':
+      return 0; // NaturalScience
+    case 'SocialScience':
+      return 1; // SocialScience
+    case 'Other':
+      return 2; // Other
+    default:
+      return 0;
+  }
+};
 
 // Update the initial state to ensure explanation is always a string
 const EMPTY_FORM_STATE: QuestionFormState = {
@@ -48,7 +98,7 @@ const EMPTY_FORM_STATE: QuestionFormState = {
   courseName: "",
   description: "",
   grade: 9,
-  difficulty: DifficultyLevel.Easy,
+  difficulty: DifficultyLevel.Medium,
   options: ["", "", "", "", ""],
   tags: [],
   hint: "",
@@ -61,10 +111,12 @@ const EMPTY_FORM_STATE: QuestionFormState = {
   point: 1,
   questionType: QuestionTypeEnum.MultipleChoice,
   createdBy: "",
+  explanation: "",
 };
 
 const AddQuestion = () => {
   const router = useRouter();
+  const user = useSelector((state: RootState) => state.user.user);
   const dispatch = useDispatch();
   const [submitted, setSubmitted] = useState(false);
   const { questions, editingQuestionId } = useSelector((state: RootState) => state.teacherQuestions);
@@ -82,6 +134,7 @@ const AddQuestion = () => {
           correctOption: questionToEdit.correctOption,
           options: [...questionToEdit.options],
           hint: questionToEdit.hint || '',
+          explanation: questionToEdit.explanation || '',
         };
       }
     }
@@ -98,7 +151,7 @@ const AddQuestion = () => {
     color: "",
   });
 
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({
+  const [validationErrors, setValidationErrors] = useState<AddQuestionValidationErrors>({
     questionText: false,
     courseName: false,
     description: false,
@@ -112,6 +165,8 @@ const AddQuestion = () => {
     isMatrik: false,
     year: false,
     hint: false,
+    questionType: false,
+    explanation: false,
   });
 
   const [isPosting, setIsPosting] = useState(false);
@@ -128,6 +183,7 @@ const AddQuestion = () => {
             correctOption: questionToEdit.correctOption,
             options: [...questionToEdit.options],
             hint: questionToEdit.hint || '',
+            explanation: questionToEdit.explanation || '',
           };
           setFormState(formState);
         }
@@ -141,6 +197,7 @@ const AddQuestion = () => {
               const formState: QuestionFormState = {
                 ...parsedDraft,
                 hint: parsedDraft.hint || '',
+                explanation: parsedDraft.explanation || '',
               };
               setFormState(formState);
             }
@@ -194,16 +251,18 @@ const AddQuestion = () => {
       description: false,
       grade: !formState.grade,
       difficulty: !formState.difficulty,
-      options: formState.options.map((opt, i) => 
+      options: formState.options.map((opt, i) =>
         i < 2 ? opt.trim() === "" : false
       ),
       tags: formState.tags.length === 0,
       correctOption: !formState.correctOption || !formState.options.includes(formState.correctOption),
-      stream: formState.stream.trim() === "",
+      stream: !formState.stream,
       chapter: false,
       isMatrik: false,
       year: formState.isMatrik && !formState.year.trim(),
       hint: false,
+      questionType: !formState.questionType,
+      explanation: !formState.explanation.trim(),
     };
 
     setValidationErrors({
@@ -220,6 +279,8 @@ const AddQuestion = () => {
       isMatrik: false,
       year: submitted && errors.year,
       hint: false,
+      questionType: submitted && errors.questionType,
+      explanation: submitted && errors.explanation,
     });
 
     return !Object.values(errors).some(error =>
@@ -247,48 +308,46 @@ const AddQuestion = () => {
   const handleConfirmPost = useCallback(async () => {
     setIsPosting(true);
     try {
-   
       const questionPayload = new FormData();
       questionPayload.append("QuestionText", formState.questionText);
       questionPayload.append("Description", formState.description);
       questionPayload.append("Options", JSON.stringify(formState.options));
       questionPayload.append("CorrectOption", formState.correctOption);
       questionPayload.append("CourseName", formState.courseName);
-      questionPayload.append("Point", formState.point.toString());
       questionPayload.append("Grade", formState.grade.toString());
-      questionPayload.append("Difficulty", "0");
-      questionPayload.append("QuestionType", "0");
+      questionPayload.append("Difficulty", mapDifficultyToBackend(formState.difficulty).toString());
+      questionPayload.append("QuestionType", mapQuestionTypeToBackend(formState.questionType).toString());
       questionPayload.append("CreatedBy", formState.createdBy);
-      questionPayload.append("Stream", "0");
+      questionPayload.append("Stream", mapStreamToBackend(formState.stream).toString());
       questionPayload.append("Hint", formState.hint);
       questionPayload.append("Tags", JSON.stringify(formState.tags));
-      questionPayload.append("Explanation", "test explanation"); 
+      questionPayload.append("Explanation", formState.explanation || "");
+      questionPayload.append("IsMatrik", formState.isMatrik.toString());
+      questionPayload.append("Year", formState.year);
+      questionPayload.append("Chapter", formState.chapter);
       if (editingQuestionId) {
         questionPayload.append("Id", editingQuestionId);
       }
-      
-      
+
       const method = editingQuestionId ? "PUT" : "POST";
-      const url = "/api/Questions";
+      const endpoint = `/Questions`;
 
-      const response = await httpRequest(url, questionPayload, method, {
-          headers: { "Content-Type": "multipart/form-data",
-          Accept: "application/json", 
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODJhZGE0Yzg3MWYwMjdmMzA0OTI2NmQiLCJlbWFpbCI6ImRhd2l0dGVhY2hlckBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjY4MmFkYTRjODcxZjAyN2YzMDQ5MjY2ZCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImRhd2l0dGVhY2hlckBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJUZWFjaGVyIiwianRpIjoiNGQ0MjRlNmMtNzFiZi00ZmJhLWE1NzItNjU5M2Y3YjJkYzg0IiwiZXhwIjoxNzUxMjA3OTEzLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMTkiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAifQ.GvFSaN2rynQLz92Iyw3yZUHujjcuirXn_RPpeNIg3qs`  // Include token if needed
-          },
+      const response = await httpRequest(endpoint, questionPayload, method, user?.token, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
 
-        });
-
-      const questionToSubmit: QuestionItem = {
+      const newQuestion: QuestionItem = {
         ...formState,
+        id: response.id || editingQuestionId || `temp_${Date.now()}`,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        status: ContentStatus.Posted,
       };
 
       if (editingQuestionId) {
-        dispatch(updateQuestion(questionToSubmit));
+        dispatch(updateQuestion(newQuestion));
       } else {
-        dispatch(addQuestion(questionToSubmit));
+        dispatch(addQuestion(newQuestion));
       }
 
       setModalState(prev => ({
@@ -299,11 +358,11 @@ const AddQuestion = () => {
       }));
 
       setShowPreviewModal(false);
-    } catch (error) {
+    } catch (error: any) {
       setModalState(prev => ({
         ...prev,
         error: true,
-        message: "Failed to post question. Please try again."
+        message: error.message || "Failed to post question. Please try again."
       }));
     } finally {
       setIsPosting(false);
@@ -313,23 +372,72 @@ const AddQuestion = () => {
   const handleSaveDraft = useCallback(async () => {
     setIsSavingDraft(true);
     try {
+      // Option 1: Save to backend
+      const questionPayload = new FormData();
+      questionPayload.append("QuestionText", formState.questionText);
+      questionPayload.append("Description", formState.description);
+      questionPayload.append("Options", JSON.stringify(formState.options));
+      questionPayload.append("CorrectOption", formState.correctOption);
+      questionPayload.append("CourseName", formState.courseName);
+      questionPayload.append("Grade", formState.grade.toString());
+      questionPayload.append("Difficulty", mapDifficultyToBackend(formState.difficulty).toString());
+      questionPayload.append("QuestionType", mapQuestionTypeToBackend(formState.questionType).toString());
+      questionPayload.append("CreatedBy", formState.createdBy);
+      questionPayload.append("Stream", mapStreamToBackend(formState.stream).toString());
+      questionPayload.append("Hint", formState.hint);
+      questionPayload.append("Tags", JSON.stringify(formState.tags));
+      questionPayload.append("Explanation", formState.explanation || "");
+      questionPayload.append("IsMatrik", formState.isMatrik.toString());
+      questionPayload.append("Year", formState.year);
+      questionPayload.append("Chapter", formState.chapter);
+
+      const response = await httpRequest('/api/Questions/draft', questionPayload, 'POST', user?.token, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      const newQuestion: QuestionItem = {
+        ...formState,
+        id: response.id || `draft_${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        status: ContentStatus.Draft,
+      };
+
+      dispatch(addQuestion(newQuestion));
+
+      // Option 2: Keep local draft saving as fallback
       await AsyncStorage.setItem('questionDraft', JSON.stringify(formState));
+
       setModalState(prev => ({
         ...prev,
         draftSuccess: true,
         message: "Draft saved successfully!",
         color: "#4F46E5"
       }));
-    } catch (error) {
-      setModalState(prev => ({
-        ...prev,
-        error: true,
-        message: "Failed to save draft. Please try again."
-      }));
+    } catch (error: any) {
+      // Fallback to local storage on error
+      try {
+        await AsyncStorage.setItem('questionDraft', JSON.stringify(formState));
+        setModalState(prev => ({
+          ...prev,
+          draftSuccess: true,
+          message: "Draft saved locally due to network issue.",
+          color: "#4F46E5"
+        }));
+      } catch (storageError) {
+        console.error('Error saving draft locally:', storageError);
+        setModalState(prev => ({
+          ...prev,
+          error: true,
+          message: "Failed to save draft locally.",
+          color: "#dc2626"
+        }));
+      }
+      console.error('Error saving draft to backend:', error);
     } finally {
       setIsSavingDraft(false);
     }
-  }, [formState]);
+  }, [formState, dispatch]);
 
   const handleCloseModal = useCallback(() => {
     setModalState(prev => ({
@@ -357,8 +465,11 @@ const AddQuestion = () => {
       isMatrik: false,
       year: false,
       hint: false,
+      questionType: false,
+      explanation: false,
     });
     setSubmitted(false);
+    setShowPreviewModal(false);
   }, []);
 
   // Effects
@@ -370,8 +481,8 @@ const AddQuestion = () => {
   return (
     <View className="flex-1 bg-slate-50">
       <ScrollView className="pb-10" showsVerticalScrollIndicator={false}>
-        <AppHeader 
-          title="Upload Content" 
+        <AppHeader
+          title="Upload Content"
           onBack={router.back}
           showResetButton={true}
           onReset={resetForm}
@@ -405,6 +516,19 @@ const AddQuestion = () => {
               value={formState.grade}
               onChange={(value) => setFormState({ ...formState, grade: value })}
               error={validationErrors.grade}
+              submitted={submitted}
+            />
+
+            <QuestionTypeDropdown
+              value={formState.questionType}
+              onChange={(value) => setFormState({ ...formState, questionType: value })}
+              error={validationErrors.questionType}
+              submitted={submitted}
+            />
+            <DifficultySelector
+              value={formState.difficulty}
+              onChange={(value) => setFormState({ ...formState, difficulty: value })}
+              error={validationErrors.difficulty}
               submitted={submitted}
             />
 
@@ -446,11 +570,19 @@ const AddQuestion = () => {
               correctAnswerError={validationErrors.correctOption}
               submitted={submitted}
             />
+            <ExplanationInput
+              value={formState.explanation}
+              onChange={(text) => setFormState({ ...formState, explanation: text })}
+              error={validationErrors.explanation}
+              submitted={submitted}
+            />
 
             <HintInput
               value={formState.hint}
               onChange={(text) => setFormState({ ...formState, hint: text })}
             />
+
+
 
             <TagsInput
               value={formState.tags}
@@ -463,25 +595,40 @@ const AddQuestion = () => {
           <FormActions
             onPost={handlePost}
             onSaveDraft={handleSaveDraft}
-            onCancel={handleCloseModal}
+            onCancel={() => setModalState(prev => ({ ...prev, cancel: true }))}
             isPosting={isPosting}
             isSavingDraft={isSavingDraft}
             validationErrors={validationErrors}
           />
         </View>
-        
-        <SuccessModal
-          isVisible={modalState.success || modalState.draftSuccess}
-          message={modalState.message}
-          onDismiss={handleCloseModal}
-          color={modalState.color}
-          icon={modalState.success ? "checkmark-circle" : "bookmark"}
+
+        <QuestionPreviewModal
+          visible={showPreviewModal}
+          question={formState as QuestionItem}
+          onClose={() => setShowPreviewModal(false)}
+          onEdit={() => setShowPreviewModal(false)}
+          onConfirm={handleConfirmPost}
+          loading={isPosting}
+          mode="edit"
         />
 
         <ErrorModal
           isVisible={modalState.error}
           message={modalState.message}
-          onDismiss={handleCloseModal}
+          onDismiss={() => setModalState(prev => ({ ...prev, error: false }))}
+        />
+
+        <SuccessModal
+          isVisible={modalState.success || modalState.draftSuccess}
+          message={modalState.message}
+          onDismiss={() => {
+            handleCloseModal();
+            if (modalState.success || modalState.draftSuccess) {
+              router.push("/teacher/(tabs)/ContentList");
+            }
+          }}
+          color={modalState.color}
+          icon={modalState.success ? "checkmark-circle" : "bookmark"}
         />
 
         <CancelModal
@@ -492,16 +639,6 @@ const AddQuestion = () => {
             setModalState(prev => ({ ...prev, cancel: false }));
           }}
           onCancel={() => setModalState(prev => ({ ...prev, cancel: false }))}
-        />
-
-        <QuestionPreviewModal
-          visible={showPreviewModal}
-          question={formState as QuestionItem}
-          onClose={() => setShowPreviewModal(false)}
-          onEdit={() => setShowPreviewModal(false)}
-          onConfirm={handleConfirmPost}
-          loading={isPosting}
-          mode="edit"
         />
       </ScrollView>
     </View>
