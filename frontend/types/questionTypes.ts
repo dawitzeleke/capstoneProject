@@ -19,6 +19,7 @@ export enum ContentStatus {
 }
 
 export interface QuestionItem {
+    explanation: string;
     id: string;
     questionText: string;
     description: string;
@@ -48,6 +49,7 @@ export interface QuestionFormState {
     options: string[];
     correctOption: string;
     hint: string;
+    explanation: string;
     difficulty: DifficultyLevel;
     courseName: string;
     grade: number;
