@@ -20,8 +20,8 @@ const ChapterInput = ({ value, onChange, error, submitted }: ChapterInputProps) 
     <TextInput
       placeholder="Enter chapter number or name"
       placeholderTextColor="#94a3b8"
-      className={`h-12 px-4 rounded-lg border text-base font-pregular ${
-        submitted && error ? 'border-red-200 bg-red-50' : 'border-slate-200'
+      className={`h-12 px-2 text-base font-pregular ${
+        submitted && error ? 'border-b-2 border-red-200 bg-red-50' : 'border-b border-slate-200'
       }`}
       value={value}
       onChangeText={onChange}
