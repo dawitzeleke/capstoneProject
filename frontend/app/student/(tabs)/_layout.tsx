@@ -93,12 +93,30 @@ const TabsLayout: React.FC = () => {
             height: 64,
             display: "flex",
             justifyContent: "center",
+            position: 'absolute',
+            elevation: 0,
+            shadowOpacity: 0,
           },
           tabBarItemStyle: {
             marginTop: 15,
             display: "flex",
             width: 30,
             alignItems: "center",
+          },
+          tabBarHideOnKeyboard: true,
+          tabBarVisibilityAnimationConfig: {
+            show: {
+              animation: 'timing',
+              config: {
+                duration: 200,
+              },
+            },
+            hide: {
+              animation: 'timing',
+              config: {
+                duration: 200,
+              },
+            },
           },
         }}
       >
@@ -113,9 +131,12 @@ const TabsLayout: React.FC = () => {
                 size={{ width: 18, height: 18 }}
                 name="Home"
                 focused={focused}
+                testID="tab-home"
               />
             ),
-            tabBarButton: CustomTabButton,
+            tabBarButton: (props) => (
+              <CustomTabButton {...props} />
+            ),
           }}
         />
         <Tabs.Screen   
@@ -132,23 +153,28 @@ const TabsLayout: React.FC = () => {
                 testID="tab-questions"
               />
             ),
-            tabBarButton: CustomTabButton,
+            tabBarButton: (props) => (
+              <CustomTabButton {...props} />
+            ),
           }}
         />
         <Tabs.Screen
-          name="Notification"
+          name="Facts"
           options={{
-            title: "Notification",
+            title: "Facts",
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.notification}
+                icon={icons.search}
                 color={color}
                 size={{ width: 18, height: 18 }}
-                name="Notification"
+                name="Facts"
                 focused={focused}
+                testID="tab-facts"
               />
             ),
-            tabBarButton: CustomTabButton,
+            tabBarButton: (props) => (
+              <CustomTabButton {...props} />
+            ),
           }}
         />
         <Tabs.Screen
@@ -162,9 +188,12 @@ const TabsLayout: React.FC = () => {
                 color={color}
                 name="Profile"
                 focused={focused}
+                testID="tab-profile"
               />
             ),
-            tabBarButton: CustomTabButton,
+            tabBarButton: (props) => (
+              <CustomTabButton {...props} />
+            ),
           }}
         />
 
@@ -172,6 +201,7 @@ const TabsLayout: React.FC = () => {
         <Tabs.Screen name="Leaderboard" options={{ href: null }} />
         <Tabs.Screen name="Blog" options={{ href: null }} />
         <Tabs.Screen name="Game" options={{ href: null }} />
+        <Tabs.Screen name="Notification" options={{ href: null }} />
         <Tabs.Screen name="CreateExam" options={{ href: null }} />
         <Tabs.Screen name="Exam" options={{ href: null }} />
         <Tabs.Screen name="Progress" options={{ href: null }} />

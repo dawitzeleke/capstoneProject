@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, Image, Pressable, Animated } from "react-native";
+import React, { useState, useCallback, useMemo } from "react";
+import { View, Text, ScrollView, Image, Pressable, Animated, Modal } from "react-native";
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,11 +9,74 @@ import { LinearGradient } from "expo-linear-gradient";
 
 type RoutePath = `/(student)${string}`;
 
+type Division = 'bronze' | 'silver' | 'gold' | 'diamond';
+
+interface Subject {
+  id: string;
+  name: string;
+  checked: boolean;
+}
+
+interface DivisionTheme {
+  gradient: [string, string];
+  icon: string;
+  iconColor: string;
+  textColor: string;
+  bgColor: string;
+  progressColor: string;
+}
+
+const divisionThemes: Record<Division, DivisionTheme> = {
+  bronze: {
+    gradient: ["#CD7F32", "#8B4513"],
+    icon: "medal",
+    iconColor: "#8B4513",
+    textColor: "#8B4513",
+    bgColor: "#FFF3E0",
+    progressColor: "#CD7F32",
+  },
+  silver: {
+    gradient: ["#C0C0C0", "#808080"],
+    icon: "medal",
+    iconColor: "#4A4A4A",
+    textColor: "#4A4A4A",
+    bgColor: "#F5F5F5",
+    progressColor: "#808080",
+  },
+  gold: {
+    gradient: ["#FFD700", "#DAA520"],
+    icon: "medal",
+    iconColor: "#B8860B",
+    textColor: "#B8860B",
+    bgColor: "#FFF8E1",
+    progressColor: "#DAA520",
+  },
+  diamond: {
+    gradient: ["#00BFFF", "#0066CC"],
+    icon: "gem",
+    iconColor: "#0066CC",
+    textColor: "#0066CC",
+    bgColor: "#E3F2FD",
+    progressColor: "#00BFFF",
+  },
+};
+
 export default function Home() {
+  const [division, setDivision] = useState<Division>("bronze");
   const currentTheme = useSelector((state: any) => state.theme.mode);
   const user = useSelector((state: any) => state.user.user);
   const router = useRouter();
   const [scaleAnim] = useState(new Animated.Value(1));
+  const [showCustomizeModal, setShowCustomizeModal] = useState(false);
+  const [customizeType, setCustomizeType] = useState<'default' | 'custom'>('default');
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const [subjects, setSubjects] = useState<Subject[]>([
+    { id: 'biology', name: 'Biology', checked: false },
+    { id: 'chemistry', name: 'Chemistry', checked: false },
+    { id: 'physics', name: 'Physics', checked: false },
+    { id: 'math', name: 'Mathematics', checked: false },
+  ]);
+  const [showNewModal, setShowNewModal] = useState(false);
 
   console.log(user)
 
@@ -29,6 +92,288 @@ export default function Home() {
       toValue: 1,
       useNativeDriver: true,
     }).start();
+  };
+
+  // Function to cycle through divisions (for testing)
+  const cycleDivision = () => {
+    const divisions: Division[] = ['bronze', 'silver', 'gold', 'diamond'];
+    const currentIndex = divisions.indexOf(division);
+    const nextIndex = (currentIndex + 1) % divisions.length;
+    setDivision(divisions[nextIndex]);
+  };
+
+  const handleTypeSelect = useCallback((type: 'default' | 'custom') => {
+    setCustomizeType(type);
+  }, []);
+
+  const handleDifficultySelect = useCallback((level: 'easy' | 'medium' | 'hard') => {
+    setDifficulty(level);
+  }, []);
+
+  const handleSubjectToggle = useCallback((id: string) => {
+    setSubjects(prevSubjects => 
+      prevSubjects.map(subject => 
+        subject.id === id ? { ...subject, checked: !subject.checked } : subject
+      )
+    );
+  }, []);
+
+  const handleSave = useCallback(() => {
+    // Handle save logic here
+    setShowCustomizeModal(false);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setShowCustomizeModal(false);
+  }, []);
+
+  const CustomizeModal = useMemo(() => {
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showCustomizeModal}
+        onRequestClose={handleClose}
+      >
+        <Pressable 
+          onPress={handleClose}
+          className="flex-1 justify-center items-center bg-black/50"
+        >
+          <Pressable 
+            onPress={(e) => e.stopPropagation()}
+            className={`w-[90%] rounded-3xl p-8 ${currentTheme === "dark" ? 'bg-gray-900' : 'bg-white'} shadow-xl`}
+          >
+            <View className="flex-row justify-between items-center mb-8">
+              <Text className={`text-2xl font-pbold ${currentTheme === "dark" ? 'text-white' : 'text-gray-900'}`}>
+                Customize Your Experience
+              </Text>
+              <TouchableOpacity 
+                onPress={handleClose}
+                className="p-2"
+              >
+                <Ionicons name="close" size={24} color={currentTheme === "dark" ? 'white' : 'black'} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Type Selection */}
+            <View className="mb-8">
+              <Text className={`text-lg font-pmedium mb-4 ${currentTheme === "dark" ? 'text-gray-200' : 'text-gray-700'}`}>
+                Choose Type
+              </Text>
+              <View className="flex-row space-x-3">
+                <TouchableOpacity
+                  onPress={() => handleTypeSelect('default')}
+                  className={`flex-1 py-3 px-4 rounded-xl border-2 ${
+                    customizeType === 'default'
+                      ? 'border-indigo-500 bg-indigo-50'
+                      : currentTheme === "dark"
+                      ? 'border-gray-700'
+                      : 'border-gray-200'
+                  }`}
+                >
+                  <Text
+                    className={`text-center font-pmedium ${
+                      customizeType === 'default'
+                        ? 'text-indigo-600'
+                        : currentTheme === "dark"
+                        ? 'text-gray-400'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    Default
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleTypeSelect('custom')}
+                  className={`flex-1 py-3 px-4 rounded-xl border-2 ${
+                    customizeType === 'custom'
+                      ? 'border-indigo-500 bg-indigo-50'
+                      : currentTheme === "dark"
+                      ? 'border-gray-700'
+                      : 'border-gray-200'
+                  }`}
+                >
+                  <Text
+                    className={`text-center font-pmedium ${
+                      customizeType === 'custom'
+                        ? 'text-indigo-600'
+                        : currentTheme === "dark"
+                        ? 'text-gray-400'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    Custom
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {customizeType === 'custom' && (
+              <>
+                {/* Difficulty Selection */}
+                <View className="mb-8">
+                  <Text className={`text-lg font-pmedium mb-4 ${currentTheme === "dark" ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Select Difficulty
+                  </Text>
+                  <View className="flex-row space-x-3">
+                    {['easy', 'medium', 'hard'].map((level) => (
+                      <TouchableOpacity
+                        key={level}
+                        onPress={() => handleDifficultySelect(level as 'easy' | 'medium' | 'hard')}
+                        className={`flex-1 py-3 px-4 rounded-xl border-2 ${
+                          difficulty === level
+                            ? 'border-indigo-500 bg-indigo-50'
+                            : currentTheme === "dark"
+                            ? 'border-gray-700'
+                            : 'border-gray-200'
+                        }`}
+                      >
+                        <Text
+                          className={`text-center font-pmedium capitalize ${
+                            difficulty === level
+                              ? 'text-indigo-600'
+                              : currentTheme === "dark"
+                              ? 'text-gray-400'
+                              : 'text-gray-600'
+                          }`}
+                        >
+                          {level}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Subject Selection */}
+                <View className="mb-8">
+                  <Text className={`text-lg font-pmedium mb-4 ${currentTheme === "dark" ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Select Subjects
+                  </Text>
+                  <View className="space-y-3">
+                    {subjects.map((subject) => (
+                      <TouchableOpacity
+                        key={subject.id}
+                        onPress={() => handleSubjectToggle(subject.id)}
+                        className={`flex-row items-center py-3 px-4 rounded-xl border-2 ${
+                          subject.checked
+                            ? 'border-indigo-500 bg-indigo-50'
+                            : currentTheme === "dark"
+                            ? 'border-gray-700'
+                            : 'border-gray-200'
+                        }`}
+                      >
+                        <View
+                          className={`w-5 h-5 rounded-md border-2 mr-3 items-center justify-center ${
+                            subject.checked
+                              ? 'border-indigo-500 bg-indigo-500'
+                              : currentTheme === "dark"
+                              ? 'border-gray-600'
+                              : 'border-gray-400'
+                          }`}
+                        >
+                          {subject.checked && (
+                            <Ionicons name="checkmark" size={14} color="white" />
+                          )}
+                        </View>
+                        <Text
+                          className={`font-pmedium ${
+                            subject.checked
+                              ? 'text-indigo-600'
+                              : currentTheme === "dark"
+                              ? 'text-gray-400'
+                              : 'text-gray-600'
+                          }`}
+                        >
+                          {subject.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              </>
+            )}
+
+            {/* Save Button */}
+            <TouchableOpacity
+              onPress={handleSave}
+              className="bg-indigo-600 py-3 px-4 rounded-xl mt-4"
+            >
+              <Text className="text-white text-center font-pbold text-lg">
+                Save Preferences
+              </Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    );
+  }, [showCustomizeModal, customizeType, difficulty, subjects, currentTheme, handleTypeSelect, handleDifficultySelect, handleSubjectToggle, handleSave, handleClose]);
+
+  const NewModal = () => {
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showNewModal}
+        onRequestClose={() => setShowNewModal(false)}
+      >
+        <Pressable 
+          onPress={() => setShowNewModal(false)}
+          className="flex-1 justify-center items-center bg-black/50"
+        >
+          <Pressable 
+            onPress={(e) => e.stopPropagation()}
+            className={`w-[90%] rounded-3xl p-8 ${currentTheme === "dark" ? 'bg-gray-900' : 'bg-white'} shadow-xl`}
+          >
+            {/* Header */}
+            <View className="flex-row justify-between items-center mb-6">
+              <Text className={`text-2xl font-pbold ${currentTheme === "dark" ? 'text-white' : 'text-gray-900'}`}>
+                New Modal
+              </Text>
+              <TouchableOpacity 
+                onPress={() => setShowNewModal(false)}
+                className="p-2"
+              >
+                <Ionicons name="close" size={24} color={currentTheme === "dark" ? 'white' : 'black'} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Content */}
+            <View className="mb-6">
+              <Text className={`text-base ${currentTheme === "dark" ? 'text-gray-300' : 'text-gray-600'}`}>
+                This is a new modal. You can customize its content and functionality as needed.
+              </Text>
+            </View>
+
+            {/* Action Buttons */}
+            <View className="flex-row space-x-4">
+              <TouchableOpacity
+                onPress={() => setShowNewModal(false)}
+                className={`flex-1 py-3 px-4 rounded-xl border-2 ${
+                  currentTheme === "dark" ? 'border-gray-700' : 'border-gray-200'
+                }`}
+              >
+                <Text className={`text-center font-pmedium ${
+                  currentTheme === "dark" ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  // Add your action here
+                  setShowNewModal(false);
+                }}
+                className="flex-1 bg-indigo-600 py-3 px-4 rounded-xl"
+              >
+                <Text className="text-white text-center font-pbold">
+                  Confirm
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    );
   };
 
   return (
@@ -103,33 +448,52 @@ export default function Home() {
                 My Division
               </Text>
               <View className="flex-row items-center mt-1 space-x-2">
-                <Text className={`text-2xl font-pbold ${currentTheme === "dark" ? "text-yellow-400" : "text-yellow-600"}`}>
-                  Diamond
+                <Text 
+                  className="text-2xl font-pbold capitalize"
+                  style={{ color: divisionThemes[division].textColor }}
+                >
+                  {division}
                 </Text>
-                <View className={`px-2 py-0.5 rounded-md ${currentTheme === "dark" ? "bg-yellow-400/20" : "bg-yellow-100"}`}>
-                  <Text className={`text-sm font-pbold ${currentTheme === "dark" ? "text-yellow-400" : "text-yellow-600"}`}>
+                <View 
+                  className="px-2 py-0.5 rounded-md"
+                  style={{ backgroundColor: `${divisionThemes[division].iconColor}15` }}
+                >
+                  <Text 
+                    className="text-sm font-pbold"
+                    style={{ color: divisionThemes[division].textColor }}
+                  >
                     III
                   </Text>
                 </View>
               </View>
             </View>
-            <View className={`p-3 rounded-xl ${currentTheme === "dark" ? "bg-gray-700" : "bg-yellow-50"}`}>
-              <MaterialIcons
-                name="military-tech"
-                size={28}
-                color={currentTheme === "dark" ? "#FCD34D" : "#D97706"}
+            <TouchableOpacity 
+              onPress={cycleDivision}
+              className={`p-3 rounded-xl`}
+              style={{ backgroundColor: `${divisionThemes[division].iconColor}15` }}
+            >
+              <FontAwesome5
+                name={divisionThemes[division].icon}
+                size={24}
+                color={divisionThemes[division].iconColor}
               />
-            </View>
+            </TouchableOpacity>
           </View>
           <View className="mt-4 flex-row items-center justify-between">
             <View className="flex-row items-center space-x-2">
-              <View className={`w-2 h-2 rounded-full ${currentTheme === "dark" ? "bg-yellow-400" : "bg-yellow-500"}`} />
+              <View 
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: divisionThemes[division].iconColor }}
+              />
               <Text className={`text-sm font-pregular ${currentTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 250 points to next division
               </Text>
             </View>
             <View className="flex-row items-center space-x-1">
-              <Text className={`text-sm font-pbold ${currentTheme === "dark" ? "text-yellow-400" : "text-yellow-600"}`}>
+              <Text 
+                className="text-sm font-pbold"
+                style={{ color: divisionThemes[division].textColor }}
+              >
                 1750
               </Text>
               <Text className={`text-sm font-pregular ${currentTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
@@ -142,7 +506,7 @@ export default function Home() {
               className="h-full rounded-full"
               style={{
                 width: "87.5%",
-                backgroundColor: currentTheme === "dark" ? "#FCD34D" : "#D97706",
+                backgroundColor: divisionThemes[division].progressColor,
               }}
             />
           </View>
@@ -185,7 +549,7 @@ export default function Home() {
                   onPress={() => {
                     switch (item.label) {
                       case "Customize":
-                        router.push("/student/Game");
+                        setShowCustomizeModal(true);
                         break;
                       case "Exam":
                         router.push("/student/CreateExam");
@@ -284,6 +648,9 @@ export default function Home() {
             </View>
           ))}
         </View>
+
+        {CustomizeModal}
+        <NewModal />
       </ScrollView>
     </SafeAreaView>
   );

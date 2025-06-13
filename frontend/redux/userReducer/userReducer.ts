@@ -1,7 +1,7 @@
 // Define User type with the required properties
 interface User {
   id: string;
-  image: string;
+  profilePictureUrl: string;
   name: string;
   token: string;
   role: string; // role can be student, teacher, or other string

@@ -7,6 +7,52 @@ import { useRouter } from "expo-router";
 import { httpRequest } from "@/util/httpRequest";
 import { LinearGradient } from "expo-linear-gradient";
 
+type Division = 'bronze' | 'silver' | 'gold' | 'diamond';
+
+interface DivisionTheme {
+  gradient: [string, string];
+  icon: string;
+  iconColor: string;
+  textColor: string;
+  bgColor: string;
+  progressColor: string;
+}
+
+const divisionThemes: Record<Division, DivisionTheme> = {
+  bronze: {
+    gradient: ["#CD7F32", "#8B4513"],
+    icon: "medal",
+    iconColor: "#E6B17A",
+    textColor: "#8B4513",
+    bgColor: "#FFF3E0",
+    progressColor: "#CD7F32",
+  },
+  silver: {
+    gradient: ["#C0C0C0", "#808080"],
+    icon: "medal",
+    iconColor: "#E8E8E8",
+    textColor: "#4A4A4A",
+    bgColor: "#F5F5F5",
+    progressColor: "#808080",
+  },
+  gold: {
+    gradient: ["#FFD700", "#DAA520"],
+    icon: "medal",
+    iconColor: "#FFE5B4",
+    textColor: "#B8860B",
+    bgColor: "#FFF8E1",
+    progressColor: "#DAA520",
+  },
+  diamond: {
+    gradient: ["#00BFFF", "#0066CC"],
+    icon: "gem",
+    iconColor: "#87CEFA",
+    textColor: "#0066CC",
+    bgColor: "#E3F2FD",
+    progressColor: "#00BFFF",
+  },
+};
+
 export default function Profile() {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,6 +61,7 @@ export default function Profile() {
   const isDark = currentTheme === "dark";
   const user = useSelector((state: any) => state.user.user);
   const router = useRouter();
+  const [division, setDivision] = useState<Division>("gold");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -27,8 +74,19 @@ export default function Profile() {
           "GET",
           user.token
         );
-        console.log(response);
+        const response2 = await httpRequest(
+          "/students/get-following",
+          {},
+          "GET",
+          user.token
+        );
         setSettings(response);
+        // Set division from user data or settings
+        if (response?.division) {
+          setDivision(response.division.toLowerCase() as Division);
+        } else if (user?.division) {
+          setDivision(user.division.toLowerCase() as Division);
+        }
       } catch (err) {
         setError("Failed to load settings.");
       } finally {
@@ -37,7 +95,7 @@ export default function Profile() {
     };
 
     fetchSettings();
-  }, []);
+  }, [user]);
 
   return (
     <ScrollView className={`flex-1 ${isDark ? "bg-black" : "bg-[#f1f3fc]"}`}>
@@ -62,7 +120,7 @@ export default function Profile() {
         <View className="flex-row items-center">
           <View className="relative">
             <Image
-              source={{ uri: `${user.image}` }}
+              source={{ uri: `${user.profilePictureUrl}` }}
               className="w-24 h-24 rounded-full border-4 border-white/20"
             />
             <TouchableOpacity className="absolute bottom-0 right-0 bg-white p-2 rounded-full">
@@ -76,10 +134,21 @@ export default function Profile() {
             </Text>
             <Text className="text-white/80 font-pregular">@johndoe</Text>
             <View className="flex-row items-center mt-2">
-              <View className="bg-white/20 px-3 py-1 rounded-full">
-                <Text className="text-white font-pmedium text-sm">
-                  Diamond III
-                </Text>
+              <View className="px-4 py-2 rounded-full bg-white/10">
+                <View className="flex-row items-center">
+                  <FontAwesome5 
+                    name={divisionThemes[division].icon} 
+                    size={16} 
+                    color={divisionThemes[division].iconColor} 
+                    style={{ marginRight: 6 }}
+                  />
+                  <Text 
+                    className="font-pmedium text-sm capitalize"
+                    style={{ color: divisionThemes[division].iconColor }}
+                  >
+                    {division} III
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
