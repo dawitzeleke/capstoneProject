@@ -15,24 +15,26 @@ const ExplanationInput: React.FC<ExplanationInputProps> = ({
   submitted,
 }) => {
   return (
-    <View className="mb-4">
-      <Text className="text-base font-pmedium text-gray-600 mb-2">
-        Hint {submitted && <Text className="text-red-500">*</Text>}
-      </Text>
+    <View className="bg-white rounded-xl shadow p-4 mb-4 border-b border-slate-200">
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-lg font-psemibold text-slate-800">
+          Explanation<Text className="text-red-500 m-1 text-lg">*</Text>
+        </Text>
+        {submitted && error && (
+          <Text className="text-red-500 text-xs">Required</Text>
+        )}
+      </View>
       <TextInput
-        className={`p-3 border rounded-lg ${
-          error ? 'border-red-500' : 'border-gray-300'
+        placeholder="Enter the explanation for the answer"
+        placeholderTextColor="#94a3b8"
+        className={`text-base min-h-[80px] px-2 text-black font-pregular ${
+          submitted && error ? "border-2 border-red-200 bg-red-50 rounded" : "border-b border-slate-200"
         }`}
         value={value}
         onChangeText={onChange}
-        placeholder="Enter a hint for the question"
         multiline
-        numberOfLines={3}
-        textAlignVertical="top"
+        accessibilityLabel="Explanation input"
       />
-      {error && (
-        <Text className="text-red-500 text-sm mt-1">Hint is required</Text>
-      )}
     </View>
   );
 };
