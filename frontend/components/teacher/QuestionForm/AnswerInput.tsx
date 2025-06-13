@@ -13,7 +13,7 @@ type AnswerInputProps = {
   options: string[];
   correctOption: string;
   onOptionChange: (text: string, index: number) => void;
-  onCorrectAnswer: (value: string) => void;
+  onCorrectAnswer: (optionValue: string) => void;
   errors: boolean[];
   correctAnswerError: boolean;
   submitted: boolean;
@@ -55,12 +55,12 @@ const AnswerInput = ({
       {options.map((option, index) => {
         const letter = String.fromCharCode(65 + index);
         const hasError = submitted && (errors[index] || false);
-        const isSelected = correctOption === option && option !== '';
+        const isSelected = correctOption === option && option.trim() !== "";
 
         return (
           <View key={`option-${index}`} className="flex-row items-start mb-4">
             <Pressable
-              onPress={() => onCorrectAnswer(isSelected ? '' : option)}
+              onPress={() => onCorrectAnswer(option)}
               className="mr-3 mt-2"
               accessibilityRole="checkbox"
             >
