@@ -21,7 +21,7 @@ const QuestionInputSection = ({ value, onChange, error, submitted }: Props) => (
       multiline
       placeholder="Start writing your question here..."
       placeholderTextColor="#94a3b8"
-      className={`min-h-[100px] text-base text-black font-pregular ${
+      className={`min-h-[100px] text-base text-black font-pregular px-2 ${
         submitted && error ?  "border-2 border-red-200 bg-red-50 rounded" : "border-b border-slate-200"
       }`}
       value={value}
