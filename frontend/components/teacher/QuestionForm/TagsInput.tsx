@@ -26,13 +26,13 @@ const TagsInput = ({
 
   const validateTag = (tag: string) => {
     if (tag.length > maxLength) {
-      throw `Tag cannot exceed ${maxLength} characters`;
+      throw new Error(`Tag cannot exceed ${maxLength} characters`);
     }
     if (value.includes(tag)) {
-      throw "Duplicate tag";
+      throw new Error("Duplicate tag");
     }
     if (!/^[a-zA-Z0-9\-_ ]+$/.test(tag)) {
-      throw "Invalid characters";
+      throw new Error("Invalid characters");
     }
     return true;
   };
@@ -96,7 +96,7 @@ const TagsInput = ({
       )}
 
       <View className="flex-row flex-wrap gap-2 mt-3">
-        {value.map((tag, index) => (
+        {value.filter(tag => tag.trim() !== "").map((tag, index) => (
           <View
             key={index}
             className="bg-indigo-100 px-3 py-1 rounded-full flex-row items-center"
