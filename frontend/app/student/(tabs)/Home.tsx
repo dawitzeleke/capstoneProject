@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Image, Pressable, Animated } from "react-native
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -11,8 +11,11 @@ type RoutePath = `/(student)${string}`;
 
 export default function Home() {
   const currentTheme = useSelector((state: any) => state.theme.mode);
+  const user = useSelector((state: any) => state.user.user);
   const router = useRouter();
   const [scaleAnim] = useState(new Animated.Value(1));
+
+  console.log(user)
 
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
@@ -70,7 +73,7 @@ export default function Home() {
                 </Text>
               </View>
               <Text className="text-3xl font-pbold text-white">
-                Welcome back! 👋
+                Welcome back {user.name} ! 👋
               </Text>
               <Text className="text-base text-white/80 font-pregular mt-2">
                 Ready to learn something new today?

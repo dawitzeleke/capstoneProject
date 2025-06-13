@@ -73,11 +73,13 @@ const SignIn = () => {
         }
       );
 
+      console.log(response)
+
       dispatch(
         setUser({
-          id: "1212",
-          image: "121",
-          name: "dagim",
+          id: response.id,
+          image: response.profilePictureUrl,
+          name: response.firstName,
           token: response.token,
           role: response.role,
           email: response.email,

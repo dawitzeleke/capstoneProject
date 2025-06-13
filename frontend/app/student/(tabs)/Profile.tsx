@@ -2,13 +2,42 @@ import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Link } from "expo-router";
 import { FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
+import { httpRequest } from "@/util/httpRequest";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function Profile() {
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const currentTheme = useSelector((state: any) => state.theme.mode);
   const isDark = currentTheme === "dark";
+  const user = useSelector((state: any) => state.user.user);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await httpRequest(
+          "/students/settings",
+          {},
+          "GET",
+          user.token
+        );
+        console.log(response);
+        setSettings(response);
+      } catch (err) {
+        setError("Failed to load settings.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
 
   return (
     <ScrollView className={`flex-1 ${isDark ? "bg-black" : "bg-[#f1f3fc]"}`}>
@@ -33,7 +62,7 @@ export default function Profile() {
         <View className="flex-row items-center">
           <View className="relative">
             <Image
-              source={{ uri: "https://randomuser.me/api/portraits/men/1.jpg" }}
+              source={{ uri: `${user.image}` }}
               className="w-24 h-24 rounded-full border-4 border-white/20"
             />
             <TouchableOpacity className="absolute bottom-0 right-0 bg-white p-2 rounded-full">
@@ -43,7 +72,7 @@ export default function Profile() {
 
           <View className="ml-4 flex-1">
             <Text className="text-2xl font-pbold text-white mb-1">
-              John Doe
+              {user.name}
             </Text>
             <Text className="text-white/80 font-pregular">@johndoe</Text>
             <View className="flex-row items-center mt-2">

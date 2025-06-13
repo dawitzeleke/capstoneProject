@@ -10,6 +10,8 @@ import themeReducer from "./themeReducer/themeReducer";
 import userTeacherReducer from "@/redux/userTeacherReducer/userTeacherReducer";
 import teacherInsightsReducer from "@/redux/teacherReducer/teacherInsightsSlice";
 import animationReducer from "./AnimationReducer/animationReducer";
+import progressReducer from "./ProgressReducer/progressReducer";
+import studentReducer from "./StudentReducer/studentReducer";
 import { userReducer } from "./userReducer/userReducer";
 import customExamReducer from "./CustomExamReducer/customExamReducer";
 
@@ -22,10 +24,12 @@ const rootReducer = combineReducers({
   userTeacher: userTeacherReducer,
   savedQuestions: savedQuestionsReducer,
   media: mediaReducer,
+  student: studentReducer,
   notifications: notificationsReducer,
   teacherQuestions: teacherQuestionReducer,
   teacherInsights: teacherInsightsReducer,
   user: userReducer,
+  progress:progressReducer,
   customExam: customExamReducer,
 });
 

@@ -316,4 +316,3 @@ export default function EditProfileScreen() {
     </SafeAreaView>
   );
 }
-//               : "text-indigo-600"}

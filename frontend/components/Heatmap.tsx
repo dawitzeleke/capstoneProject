@@ -1,34 +1,33 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
-
-const mockData = {
-  year: 2025,
-  days_in_month: 31,
-  heatmap: [
-    [0, 1, 2, 0],
-    [2, 0, 1, 0],
-    [1, 0, 0, 2],
-    [0, 2, 1, 0],
-    [2, 0, 1, 2],
-    [2, 0, 1, 2],
-    [2, 0, 1, 2],
-    [2, 0, 1, 2],
-  ],
-};
+import { HeatmapMonth } from "../redux/ProgressReducer/progressActionTypes"; // adjust path if needed
 
 const Heatmap = () => {
-  const [heatmapData] = useState(mockData);
   const currentTheme = useSelector((state: any) => state.theme.mode);
+  const progressData: HeatmapMonth[] = useSelector(
+    (state: any) => state.progress.progressData
+  );
+
   const isDark = currentTheme === "dark";
+
+  // Fallback if data is missing
+  if (!progressData || progressData.length === 0) {
+    return (
+      <View className="rounded-2xl p-4 w-full">
+        <Text className="text-center text-gray-500">No progress data available.</Text>
+      </View>
+    );
+  }
+
+  const heatmapData = progressData[0]; // take the first item for display
 
   return (
     <View
       className={`rounded-2xl p-4 w-full ${
         isDark ? "bg-neutral-900" : "bg-white border border-gray-200"
-      }`}>
-
+      }`}
+    >
       <View className="flex-row flex-wrap justify-center">
         {heatmapData.heatmap.map((week, weekIndex) => (
           <View key={weekIndex} className="flex-row justify-center">

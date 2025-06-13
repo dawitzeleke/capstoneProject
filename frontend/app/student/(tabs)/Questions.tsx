@@ -27,10 +27,10 @@ const Questions = () => {
       try {
         const response = await httpRequest("/Questions/", null, "GET", token);
         console.log("here", response);
-        // const resonse2 = await httpRequest("/Video", null, "GET");
-        // const resonse3 = await httpRequest("/imagecontent", null, "GET");
-        // console.log(resonse2.data, "herey");
-        // console.log(resonse3.data);
+        const resonse2 = await httpRequest("/VideoContent", null, "GET");
+        const resonse3 = await httpRequest("/ImageContent", null, "GET");
+        console.log(resonse2, "herey");
+        console.log(resonse3);
         dispatch(setQuestions(response.data.items));
       } catch (err) {
         console.error(err);

@@ -4,7 +4,7 @@ import { useFonts } from "expo-font";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { View, ActivityIndicator } from "react-native";
 import { Provider } from "react-redux";
-import store from "@/redux/store";
+import { store } from "../redux/store";
 import "../global.css";
 
 // Prevent splash screen from hiding automatically

@@ -271,13 +271,7 @@ const AddQuestion = () => {
       const method = editingQuestionId ? "PUT" : "POST";
       const url = "/api/Questions";
 
-      const response = await httpRequest(url, questionPayload, method, {
-          headers: { "Content-Type": "multipart/form-data",
-          Accept: "application/json", 
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODJhZGE0Yzg3MWYwMjdmMzA0OTI2NmQiLCJlbWFpbCI6ImRhd2l0dGVhY2hlckBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjY4MmFkYTRjODcxZjAyN2YzMDQ5MjY2ZCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImRhd2l0dGVhY2hlckBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJUZWFjaGVyIiwianRpIjoiNGQ0MjRlNmMtNzFiZi00ZmJhLWE1NzItNjU5M2Y3YjJkYzg0IiwiZXhwIjoxNzUxMjA3OTEzLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMTkiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAifQ.GvFSaN2rynQLz92Iyw3yZUHujjcuirXn_RPpeNIg3qs`  // Include token if needed
-          },
-
-        });
+      const response = await httpRequest(url, questionPayload, method);
 
       const questionToSubmit: QuestionItem = {
         ...formState,
