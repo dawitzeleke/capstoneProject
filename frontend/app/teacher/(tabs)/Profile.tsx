@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/redux/rootReducer';
 import { ScrollView, useWindowDimensions, View, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 import { Link, useRouter } from 'expo-router';
 import ProfileCard from '@/components/teacher/Profile/ProfileCard';
@@ -36,7 +38,7 @@ const defaultProfile: TeacherProfile = {
 
 const defaultStats: TeacherStats = {
   totalViews: 0,
-  totalShares: 0,
+  totalLikes: 0,
   engagementLast7Days: [],
   engagementLabels: [],
 };
@@ -66,13 +68,9 @@ const TeacherDashboard: React.FC = () => {
   ];
 
   return (
-    <ScrollView
-      className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-[#f1f3fc]'}`}
-      contentContainerStyle={{ paddingBottom: 24, paddingTop: 0 }}
-      showsVerticalScrollIndicator={false}
-    >
+    <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-[#f1f3fc]'}`} edges={['bottom', 'left', 'right']}>
       {/* Header */}
-      <View className={`flex-row mt-6 justify-between items-center ${isDark ? 'bg-gray-800' : 'bg-white'} px-5 py-4`}>
+      <View className={`flex-row justify-between items-center ${isDark ? 'bg-gray-800' : 'bg-white'} px-5 py-4`} style={{ paddingTop: Constants.statusBarHeight || 0 }}>
         <Text className={`text-3xl font-pbold ${isDark ? 'text-white' : 'text-[#4F46E5]'} tracking-tight`}>
           Dashboard
         </Text>
@@ -82,35 +80,40 @@ const TeacherDashboard: React.FC = () => {
           </TouchableOpacity>
         </Link>
       </View>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Profile Picture - positioned absolutely */}
+        <View className="w-full items-center" style={{ marginTop: 20, marginBottom: 60 }}>
+          <View className={`rounded-full p-1 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
+            <ProfilePicture
+              profilePictureUrl={profile?.profilePictureUrl}
+              loading={loadingImage}
+            />
+          </View>
+        </View>
 
-      {/* Profile Picture - positioned absolutely */}
-      <View className="w-full items-center absolute" style={{ top: 90, zIndex: 20 }}>
-        <View className={`rounded-full p-1 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
-          <ProfilePicture
-            profilePictureUrl={profile?.profilePictureUrl}
-            loading={loadingImage}
+        {/* Content below profile picture, including ProfileCard */}
+        <View className="space-y-6 px-4">
+          <ProfileCard
+            profile={profile || defaultProfile}
+            stats={stats || defaultStats}
+          />
+
+          <ScreenButtons isVerySmallScreen={isVerySmallScreen} />
+
+          <DashboardSummary
+            isSmallScreen={isSmallScreen}
+            isVerySmallScreen={isVerySmallScreen}
+            stats={stats || defaultStats}
           />
         </View>
-      </View>
 
-      {/* Content below profile picture, including ProfileCard */}
-      <View className="space-y-6 px-4 mt-[120]">
-        <ProfileCard
-          profile={profile || defaultProfile}
-          stats={stats || defaultStats}
-        />
-
-        <ScreenButtons isVerySmallScreen={isVerySmallScreen} />
-
-        <DashboardSummary
-          isSmallScreen={isSmallScreen}
-          isVerySmallScreen={isVerySmallScreen}
-          stats={stats || defaultStats}
-        />
-      </View>
-
-      <Toast />
-    </ScrollView>
+        <Toast />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

@@ -58,7 +58,7 @@ const TabIcon: React.FC<TabIconProps> = ({
 const TabsLayout: React.FC = () => {
   return (
     <SafeAreaView className="flex-1 bg-[#f1f3fc]">
-      <StatusBar backgroundColor="#161622" style="light" />
+      <StatusBar translucent={true} backgroundColor="transparent" style="dark" />
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,
