@@ -121,6 +121,8 @@ const AddQuestion = () => {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const shouldLoadDraft = useRef(!editingQuestionId);
+  const [isStreamDropdownOpen, setIsStreamDropdownOpen] = useState(false);
+  const [isQuestionTypeDropdownOpen, setIsQuestionTypeDropdownOpen] = useState(false);
 
   // Use the hoisted stable reference for initial state
   const [formState, setFormState] = useState<QuestionFormState>(() => {
@@ -482,6 +484,8 @@ const AddQuestion = () => {
         className="pb-10"
         showsVerticalScrollIndicator={false}
         aria-hidden={showPreviewModal}
+        nestedScrollEnabled={true}
+        scrollEnabled={!isStreamDropdownOpen && !isQuestionTypeDropdownOpen}
       >
         <AppHeader
           title="Upload Content"
@@ -527,6 +531,8 @@ const AddQuestion = () => {
               onChange={(value) => setFormState({ ...formState, questionType: value })}
               error={validationErrors.questionType}
               submitted={submitted}
+              isOpen={isQuestionTypeDropdownOpen}
+              setIsOpen={setIsQuestionTypeDropdownOpen}
             />
             <DifficultySelector
               value={formState.difficulty}
@@ -549,6 +555,8 @@ const AddQuestion = () => {
               onChange={(value) => setFormState({ ...formState, stream: value })}
               error={validationErrors.stream}
               submitted={submitted}
+              isOpen={isStreamDropdownOpen}
+              setIsOpen={setIsStreamDropdownOpen}
             />
 
             <ChapterInput
