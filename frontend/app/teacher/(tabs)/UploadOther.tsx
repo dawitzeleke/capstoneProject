@@ -387,6 +387,7 @@ const UploadOtherScreen = () => {
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <AppHeader
           title="Upload Content"
+          titleStyle={{fontFamily: 'Poppins-SemiBold'}}
           onBack={() => router.back()}
           showResetButton={true}
           onReset={() => Alert.alert(
