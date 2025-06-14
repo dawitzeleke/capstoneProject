@@ -118,8 +118,8 @@ public class QuestionsController : ControllerBase
 
 
     [Authorize(Roles = "Teacher")]
-    [HttpGet("create-draft")]
-    public async Task<IActionResult> CreateDraftQuestion([FromQuery] CreateQuestionCommand  draftQuestion)
+    [HttpPost("create-draft")]
+    public async Task<IActionResult> CreateDraftQuestion([FromForm] CreateQuestionCommand  draftQuestion)
     {
         draftQuestion.Status = ContentStatusEnum.Draft;
         var response = await _mediator.Send(draftQuestion);
@@ -132,8 +132,13 @@ public class QuestionsController : ControllerBase
 
     [Authorize(Roles = "Teacher")]
     [HttpGet("draft")]
-    public async Task<IActionResult> GetDraftQuestion(GetDraftQuery request)
+    public async Task<IActionResult> GetDraftQuestion([FromQuery] ContentTypeEnum contentType, [FromQuery] int totalCount = 10)
     {
+        var request = new GetDraftQuery
+        {
+            contentType = contentType,
+            totalCount = totalCount
+        };
         var result = await _mediator.Send(request);
         if (result == null || result.Count == 0)
         {
@@ -145,7 +150,7 @@ public class QuestionsController : ControllerBase
 
     [Authorize(Roles = "Teacher")]
     [HttpPut("draft")]
-    public async Task<IActionResult> UpdateDraftQuestion([FromBody] UpdateQuestionCommand question)
+    public async Task<IActionResult> UpdateDraftQuestion([FromForm] UpdateQuestionCommand question)
     {
         question.Status = ContentStatusEnum.Draft;
         var response = await _mediator.Send(question);
