@@ -37,7 +37,7 @@ const SettingsScreen = () => {
   const currentTheme = useSelector((state: any) => state.theme.mode);
   const [isPermissionsEnabled, setIsPermissionsEnabled] = useState(true);
   const [isPlayInBackground, setIsPlayInBackground] = useState(false);
-  const [isSeen, setIsSeen] = useState(false);
+  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
   const [isWifiOnly, setIsWifiOnly] = useState(true);
   const [isThemeChanging, setIsThemeChanging] = useState(false);
   const router = useRouter();
@@ -230,8 +230,8 @@ const SettingsScreen = () => {
               }
               title="Notifications"
               showSwitch={true}
-              value={isWifiOnly}
-              onValueChange={setIsWifiOnly}
+              value={isNotificationsEnabled}
+              onValueChange={setIsNotificationsEnabled}
             />
             <SettingItem
               icon={
@@ -273,19 +273,6 @@ const SettingsScreen = () => {
               showSwitch={true}
               value={isPermissionsEnabled}
               onValueChange={setIsPermissionsEnabled}
-            />
-            <SettingItem
-              icon={
-                <MaterialIcons
-                  name="people-outline"
-                  size={24}
-                  color={currentTheme === "dark" ? "#d6ddff" : "#4F46E5"}
-                />
-              }
-              title="Display Rank"
-              showSwitch={true}
-              value={isSeen}
-              onValueChange={setIsSeen}
             />
           </View>
         </View>
