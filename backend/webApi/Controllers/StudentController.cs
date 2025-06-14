@@ -25,7 +25,7 @@ public class StudentsController : ControllerBase
     [HttpGet("settings")]
     public async Task<IActionResult> GetSettings()
     {
-        var query = new GetStudentSettingsQuery {};
+        var query = new GetStudentSettingsQuery { };
         var result = await _mediator.Send(query);
         Console.WriteLine("Student Settings Query Executed");
         return Ok(result);
@@ -43,7 +43,7 @@ public class StudentsController : ControllerBase
     [HttpGet("get-following")]
     public async Task<IActionResult> GetFollowing()
     {
-        var result = await _mediator.Send(new GetStudentFollowingQuery {});
+        var result = await _mediator.Send(new GetStudentFollowingQuery { });
         return Ok(result);
     }
 
@@ -82,8 +82,8 @@ public class StudentsController : ControllerBase
         {
             return NotFound(ApiResponse.ErrorResponse("Student rank not found"));
         }
-            
-        return Ok(ApiResponse.SuccessResponse(result,"Student rank retrieved successfully"));
+
+        return Ok(ApiResponse.SuccessResponse(result, "Student rank retrieved successfully"));
     }
 
     [HttpGet("leader-students")]
@@ -96,4 +96,17 @@ public class StudentsController : ControllerBase
         }
         return Ok(ApiResponse.SuccessResponse(result, "Leader students retrieved successfully"));
     }
+
+    [Authorize(Roles = "Student")]
+    [HttpGet("student-division")]
+    public async Task<IActionResult> GetStudentDivision()
+    {
+        var result = await _mediator.Send(new GetStudentDivisionQuery());
+        if (result == null)
+        {
+            return NotFound(ApiResponse.ErrorResponse("Student division not found"));
+        }
+        return Ok(ApiResponse.SuccessResponse(result, "Student division retrieved successfully"));
+    }
+
 }
