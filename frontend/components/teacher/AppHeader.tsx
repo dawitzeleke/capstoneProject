@@ -82,7 +82,7 @@ const AppHeader = ({
       <View className="flex-1 flex-row items-center flex-shrink" style={{ gap }}>
         {showBackButton && onBack && (
           <TouchableOpacity onPress={onBack} style={{ marginRight: 12 }} disabled={disabled}>
-            <Ionicons name="arrow-back" size={24} color="#334155" />
+            <Ionicons name="arrow-back" size={24} color="#4F46E5" />
           </TouchableOpacity>
         )}
 
