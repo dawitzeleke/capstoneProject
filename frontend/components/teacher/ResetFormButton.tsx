@@ -68,14 +68,14 @@ const ResetFormButton = ({ onResetConfirm, isVisible = false, onClose, disabled 
 
             <View className="flex-col space-y-4">
               <Pressable
-                className="w-full bg-slate-100 px-6 py-3 rounded-lg"
+                className="w-full bg-slate-100 px-6 py-3 rounded-lg mb-2"
                 onPress={handleCancel}>
                 <Text className="text-slate-600 font-pmedium text-center text-base">
                   Cancel
                 </Text>
               </Pressable>
               <Pressable
-                className="w-full bg-red-100 px-6 py-3 rounded-lg"
+                className="w-full bg-red-100 px-6 py-3 rounded-lg mb-2"
                 onPress={handleConfirm}>
                 <Text className="text-red-600 font-pmedium text-center text-base">
                   Reset
