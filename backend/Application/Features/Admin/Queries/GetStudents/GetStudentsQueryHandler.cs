@@ -1,6 +1,7 @@
 using backend.Application.Contracts.Persistence;
 using Domain.Entities;
 using MediatR;
+using backend.Application.Dtos.StudentDtos;
 
 public class GetstudentsQueryHandler : IRequestHandler<GetStudentsQuery, List<StudentDto>>
 {

@@ -10,4 +10,5 @@ public class QuestionFilterDto
     public string? CreatorId { get; set; }
     public string? StudentId { get; set; }
     public DifficultyLevel? DifficultyLevel { get; set; }
+    public ContentStatusEnum? Status { get; set; }
 }

@@ -1,4 +1,6 @@
 using MediatR;
+using backend.Application.Dtos.StudentDtos;
+
 
 public class GetStudentsQuery : IRequest<List<StudentDto>>
 {
