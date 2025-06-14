@@ -31,13 +31,18 @@ const QuestionPreviewModal: React.FC<QuestionPreviewModalProps> = ({
             visible={visible}
             transparent
             animationType="fade"
-            onRequestClose={onClose}
+            onRequestClose={loading ? undefined : onClose}
+            statusBarTranslucent
         >
-            <View className="flex-1 bg-black/50 justify-center items-center">
+            <View className="flex-1 bg-black/50 justify-center items-center z-[1000]">
                 <View className="bg-white w-[90%] max-h-[80%] rounded-lg p-4">
                     <View className="flex-row justify-between items-center mb-4">
                         <Text className="text-lg font-semibold">Question Preview</Text>
-                        <Pressable onPress={onClose}>
+                        <Pressable
+                            onPress={onClose}
+                            disabled={loading}
+                            className={`${loading ? 'opacity-50' : ''}`}
+                        >
                             <Ionicons name="close" size={24} color="#666" />
                         </Pressable>
                     </View>
@@ -68,6 +73,13 @@ const QuestionPreviewModal: React.FC<QuestionPreviewModalProps> = ({
                                 ))}
                             </View>
 
+                            {question.explanation && (
+                                <View>
+                                    <Text className="text-sm text-gray-500">Explanation</Text>
+                                    <Text className="text-base">{question.explanation}</Text>
+                                </View>
+                            )}
+
                             {question.hint && (
                                 <View>
                                     <Text className="text-sm text-gray-500">Hint</Text>
@@ -79,7 +91,7 @@ const QuestionPreviewModal: React.FC<QuestionPreviewModalProps> = ({
                                 <Text className="text-sm text-gray-500">Tags</Text>
                                 <View className="flex-row flex-wrap gap-2 mt-1">
                                     {question.tags.map((tag, index) => (
-                                        <View key={index} className="bg-gray-100 px-2 py-1 rounded">
+                                        <View key={index} className="bg-[#eae9fc] border border-[#bfbcf6] px-2 py-1 rounded-xl">
                                             <Text className="text-sm">{tag}</Text>
                                         </View>
                                     ))}
@@ -95,10 +107,6 @@ const QuestionPreviewModal: React.FC<QuestionPreviewModalProps> = ({
                                     <Text className="text-sm text-gray-500">Difficulty</Text>
                                     <Text className="text-base">{question.difficulty}</Text>
                                 </View>
-                                <View>
-                                    <Text className="text-sm text-gray-500">Points</Text>
-                                    <Text className="text-base">{question.point}</Text>
-                                </View>
                             </View>
                         </View>
                     </ScrollView>
@@ -108,14 +116,21 @@ const QuestionPreviewModal: React.FC<QuestionPreviewModalProps> = ({
                             <>
                                 <Pressable
                                     onPress={onEdit}
-                                    className="px-4 py-2 bg-gray-200 rounded"
+                                    disabled={loading}
+                                    className={`px-4 py-2 rounded ${loading
+                                            ? 'bg-gray-300 opacity-50'
+                                            : 'bg-gray-200'
+                                        }`}
                                 >
                                     <Text>Edit</Text>
                                 </Pressable>
                                 <Pressable
                                     onPress={onConfirm}
                                     disabled={loading}
-                                    className="px-4 py-2 bg-blue-500 rounded"
+                                    className={`px-4 py-2 rounded ${loading
+                                            ? 'bg-blue-300'
+                                            : 'bg-blue-500'
+                                        }`}
                                 >
                                     {loading ? (
                                         <ActivityIndicator color="white" />
@@ -128,13 +143,21 @@ const QuestionPreviewModal: React.FC<QuestionPreviewModalProps> = ({
                             <>
                                 <Pressable
                                     onPress={onDelete}
-                                    className="px-4 py-2 bg-red-500 rounded"
+                                    disabled={loading}
+                                    className={`px-4 py-2 rounded ${loading
+                                            ? 'bg-red-300 opacity-50'
+                                            : 'bg-red-500'
+                                        }`}
                                 >
                                     <Text className="text-white">Delete</Text>
                                 </Pressable>
                                 <Pressable
                                     onPress={onEdit}
-                                    className="px-4 py-2 bg-blue-500 rounded"
+                                    disabled={loading}
+                                    className={`px-4 py-2 rounded ${loading
+                                            ? 'bg-blue-300 opacity-50'
+                                            : 'bg-blue-500'
+                                        }`}
                                 >
                                     <Text className="text-white">Edit</Text>
                                 </Pressable>
