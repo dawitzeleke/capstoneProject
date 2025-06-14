@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { QuestionTypeEnum } from '@/types/questionTypes';
 
 type QuestionTypeDropdownProps = {
@@ -8,6 +8,8 @@ type QuestionTypeDropdownProps = {
   onChange: (type: QuestionTypeEnum) => void;
   error: boolean;
   submitted: boolean;
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 const questionTypes: QuestionTypeEnum[] = [
@@ -17,8 +19,7 @@ const questionTypes: QuestionTypeEnum[] = [
   QuestionTypeEnum.Code
 ];
 
-const QuestionTypeDropdown = ({ value, onChange, error, submitted }: QuestionTypeDropdownProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const QuestionTypeDropdown = ({ value, onChange, error, submitted, isOpen, setIsOpen }: QuestionTypeDropdownProps) => {
   const displayValue = value ? value.replace(/([A-Z])/g, ' $1').trim() : 'Select Question Type';
 
   return (
@@ -50,33 +51,31 @@ const QuestionTypeDropdown = ({ value, onChange, error, submitted }: QuestionTyp
       </Pressable>
 
       {isOpen && (
-        <View className="mt-2 border border-slate-100 rounded-lg bg-white max-h-40 font-pregular">
-          <ScrollView>
-            {questionTypes.map((type) => {
-              const displayType = type.replace(/([A-Z])/g, ' $1').trim();
-              
-              return (
-                <Pressable
-                  key={type}
-                  onPress={() => {
-                    onChange(type);
-                    setIsOpen(false);
-                  }}
-                  className={`px-4 py-3 ${
-                    value === type ? 'bg-indigo-50' : 'bg-white'
-                  }`}
-                  accessibilityRole="menuitem"
-                >
-                  <Text className={`text-base ${
-                    value === type ? 'text-indigo-700 font-psemibold' : 'text-slate-600 font-pregular'
-                  }`}>
-                    {displayType}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        </View>
+        <ScrollView className="mt-2 border border-slate-100 rounded-lg bg-white max-h-40 font-pregular" nestedScrollEnabled={true}>
+          {questionTypes.map((type) => {
+            const displayType = type.replace(/([A-Z])/g, ' $1').trim();
+            
+            return (
+              <Pressable
+                key={type}
+                onPress={() => {
+                  onChange(type);
+                  setIsOpen(false);
+                }}
+                className={`px-4 py-3 ${
+                  value === type ? 'bg-indigo-50' : 'bg-white'
+                }`}
+                accessibilityRole="menuitem"
+              >
+                <Text className={`text-base ${
+                  value === type ? 'text-indigo-700 font-psemibold' : 'text-slate-600 font-pregular'
+                }`}>
+                  {displayType}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
       )}
     </View>
   );

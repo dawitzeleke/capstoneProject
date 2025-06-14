@@ -1,12 +1,14 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 
 type StreamDropdownProps = {
   value: string;
   onChange: (stream: string) => void;
   error: boolean;
   submitted: boolean;
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 const streams = [
@@ -16,9 +18,7 @@ const streams = [
   'Technology'
 ];
 
-const StreamDropdown = ({ value, onChange, error, submitted }: StreamDropdownProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-
+const StreamDropdown = ({ value, onChange, error, submitted, isOpen, setIsOpen }: StreamDropdownProps) => {
   return (
     <View className="bg-white rounded-xl shadow p-4 mb-4">
       <View className="flex-row justify-between items-center mb-2">
@@ -48,29 +48,27 @@ const StreamDropdown = ({ value, onChange, error, submitted }: StreamDropdownPro
       </Pressable>
 
       {isOpen && (
-        <View className="mt-2 border border-slate-100 rounded-lg bg-white max-h-40">
-          <ScrollView>
-            {streams.map((stream) => (
-              <Pressable
-                key={stream}
-                onPress={() => {
-                  onChange(stream);
-                  setIsOpen(false);
-                }}
-                className={`px-4 py-3 ${
-                  value === stream ? 'bg-indigo-50' : 'bg-white'
-                }`}
-                accessibilityRole="menuitem"
-              >
-                <Text className={`text-base ${
-                  value === stream ? 'text-indigo-700 font-psemibold' : 'text-slate-600 font-pregular'
-                }`}>
-                  {stream}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        </View>
+        <ScrollView className="mt-2 border border-slate-100 rounded-lg bg-white max-h-40" nestedScrollEnabled={true}>
+          {streams.map((stream) => (
+            <Pressable
+              key={stream}
+              onPress={() => {
+                onChange(stream);
+                setIsOpen(false);
+              }}
+              className={`px-4 py-3 ${
+                value === stream ? 'bg-indigo-50' : 'bg-white'
+              }`}
+              accessibilityRole="menuitem"
+            >
+              <Text className={`text-base ${
+                value === stream ? 'text-indigo-700 font-psemibold' : 'text-slate-600 font-pregular'
+              }`}>
+                {stream}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
       )}
     </View>
   );
