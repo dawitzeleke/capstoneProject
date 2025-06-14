@@ -10,9 +10,10 @@ interface MatrikCheckboxProps {
         isMatrik?: string;
         year?: string;
     };
+    submitted: boolean; // THIS LINE IS ADDED/UPDATED
 }
 
-const MatrikCheckbox = ({ formState, setFormState, validationErrors }: MatrikCheckboxProps) => {
+const MatrikCheckbox = ({ formState, setFormState, validationErrors, submitted }: MatrikCheckboxProps) => { // 'submitted' is added here
     const handleToggle = () => {
         setFormState(prev => ({ 
             ...prev, 
@@ -37,18 +38,25 @@ const MatrikCheckbox = ({ formState, setFormState, validationErrors }: MatrikChe
             ) : null}
 
             {formState.isMatrik ? (
-                <View className="mt-2">
-                    <Text className="text-base text-gray-700 font-pmedium mb-2">Year</Text>
-                    <View className="flex-row items-center border border-gray-300 rounded-lg px-3 py-2">
-                        <TextInput
-                            className="flex-1 text-base text-gray-800 font-pregular"
-                            placeholder="Enter year"
-                            value={formState.year}
-                            onChangeText={(text) => setFormState(prev => ({ ...prev, year: text }))}
-                            keyboardType="numeric"
-                            maxLength={4}
-                        />
+                <View className="bg-white rounded-xl shadow p-4 mb-4 border-b border-slate-200">
+                    <View className="flex-row justify-between items-center mb-2">
+                        <Text className="text-lg font-psemibold text-slate-800">Year</Text>
+                        {validationErrors.year && submitted && (
+                            <Text className="text-red-500 text-xs">Required</Text>
+                        )}
                     </View>
+                    <TextInput
+                        multiline
+                        placeholder="Enter year"
+                        placeholderTextColor="#94a3b8"
+                        className={`min-h-[30px] text-base text-black font-pregular px-2 ${
+                            validationErrors.year && submitted ? "border-2 border-red-200 bg-red-50 rounded" : "border-b border-slate-200"
+                        }`}
+                        value={formState.year}
+                        onChangeText={(text) => setFormState(prev => ({ ...prev, year: text }))}
+                        keyboardType="numeric"
+                        maxLength={4}
+                    />
                     {validationErrors.year ? (
                         <Text className="text-red-500 text-sm font-pregular mt-1">{validationErrors.year}</Text>
                     ) : null}
@@ -58,4 +66,4 @@ const MatrikCheckbox = ({ formState, setFormState, validationErrors }: MatrikChe
     );
 };
 
-export default MatrikCheckbox; 
+export default MatrikCheckbox;
