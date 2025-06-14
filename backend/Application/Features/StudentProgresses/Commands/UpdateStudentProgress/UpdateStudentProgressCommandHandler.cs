@@ -84,6 +84,7 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
             return true;
         }else{
             var monthly_progress = new MonthlyProgress(month_year);
+            monthly_progress.StudentId = student_id;
             monthly_progress.Questions[day].UnionWith(request.CorrectQuestions);
             var new_month_progress  = await _monthlyProgressRepository.CreateAsync(monthly_progress);
             if(new_month_progress == null)

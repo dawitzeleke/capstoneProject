@@ -4,6 +4,7 @@ namespace backend.Domain.Entities;
 
 public class MonthlyProgress:BaseEntity
 {
+    public string StudentId { get; set; } // the student id
     public string Month { get; set; }  // will be puttend in a way that show month and year
     public IReadOnlyList<HashSet<string>> Questions; 
 

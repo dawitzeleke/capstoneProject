@@ -11,5 +11,19 @@ public class MonthlyProgressRepository : GenericRepository<MonthlyProgress>, IMo
     {
         _monthlyProgress = context.GetCollection<MonthlyProgress>(typeof(MonthlyProgress).Name);
     }
+    public async Task<MonthlyProgress> GetByStudentIdAndMonthAsync(string studentId, string monthYear)
+    {
+        var filter = Builders<MonthlyProgress>.Filter.And(
+            Builders<MonthlyProgress>.Filter.Eq(mp => mp.StudentId, studentId),
+            Builders<MonthlyProgress>.Filter.Eq(mp => mp.Month, monthYear)
+        );
+
+        return await _monthlyProgress.Find(filter).FirstOrDefaultAsync();
+    }
+    public async Task<MonthlyProgress> GetByStudentIdAsync(string studentId)
+    {
+        var filter = Builders<MonthlyProgress>.Filter.Eq(mp => mp.StudentId, studentId);
+        return await _monthlyProgress.Find(filter).FirstOrDefaultAsync();
+    }
 
 }

@@ -23,6 +23,7 @@ public class StudentsController : ControllerBase
     {
         var query = new GetStudentSettingsQuery {};
         var result = await _mediator.Send(query);
+        Console.WriteLine("Student Settings Query Executed");
         return Ok(result);
     }
 
