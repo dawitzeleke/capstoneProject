@@ -21,15 +21,17 @@ public class StudentsController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize(Roles = "Student")]
     [HttpGet("settings")]
-    public async Task<IActionResult> GetSettings([FromQuery] string email)
+    public async Task<IActionResult> GetSettings()
     {
-        var query = new GetStudentSettingsQuery { Email = email };
+        var query = new GetStudentSettingsQuery {};
         var result = await _mediator.Send(query);
+        Console.WriteLine("Student Settings Query Executed");
         return Ok(result);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Student")]
     [HttpPatch("settings")]
     public async Task<IActionResult> UpdateSettings([FromForm] UpdateStudentSettingsCommand command)
     {
@@ -37,10 +39,11 @@ public class StudentsController : ControllerBase
         return result ? Ok("Student Updated Succefully") : BadRequest("Update failed");
     }
 
-    [HttpGet("{studentId}/following")]
-    public async Task<IActionResult> GetFollowing(string studentId)
+    [Authorize(Roles = "Student")]
+    [HttpGet("get-following")]
+    public async Task<IActionResult> GetFollowing()
     {
-        var result = await _mediator.Send(new GetStudentFollowingQuery { StudentId = studentId });
+        var result = await _mediator.Send(new GetStudentFollowingQuery {});
         return Ok(result);
     }
 

@@ -32,22 +32,22 @@ public static class InfrastructureServiceRegisteration
         //     return new OcrService(credentialsPath);
         // });
 
-        // Register OCR.Space Service
-        // services.AddHttpClient(); // registers IHttpClientFactory
+        Register OCR.Space Service
+        services.AddHttpClient(); // registers IHttpClientFactory
 
-        // services.AddScoped<IOcrService>(provider =>
-        // {
-        //     var factory = provider.GetRequiredService<IHttpClientFactory>();
-        //     var client = factory.CreateClient();
+        services.AddScoped<IOcrService>(provider =>
+        {
+            var factory = provider.GetRequiredService<IHttpClientFactory>();
+            var client = factory.CreateClient();
 
-        //     var apiKey = Environment.GetEnvironmentVariable("OCR_SPACE_API_KEY");
-        //     if (string.IsNullOrEmpty(apiKey))
-        //     {
-        //         throw new InvalidOperationException("OCR_SPACE_API_KEY is not set.");
-        //     }
+            var apiKey = Environment.GetEnvironmentVariable("OCR_SPACE_API_KEY");
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                throw new InvalidOperationException("OCR_SPACE_API_KEY is not set.");
+            }
 
-        //     return new OcrSpaceService(client, apiKey);
-        // });
-        // return services;
+            return new OcrSpaceService(client, apiKey);
+        });
+        return services;
     }
 }

@@ -70,15 +70,20 @@ public class ImageContentController : ControllerBase
     // [HttpPost("upload-question-image")]
     // public async Task<IActionResult> Upload_QuestionImage([FromForm] IFormFile image)
     // {
+    //     Console.WriteLine("Received image upload request");
     //     if (image == null || image.Length == 0)
     //     {
     //         return BadRequest("Image file is required");
     //     }
+    //     Console.WriteLine("Received image upload request");
     //     var imageStream = image.OpenReadStream();
+    //     Console.WriteLine("Image stream opened successfully");
     //     var result = await _mediator.Send(new UploadQuestionImageCommand
     //     {
     //         ImageStream = imageStream
     //     });
+    //     Console.WriteLine("Image upload command sent to mediator");
+
     //     return Ok(result);
     // }
 
