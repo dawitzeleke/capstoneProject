@@ -6,9 +6,10 @@ interface ResetFormButtonProps {
   onResetConfirm: () => void;
   isVisible?: boolean;
   onClose?: () => void;
+  disabled?: boolean;
 }
 
-const ResetFormButton = ({ onResetConfirm, isVisible = false, onClose }: ResetFormButtonProps) => {
+const ResetFormButton = ({ onResetConfirm, isVisible = false, onClose, disabled = false }: ResetFormButtonProps) => {
   const [showConfirmModalInternal, setShowConfirmModalInternal] = useState(false);
   const showConfirmModal = isVisible || showConfirmModalInternal;
 
@@ -44,6 +45,7 @@ const ResetFormButton = ({ onResetConfirm, isVisible = false, onClose }: ResetFo
           className="p-1.5 rounded-lg active:opacity-80"
           onPress={handlePress}
           android_ripple={{ color: '#e0e7ff', borderless: true }}
+          disabled={disabled}
         >
           <Ionicons name="refresh-outline" size={24} color="#f97316" />
         </Pressable>
