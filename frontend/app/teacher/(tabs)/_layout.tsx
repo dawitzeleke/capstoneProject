@@ -2,6 +2,7 @@ import React from "react";
 import { View, Image, ImageSourcePropType, Text } from "react-native";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
 import icons from "../../../constants/icons";
 
 interface TabIconProps {
@@ -56,7 +57,7 @@ const TabIcon: React.FC<TabIconProps> = ({
 
 const TabsLayout: React.FC = () => {
   return (
-    <>
+    <SafeAreaView className="flex-1 bg-[#f1f3fc]">
       <StatusBar backgroundColor="#161622" style="light" />
       <Tabs
         screenOptions={{
@@ -71,9 +72,11 @@ const TabsLayout: React.FC = () => {
             height: 64,
             display: "flex",
             justifyContent: "center",
+            paddingBottom: 8,
+            paddingTop: 8,
           },
           tabBarItemStyle: {
-            marginTop: 15,
+            marginTop: 8,
             display: "flex",
             alignItems: "center",
           },
@@ -99,7 +102,6 @@ const TabsLayout: React.FC = () => {
           options={{
             title: "AddQuestion",
             headerShown: false,
-            // href: "/teacher/AddQuestion",
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.upload}
@@ -162,7 +164,7 @@ const TabsLayout: React.FC = () => {
           }}
         />
       </Tabs>
-    </>
+    </SafeAreaView>
   );
 };
 
