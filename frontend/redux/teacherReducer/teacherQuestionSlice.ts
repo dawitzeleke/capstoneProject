@@ -19,7 +19,6 @@ interface QuestionState {
     difficulties: DifficultyLevel[];
     questionTypes: QuestionTypeEnum[];
     grades: number[];
-    points: number[];
   };
 }
 
@@ -40,7 +39,6 @@ const initialState: QuestionState = {
       grade: 9,
       difficulty: DifficultyLevel.Medium,
       questionType: QuestionTypeEnum.MultipleChoice,
-      point: 1,
       tags: ["bio", "science"],
       hint: "It's the organelle responsible for producing energy (ATP).",
       explanation: `Mitochondria generate most of the cell's energy through cellular respiration, converting glucose and oxygen into ATP, hence they're called the "powerhouse" of the cell.`,
@@ -63,7 +61,6 @@ const initialState: QuestionState = {
       grade: 10,
       difficulty: DifficultyLevel.Medium,
       questionType: QuestionTypeEnum.MultipleChoice,
-      point: 3,
       tags: ["bio", "science"],
       hint: "It involves the division of a single cell into two identical daughter cells.",
       explanation: "Mitosis is the process by which a cell divides to produce two genetically identical daughter cells. It is essential for growth, repair, and asexual reproduction. Meiosis, on the other hand, is used in the formation of gametes and results in four genetically different cells.",
@@ -86,7 +83,6 @@ const initialState: QuestionState = {
       grade: 10,
       difficulty: DifficultyLevel.Medium,
       questionType: QuestionTypeEnum.MultipleChoice,
-      point: 2,
       tags: ["bio", "science"],
       hint: "This molecule has a double helix structure and contains the instructions for building proteins.",
       explanation: "DNA (Deoxyribonucleic acid) is the molecule that carries genetic information in most living organisms. It encodes the instructions needed for an organism to develop, survive, and reproduce.",
@@ -109,7 +105,6 @@ const initialState: QuestionState = {
     difficulties: [],
     questionTypes: [],
     grades: [],
-    points: []
   }
 };
 
@@ -118,7 +113,27 @@ const teacherQuestionSlice = createSlice({
   initialState,
   reducers: {
     addQuestion: (state, action: PayloadAction<QuestionItem>) => {
-      state.questions.unshift(action.payload);
+      const newQuestion = {
+        id: action.payload.id,
+        questionText: action.payload.questionText,
+        description: action.payload.description,
+        options: action.payload.options,
+        correctOption: action.payload.correctOption,
+        courseName: action.payload.courseName,
+        grade: action.payload.grade,
+        difficulty: action.payload.difficulty,
+        questionType: action.payload.questionType,
+        createdBy: action.payload.createdBy,
+        stream: action.payload.stream,
+        hint: action.payload.hint,
+        tags: action.payload.tags,
+        explanation: action.payload.explanation,
+        isMatrik: action.payload.isMatrik,
+        year: action.payload.year,
+        chapter: action.payload.chapter,
+        status: action.payload.status
+      };
+      state.questions.unshift(newQuestion);
     },
     toggleSelection(state, action: PayloadAction<string>) {
       const id = action.payload;
@@ -135,13 +150,31 @@ const teacherQuestionSlice = createSlice({
     updateQuestion: (state, action: PayloadAction<QuestionItem>) => {
       const index = state.questions.findIndex(q => q.id === action.payload.id);
       if (index !== -1) {
-        state.questions[index] = action.payload;
+        const updatedQuestion = {
+          id: action.payload.id,
+          questionText: action.payload.questionText,
+          description: action.payload.description,
+          options: action.payload.options,
+          correctOption: action.payload.correctOption,
+          courseName: action.payload.courseName,
+          grade: action.payload.grade,
+          difficulty: action.payload.difficulty,
+          questionType: action.payload.questionType,
+          createdBy: action.payload.createdBy,
+          stream: action.payload.stream,
+          hint: action.payload.hint,
+          tags: action.payload.tags,
+          explanation: action.payload.explanation,
+          isMatrik: action.payload.isMatrik,
+          year: action.payload.year,
+          chapter: action.payload.chapter,
+          status: action.payload.status
+        };
+        state.questions[index] = updatedQuestion;
       }
     },
     deleteQuestion: (state, action: PayloadAction<string>) => {
-      state.questions = state.questions.filter(
-        question => question.id !== action.payload
-      );
+      state.questions = state.questions.filter(q => q.id !== action.payload);
       state.selectedIds = state.selectedIds.filter(
         id => id !== action.payload
       );
@@ -169,9 +202,6 @@ const teacherQuestionSlice = createSlice({
     setGradeFilter: (state, action: PayloadAction<number[]>) => {
       state.filters.grades = action.payload;
     },
-    setPointFilter: (state, action: PayloadAction<number[]>) => {
-      state.filters.points = action.payload;
-    },
   }
 });
 
@@ -186,10 +216,9 @@ export const {
   setActiveTab,
   clearSelections,
   deleteMultipleQuestions,
-    setDifficultyFilter,
+  setDifficultyFilter,
   setTypeFilter,
   setGradeFilter,
-  setPointFilter,
 } = teacherQuestionSlice.actions;
 
 export const selectFilteredQuestions = createSelector(
@@ -219,12 +248,8 @@ export const selectFilteredQuestions = createSelector(
       const matchesGrade = filters.grades.length === 0 || 
         filters.grades.includes(question.grade);
 
-      // Point filter
-      const matchesPoint = filters.points.length === 0 || 
-        filters.points.includes(question.point);
-
       return matchesSearch && matchesDifficulty && matchesType && 
-             matchesGrade && matchesPoint;
+             matchesGrade;
     });
   }
 );

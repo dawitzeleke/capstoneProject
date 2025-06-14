@@ -26,7 +26,6 @@ export interface QuestionItem {
     options: string[];
     correctOption: string;
     courseName: string;
-    point: number;
     grade: number;
     difficulty: DifficultyLevel;
     questionType: QuestionTypeEnum;
@@ -61,7 +60,6 @@ export interface QuestionFormState {
     status: ContentStatus;
     createdAt?: string;
     updatedAt?: string;
-    point: number;
     questionType: QuestionTypeEnum;
     createdBy: string;
 }
