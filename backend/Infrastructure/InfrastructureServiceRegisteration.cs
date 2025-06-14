@@ -32,7 +32,7 @@ public static class InfrastructureServiceRegisteration
         //     return new OcrService(credentialsPath);
         // });
 
-        Register OCR.Space Service
+        // Register OCR.Space Service
         services.AddHttpClient(); // registers IHttpClientFactory
 
         services.AddScoped<IOcrService>(provider =>
