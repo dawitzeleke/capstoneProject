@@ -10,6 +10,5 @@ public class CreateVideoContentCommand : IRequest<VideoContent>
     public string Thumbnail{ get; set; }
     public Stream? VideoStream { get; set; }
     public string[] Tags { get; set; }
-    public string CreatedBy { get; set; }
 
 }
