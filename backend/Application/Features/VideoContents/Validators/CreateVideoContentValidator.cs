@@ -29,8 +29,6 @@ public class CreateVideoContentCommandValidator : AbstractValidator<CreateVideoC
             .NotEmpty().WithMessage("Each tag must be non-empty.")
             .MaximumLength(30).WithMessage("Each tag must not exceed 30 characters.");
 
-        RuleFor(x => x.CreatedBy)
-            .NotEmpty().WithMessage("CreatedBy is required.");
     }
 
     private bool IsValidUrl(string url)
