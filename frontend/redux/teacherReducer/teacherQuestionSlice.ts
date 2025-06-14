@@ -48,6 +48,10 @@ const initialState: QuestionState = {
       createdBy: "teacher_abc123",
       createdAt: "2025-03-16T00:00:00Z",
       updatedAt: "2025-03-16T00:00:00Z",
+      stream: "",
+      isMatrik: false,
+      year: "",
+      chapter: ""
     },
     {
       id: "2",
@@ -67,6 +71,10 @@ const initialState: QuestionState = {
       createdBy: "teacher_abc123",
       createdAt: "2025-02-25T00:00:00Z",
       updatedAt: "2025-02-29T00:00:00Z",
+      stream: "",
+      isMatrik: false,
+      year: "",
+      chapter: ""
     },
     {
       id: "3",
@@ -86,6 +94,10 @@ const initialState: QuestionState = {
       createdBy: "teacher_abc123",
       createdAt: "2024-03-14T00:00:00Z",
       updatedAt: "2024-03-14T00:00:00Z",
+      stream: "",
+      isMatrik: false,
+      year: "",
+      chapter: ""
     },
   ],
 
