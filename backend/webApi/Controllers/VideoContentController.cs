@@ -7,6 +7,7 @@ using backend.Application.Features.VideoContents.Queries.GetVideoContentList;
 using backend.webApi.Dtos.VideoContentDtos;
 using backend.Application.Features.Image.Commands.CreateImageContent;
 using backend.Application.Features.VideoContents.Commands.UpdateVideoContent;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace backend.webApi.Controllers;
@@ -31,7 +32,7 @@ public class VideoContentController : ControllerBase
     }
 
     // [HttpGet("{id}")]
-
+    [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<IActionResult> CreateVideoContent([FromForm] CreateVideoContentRequestDto request)
     {
@@ -46,7 +47,6 @@ public class VideoContentController : ControllerBase
             var thumbnailStream = request.Thumbnail.OpenReadStream();
             var imageUpload= await _mediator.Send(new CreateImageContentCommand
             {
-                CreatedBy = request.CreatedBy,
                 ImageStream = thumbnailStream,
             });
             thumbnailId = imageUpload.Id;
@@ -56,7 +56,6 @@ public class VideoContentController : ControllerBase
 
         var new_video_command = new CreateVideoContentCommand
         {
-            CreatedBy = request.CreatedBy,
             Title = request.Title,
             Description = request.Description,
             VideoStream = videoStream,

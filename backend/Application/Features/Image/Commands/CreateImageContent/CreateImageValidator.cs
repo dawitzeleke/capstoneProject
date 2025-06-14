@@ -18,10 +18,6 @@ namespace Application.Features.Image.Validators
                 .NotNull().WithMessage("Image stream is required")
                 .Must(stream => stream.Length > 0).WithMessage("Image stream cannot be empty");
 
-          
-            RuleFor(x => x.CreatedBy)
-                .NotEmpty().WithMessage("Teacher ID is required");
-
             RuleFor(x => x.Tags)
                 .Must(tags => tags.Length <= 10)
                 .WithMessage("Maximum 10 tags are allowed");
