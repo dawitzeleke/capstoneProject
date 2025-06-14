@@ -15,7 +15,7 @@ export interface TeacherProfile {
 
 export interface TeacherStats {
   totalViews: number;
-  totalShares: number;
+  totalLikes: number;
   engagementLast7Days: number[];
   engagementLabels: string[];
 }

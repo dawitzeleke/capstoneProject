@@ -24,7 +24,7 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({
   // Mock data structure matching backend schema
   const mockStats: TeacherStats = {
     totalViews: 10000,
-    totalShares: 1000,
+    totalLikes: 1000,
     engagementLast7Days: [20, 45, 28, 80, 99, 43, 50],
     engagementLabels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   };
@@ -70,14 +70,14 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({
 
         <View className="items-center space-y-2 bg-opacity-10 p-4 rounded-2xl flex-1 mx-2"
           style={{ backgroundColor: isDark ? 'rgba(79, 70, 229, 0.1)' : 'rgba(79, 70, 229, 0.05)' }}>
-          <Ionicons name="share-social-outline" size={32} color="#4F46E5" />
+          <Ionicons name="heart" size={32} color="#4F46E5" />
           <Text className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-            Total Shares
+            Total Likes
           </Text>
           <Text className={`text-lg font-pbold ${
             isDark ? 'text-gray-100' : 'text-gray-800'
           }`}>
-            {safeStats.totalShares.toLocaleString()}
+            {safeStats.totalLikes?.toLocaleString() || '0'}
           </Text>
         </View>
       </View>
