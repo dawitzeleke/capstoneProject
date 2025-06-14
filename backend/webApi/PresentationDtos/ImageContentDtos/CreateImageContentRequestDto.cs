@@ -7,5 +7,4 @@ public class CreateImageContentRequestDto
     public string? Description { get; set; }
     public IFormFile Image { get; set; }
     public string[] Tags { get; set; }
-    public string CreatedBy { get; set; }
 }
