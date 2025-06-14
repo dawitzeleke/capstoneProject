@@ -3,6 +3,7 @@ using backend.Domain.Entities;
 using backend.Domain.Enums;
 using backend.Application.Contracts.Persistence;
 using backend.Application.Dtos.QuestionDtos;
+using backend.Application.Features.StudentProgresses.Queries;
 
 
 namespace backend.Application.Features.StudentProgresses.Commands.UpdateStudentProgress;
@@ -309,9 +310,21 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         }
         // Update the student's total points in the student progress
         var response = await _studentRepository.UpdateTotalPointsAsync(studentId, totalPoints);
+
         if (response == null)
         {
+            Console.WriteLine("Failed to update total points for student.");
         }
+
+        var division = DivisionHelper.GetDivisionByPoints(totalPoints);
+        // Update the student's division based on total points
+        var divisionUpdateResponse = await _studentRepository.UpdateStudentDivisionAsync(studentId, division);
+        if (divisionUpdateResponse == null)
+        {
+            Console.WriteLine("Failed to update student division.");
+        }
+
+
 
         // update the question's total correct answers
         var questionIds = new_solved_question_Ids.Union(newSOlvedFromAttemptedIds).ToList();

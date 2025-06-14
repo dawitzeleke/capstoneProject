@@ -22,4 +22,5 @@ public class UpdateQuestionCommand : IRequest<Question>
     public StreamEnum? Stream { get; set; }
     public int? Chapter { get; set; }
     public int? Point { get; set; }
+    public ContentStatusEnum? Status { get; set; }
 }

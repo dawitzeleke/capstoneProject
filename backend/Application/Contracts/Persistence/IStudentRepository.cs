@@ -1,4 +1,5 @@
 using backend.Domain.Entities;
+using backend.Domain.Enums;
 
 namespace backend.Application.Contracts.Persistence;
 
@@ -14,4 +15,7 @@ public interface IStudentRepository : IGenericRepository<Student>
     Task<bool> SaveContentAsync(string studentId, string contentId);
     Task<IEnumerable<string>> GetSavedQuestions(string studentId);
     Task<bool> UpdateTotalPointsAsync(string studentId, int points);
+    Task<bool> UpdateStudentDivisionAsync(string studentId, DivisionEnums division);
+    Task<int> GetStudentRankAsync(string studentId);
+    Task<List<Student>> GetLeaderStudentsAsync(DivisionEnums division,int topN);
 }

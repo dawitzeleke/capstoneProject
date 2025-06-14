@@ -20,5 +20,6 @@ public class CreateQuestionCommand: IRequest<Question>
     public string? Hint { get; set; }
     public string[] Tags { get; set; }
     public string? Explanation { get; set; }
+    public ContentStatusEnum Status { get; set; }
     // public string RelatedBlog { get; set; }
 }

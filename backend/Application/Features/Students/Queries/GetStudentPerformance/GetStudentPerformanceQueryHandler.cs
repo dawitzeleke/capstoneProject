@@ -23,6 +23,10 @@ public class GetStudentPerformanceQueryHandler : IRequestHandler<GetStudentPerfo
     public async Task<List<StudentPerformanceDto>> Handle(GetStudentPerformanceQuery request, CancellationToken cancellationToken)
     {
         var studentId = _currentUserService.UserId.ToString();
+        if (string.IsNullOrEmpty(studentId))
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
         var filter = new QuestionFilterDto
         {
             StudentId = studentId,
@@ -46,6 +50,5 @@ public class GetStudentPerformanceQueryHandler : IRequestHandler<GetStudentPerfo
                 SuccessRate = successRate
             }
         };
-        
     }
 }

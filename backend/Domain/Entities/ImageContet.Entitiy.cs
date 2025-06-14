@@ -1,3 +1,5 @@
+using backend.Domain.Enums;
+
 using backend.Domain.Common;
 namespace backend.Domain.Entities;
 
@@ -10,4 +12,5 @@ public class ImageContent:ContentEntity
     public string[] Tags { get; set; }
     public string[] Feedbacks { get; set; }
     public string Report { get; set; }
+    public ContentStatusEnum Status { get; set; }
 }
