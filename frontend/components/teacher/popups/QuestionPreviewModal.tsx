@@ -73,14 +73,14 @@ const QuestionPreviewModal: React.FC<QuestionPreviewModalProps> = ({
                                 ))}
                             </View>
 
-                            {question.explanation && (
+                            {!!question.explanation && (
                                 <View>
                                     <Text className="text-sm text-gray-500">Explanation</Text>
                                     <Text className="text-base">{question.explanation}</Text>
                                 </View>
                             )}
 
-                            {question.hint && (
+                            {!!question.hint && (
                                 <View>
                                     <Text className="text-sm text-gray-500">Hint</Text>
                                     <Text className="text-base">{question.hint}</Text>
@@ -112,7 +112,7 @@ const QuestionPreviewModal: React.FC<QuestionPreviewModalProps> = ({
                     </ScrollView>
 
                     <View className="flex-row justify-end space-x-2 mt-4">
-                        {mode === 'edit' ? (
+                        {mode === "edit" ? (
                             <>
                                 <Pressable
                                     onPress={onEdit}
