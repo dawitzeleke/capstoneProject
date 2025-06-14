@@ -1,6 +1,7 @@
 using backend.Application.Contracts.Persistence;
 using backend.Domain.Entities;
 using backend.Persistence.DatabaseContext;
+using backend.Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Driver;
 namespace backend.Persistence.Repositories;
@@ -102,5 +103,34 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
         student.TotalPoints += points;
         var result = await _students.ReplaceOneAsync(x => x.Id == studentId, student);
         return result.IsAcknowledged && result.ModifiedCount > 0;
+    }
+
+    public async Task<bool> UpdateStudentDivisionAsync(string studentId, DivisionEnums division)
+    {
+        var student = await _students.Find(x => x.Id == studentId).FirstOrDefaultAsync();
+        if (student == null) return false;
+
+        student.Division = division;
+        var result = await _students.ReplaceOneAsync(x => x.Id == studentId, student);
+        return result.IsAcknowledged && result.ModifiedCount > 0;
+    }
+
+    public async Task<int> GetStudentRankAsync(string studentId)
+    {
+        //  check if student exists
+        var student = await _students.Find(x => x.Id == studentId).FirstOrDefaultAsync();
+        if (student == null) return 0;
+        // Get all students, sort by TotalPoints, and find the rank of the specified student
+        var count = await _students.CountDocumentsAsync(s => s.TotalPoints > student.TotalPoints);
+        return (int)count + 1; // +1 to convert count to rank
+    }
+
+    public async Task<List<Student>> GetLeaderStudentsAsync(DivisionEnums division, int topCount)
+    {
+        var filter = Builders<Student>.Filter.Eq(s => s.Division, division);
+        return await _students.Find(filter)
+            .SortByDescending(s => s.TotalPoints)
+            .Limit(topCount)
+            .ToListAsync();
     }
 }
