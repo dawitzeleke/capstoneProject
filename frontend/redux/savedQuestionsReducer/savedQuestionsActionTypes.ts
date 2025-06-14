@@ -11,10 +11,30 @@ export interface RemoveSavedQuestionAction {
 
 // Question interface (can be reused across files)
 export interface Question {
-  id: string;
-  subject: string;
-  question: string;
-  author: string;
+  _id: string;
+  CreatedAt: string;
+  UpdatedAt: string | null;
+  UpdatedBy: string | null;
+  type: number;
+  CreatedBy: string;
+  QuestionText: string;
+  Description: string;
+  CourseName: string;
+  Options: string[];
+  CorrectOption: string;
+  Grade: number;
+  Chapter: number;
+  QuestionType: number;
+  Difficulty: number;
+  Stream: number;
+  Explanation: string;
+  Hint: string;
+  Tags: string[];
+  RelatedBlog: string | null;
+  Report: any | null;
+  Point: number;
+  TotalCorrectAnswers: number;
+  Likes: number | null;
 }
 
 // Action Interfaces

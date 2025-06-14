@@ -11,6 +11,8 @@ export default function SavedQuestions() {
   );
   const theme = useSelector((state: RootState) => state.theme.mode);
 
+  console.log('Saved Questions:', savedQuestions);
+
   return (
     <View className={`flex-1 p-4 ${theme === "dark" ? "bg-black" : "bg-[#f1f3fc]"}`}>
       <View className="flex-row justify-center absolute top-4 left-4 align-middle mb-6">
@@ -32,15 +34,28 @@ export default function SavedQuestions() {
       </Text>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {savedQuestions.map((q) => (
-          <SavedQuestionCard
-            key={q.id}
-            id={q.id}
-            subject={q.subject}
-            question={q.question}
-            author={q.author}
-          />
-        ))}
+        {savedQuestions && savedQuestions.length > 0 ? (
+          savedQuestions.map((q) => (
+            <SavedQuestionCard
+              key={q._id}
+              id={q._id}
+              subject={q.CourseName}
+              question={q.QuestionText}
+              author={q.CreatedBy}
+              description={q.Description}
+              courseName={q.CourseName}
+              createdAt={q.CreatedAt}
+            />
+          ))
+        ) : (
+          <Text
+            className={`text-center mt-20 font-pregular ${
+              theme === "dark" ? "text-gray-500" : "text-gray-400"
+            }`}
+          >
+            No saved questions yet.
+          </Text>
+        )}
       </ScrollView>
     </View>
   );

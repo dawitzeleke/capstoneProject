@@ -122,7 +122,7 @@ const Progress = () => {
 
   return (
     <ScrollView
-      className={`flex-1 px-4 pt-6 pb-20 ${
+      className={`flex-1 px-4 mb-16 pt-6 pb-20 ${
         isDark ? "bg-black" : "bg-[#f1f3fc]"
       }`}>
       {/* Header */}

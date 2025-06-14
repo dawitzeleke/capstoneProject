@@ -15,11 +15,17 @@ import pencil from "../assets/icons/pencil.png";
 import Cognify from "../assets/icons/cognify.png";
 import CognifyLogo from "../assets/icons/cognifyLogo.png";
 import notification from "../assets/icons/notification.png";
+import earth from "../assets/icons/earth.png";
+import edit from "../assets/icons/edit.png";
+import user from "../assets/icons/user.png";
+import account from "../assets/icons/account.png";
 
 export default {
   play,
   bookmark,
   home,
+  earth, 
+  edit,
   Cognify,
   CognifyLogo,
   plus,
@@ -28,6 +34,8 @@ export default {
   menu,
   pencil,
   search,
+  user,
+  account,
   upload,
   rightArrow,
   notification,

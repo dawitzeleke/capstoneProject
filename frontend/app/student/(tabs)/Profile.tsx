@@ -97,8 +97,9 @@ export default function Profile() {
     fetchSettings();
   }, [user]);
 
+
   return (
-    <ScrollView className={`flex-1 ${isDark ? "bg-black" : "bg-[#f1f3fc]"}`}>
+    <ScrollView className={`flex-1 ${isDark ? "bg-black" : "bg-[#f1f3fc]"} mb-16`}>
       {/* Profile Header */}
       <LinearGradient
         colors={isDark ? ["#1F2937", "#111827"] : ["#4F46E5", "#6366F1"]}
@@ -130,9 +131,9 @@ export default function Profile() {
 
           <View className="ml-4 flex-1">
             <Text className="text-2xl font-pbold text-white mb-1">
-              {user.name}
+              {user.firstName}
             </Text>
-            <Text className="text-white/80 font-pregular">@johndoe</Text>
+            <Text className="text-white/80 font-pregular">{user.email}</Text>
             <View className="flex-row items-center mt-2">
               <View className="px-4 py-2 rounded-full bg-white/10">
                 <View className="flex-row items-center">

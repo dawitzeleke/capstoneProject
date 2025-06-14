@@ -62,7 +62,7 @@ const divisionThemes: Record<Division, DivisionTheme> = {
 };
 
 export default function Home() {
-  const [division, setDivision] = useState<Division>("bronze");
+  const [division, setDivision] = useState<Division>("diamond");
   const currentTheme = useSelector((state: any) => state.theme.mode);
   const user = useSelector((state: any) => state.user.user);
   const router = useRouter();
@@ -381,6 +381,7 @@ export default function Home() {
       <ScrollView 
         contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
+        className="mb-16"
       >
         {/* Top Bar */}
         <View className="flex-row items-center justify-between px-6 mt-4">
@@ -418,7 +419,7 @@ export default function Home() {
                 </Text>
               </View>
               <Text className="text-3xl font-pbold text-white">
-                Welcome back {user.name} ! 👋
+                Welcome {user.firstName} ! 👋
               </Text>
               <Text className="text-base text-white/80 font-pregular mt-2">
                 Ready to learn something new today?
@@ -539,7 +540,7 @@ export default function Home() {
               },
               {
                 label: "Customize",
-                icon: "tools",
+                icon: "chalkboard-teacher",
                 bg: currentTheme === "dark" ? "#10b981" : "#10b981",
                 color: "#ffffff",
               },

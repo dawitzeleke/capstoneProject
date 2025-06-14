@@ -10,6 +10,9 @@ interface SavedQuestionCardProps {
   question: string;
   author: string;
   id: string;
+  description?: string;
+  courseName?: string;
+  createdAt?: string;
 }
 
 export const SavedQuestionCard: FC<SavedQuestionCardProps> = ({
@@ -17,6 +20,9 @@ export const SavedQuestionCard: FC<SavedQuestionCardProps> = ({
   question,
   author,
   id,
+  description,
+  courseName,
+  createdAt,
 }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
@@ -70,7 +76,7 @@ export const SavedQuestionCard: FC<SavedQuestionCardProps> = ({
           theme === "dark" ? "text-gray-100" : "text-gray-800"
         }`}
       >
-        {subject}
+        {courseName || subject}
       </Text>
       <Text
         className={`text-base font-pregular mb-2 ${
@@ -79,13 +85,33 @@ export const SavedQuestionCard: FC<SavedQuestionCardProps> = ({
       >
         {question}
       </Text>
-      <Text
-        className={`text-sm font-pthin ${
-          theme === "dark" ? "text-gray-400" : "text-gray-500"
-        }`}
-      >
-        By {author}
-      </Text>
+      {description && (
+        <Text
+          className={`text-sm font-pregular mb-2 ${
+            theme === "dark" ? "text-gray-400" : "text-gray-600"
+          }`}
+        >
+          {description}
+        </Text>
+      )}
+      <View className="flex-row justify-between items-center">
+        <Text
+          className={`text-sm font-pthin ${
+            theme === "dark" ? "text-gray-400" : "text-gray-500"
+          }`}
+        >
+          By {author}
+        </Text>
+        {createdAt && (
+          <Text
+            className={`text-xs font-pthin ${
+              theme === "dark" ? "text-gray-400" : "text-gray-500"
+            }`}
+          >
+            {new Date(createdAt).toLocaleDateString()}
+          </Text>
+        )}
+      </View>
     </View>
   );
 };

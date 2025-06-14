@@ -145,7 +145,7 @@ const TabsLayout: React.FC = () => {
             title: "Question",
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.pencil}
+                icon={icons.edit}
                 color={color}
                 size={{ width: 18, height: 18 }}
                 name="Question"
@@ -164,7 +164,7 @@ const TabsLayout: React.FC = () => {
             title: "Facts",
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.search}
+                icon={icons.earth}
                 color={color}
                 size={{ width: 18, height: 18 }}
                 name="Facts"
@@ -183,12 +183,12 @@ const TabsLayout: React.FC = () => {
             title: "Profile",
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                isProfile
-                profileImage={require("../../../assets/images/favicon.png")}
+                icon={icons.account}
                 color={color}
+                size={{ width: 18, height: 18 }}
                 name="Profile"
                 focused={focused}
-                testID="tab-profile"
+                testID="tab-facts"
               />
             ),
             tabBarButton: (props) => (
@@ -196,6 +196,7 @@ const TabsLayout: React.FC = () => {
             ),
           }}
         />
+       
 
         {/* Screens not visible in tab bar */}
         <Tabs.Screen name="Leaderboard" options={{ href: null }} />
