@@ -8,7 +8,6 @@ import RefreshButton from '@/components/teacher/Insights/RefreshButton';
 import { SummaryCard } from '@/components/teacher/Insights/SummaryCard';
 import { RootState, AppDispatch } from '@/redux/store';
 import { setFilters, FlaggedItem } from '@/redux/teacherReducer/teacherInsightsSlice';
-import FilterBar from '@/components/teacher/Insights/FilterBar';
 import { GradeEngagementChart } from '@/components/teacher/Insights/GradeEngagementChart';
 import { AttemptsDonutChart } from '@/components/teacher/Insights/AttemptsDonutChart';
 import { MonthlyWeekHeatmap } from '@/components/teacher/Insights/PostingHeatmap';
@@ -59,20 +58,6 @@ const EngagementInsightsScreen = () => {
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
         {/* Filters */}
-        <FilterBar
-          dateRange={filters.dateRange}
-          onDateRangeChange={range => dispatch(setFilters({ dateRange: range }))}
-          contentTypes={filters.contentType as ('question'|'quiz'|'post')[]}
-          onContentTypeChange={type => {
-            const t = type as 'question'|'quiz'|'post';
-            const newTypes = filters.contentType.includes(t)
-              ? filters.contentType.filter(tt => tt !== t)
-              : [...filters.contentType, t];
-            dispatch(setFilters({ contentType: newTypes }));
-          }}
-          onRefresh={handleRefresh}
-          loading={loading}
-        />
 
         {/* Summary Cards */}
         <View className="flex-row gap-3 flex-wrap mt-4">
@@ -83,7 +68,7 @@ const EngagementInsightsScreen = () => {
             <SummaryCard title="Total Questions Posted" value={summaryStats?.questionsThisWeek?.toString() || '78'} icon="help-circle-outline" color="emerald" />
           </View>
           <View style={{ width: cardColumns === 1 ? '100%' : cardColumns === 2 ? '48%' : '24%', paddingHorizontal: 4, marginBottom: 8 }}>
-            <SummaryCard title="Avg Likes" value={summaryStats?.avgLikesPerQ?.toString() || '32'} icon="heart-outline" color="rose" />
+            <SummaryCard title="Likes" value={summaryStats?.totalLikes?.toString() || '1.5K'} icon="heart" color="rose" />
           </View>
           <View style={{ width: cardColumns === 1 ? '100%' : cardColumns === 2 ? '48%' : '24%', paddingHorizontal: 4, marginBottom: 8 }}>
             <SummaryCard title="Avg Saves" value={summaryStats?.avgSavesPerQ?.toString() || '15'} icon="bookmark-outline" color="amber" />
