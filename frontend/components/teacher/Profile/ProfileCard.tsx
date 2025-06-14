@@ -32,15 +32,15 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
       </View>
 
       <View className="items-center mt-2">
-        <Text className={`text-xl font-psemibold ${isDark ? 'text-white' : 'text-white'}`}>
+        <Text className={`text-2xl font-pbold ${isDark ? 'text-white' : 'text-white'}`}>
           {fullName}
         </Text>
-        <Text className={`text-sm mt-1 ${isDark ? 'text-gray-300' : 'text-indigo-200'}`}>
+        <Text className={`text-xl mt-1 font-psemibold ${isDark ? 'text-gray-300' : 'text-indigo-200'}`}>
           Subject: Math
         </Text>
         <View className="flex-row items-center mt-1">
           <Ionicons name="school-outline" size={16} color={isDark ? 'white' : 'white'} />
-          <Text className={`text-sm ml-1 ${isDark ? 'text-gray-300' : 'text-indigo-200'}`}>
+          <Text className={`text-xl ml-1 font-psemibold ${isDark ? 'text-gray-300' : 'text-indigo-200'}`}>
             {profile.school}
           </Text>
         </View>
@@ -51,7 +51,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
           <Text className={`text-base font-psemibold ${isDark ? 'text-white' : 'text-white'}`}>
             {profile.followersCount.toLocaleString()}
           </Text>
-          <Text className={`text-xs ${isDark ? 'text-gray-300' : 'text-indigo-200'}`}>
+          <Text className={`text-base font-pbold ${isDark ? 'text-gray-300' : 'text-indigo-200'}`}>
             Followers
           </Text>
         </View>
@@ -62,7 +62,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
           <Text className={`text-base font-psemibold ${isDark ? 'text-white' : 'text-white'}`}>
             {profile.postsCount.toLocaleString()}
           </Text>
-          <Text className={`text-xs ${isDark ? 'text-gray-300' : 'text-indigo-200'}`}>
+          <Text className={`text-base font-pbold ${isDark ? 'text-gray-300' : 'text-indigo-200'}`}>
             Posts
           </Text>
         </View>
@@ -73,7 +73,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
           <Text className={`text-base font-psemibold ${isDark ? 'text-white' : 'text-white'}`}>
             {totalViews.toLocaleString()}
           </Text>
-          <Text className={`text-xs ${isDark ? 'text-gray-300' : 'text-indigo-200'}`}>
+          <Text className={`text-base font-pbold ${isDark ? 'text-gray-300' : 'text-indigo-200'}`}>
             Views
           </Text>
         </View>

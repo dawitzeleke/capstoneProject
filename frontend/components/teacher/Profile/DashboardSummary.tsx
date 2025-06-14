@@ -48,10 +48,10 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({
         isDark ? 'bg-gray-800' : 'bg-white'
       }`}
     >
-      <Text className={`text-lg font-psemibold mb-4 ${
+      <Text className={`text-xl font-bold mb-4 ${
         isDark ? 'text-gray-100' : 'text-gray-900'
       }`}>
-        Your Dashboard Summary
+        Summary
       </Text>
 
       <View className="flex-row justify-between mb-8 px-2">

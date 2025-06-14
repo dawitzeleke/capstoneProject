@@ -80,13 +80,14 @@ const TeacherDashboard: React.FC = () => {
           </TouchableOpacity>
         </Link>
       </View>
+
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Profile Picture - positioned absolutely */}
-        <View className="w-full items-center" style={{ marginTop: 20, marginBottom: 60 }}>
+        <View className="w-full items-center z-20" style={{ marginTop: 20 }}>
           <View className={`rounded-full p-1 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
             <ProfilePicture
               profilePictureUrl={profile?.profilePictureUrl}
@@ -95,8 +96,8 @@ const TeacherDashboard: React.FC = () => {
           </View>
         </View>
 
-        {/* Content below profile picture, including ProfileCard */}
-        <View className="space-y-6 px-4">
+        {/* Content below profile picture */}
+        <View className="px-4 mt-[-10px]">
           <ProfileCard
             profile={profile || defaultProfile}
             stats={stats || defaultStats}
