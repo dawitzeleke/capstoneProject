@@ -27,7 +27,16 @@ import { MediaItem, MediaType, MediaStatus } from '@/types/mediaTypes';
 
 const FILE_TYPES = {
     image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-    video: ['video/mp4', 'video/quicktime', 'video/x-m4v', 'video/3gpp'],
+    video: [
+      'video/mp4',
+      'video/quicktime',
+      'video/x-m4v',
+      'video/3gpp',
+      'video/x-msvideo',
+      'video/x-matroska',
+      'video/webm',
+      'video/*'
+    ],
 };
 
 // Custom ID generator for React Native
@@ -362,10 +371,15 @@ const UploadOtherScreen = () => {
     difficulty: false,
     questionType: false,
     point: false,
-    options: [false, false, false, false],
+    options: [false, false, false, false, false],
     explanation: false,
     tags: validationErrors.tags,
     correctOption: false,
+    stream: false,
+    chapter: false,
+    isMatrik: false,
+    year: false,
+    hint: false,
   };
 
   return (

@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import Video from 'react-native-video';
 
-const MAX_FILE_SIZE_MB = 50; // 50MB
+const MAX_FILE_SIZE_MB = 100; // Increased from 50MB to 100MB for videos
 
 export interface FileData {
   uri: string;
@@ -43,8 +43,10 @@ const FilePicker = ({
 
       if (result?.assets?.[0]) {
         const asset = result.assets[0];
-        if (asset.size && asset.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-          throw new Error(`File size exceeds ${MAX_FILE_SIZE_MB}MB`);
+        const fileSizeMB = asset.size ? asset.size / (1024 * 1024) : 0;
+        
+        if (fileSizeMB > MAX_FILE_SIZE_MB) {
+          throw new Error(`File size exceeds ${MAX_FILE_SIZE_MB}MB limit`);
         }
 
         const newFile = {
@@ -131,7 +133,12 @@ const FilePicker = ({
                 resizeMode="contain"
                 controls
                 paused={true}
-                onError={() => setPreviewError('Failed to load video')}
+                onError={(error) => {
+                  console.error('Video error:', error);
+                  setPreviewError('Failed to load video preview. The file will still be uploaded.');
+                }}
+                repeat={false}
+                muted={true}
               />
             ) : (
               <View className="flex-1 items-center justify-center">
