@@ -114,13 +114,13 @@ const ProfilePicture: React.FC<{
       >
         <View className="flex-1 justify-end bg-black/50">
           <View className="bg-white rounded-t-3xl p-6 space-y-4">
-            <Text className="text-lg font-psemibold text-gray-900">
+            <Text className="text-lg font-psemibold text-gray-900 mb-5 text-center">
               Update Profile Picture
             </Text>
 
             <TouchableOpacity
               onPress={() => handleImagePick(true)}
-              className="bg-indigo-100 p-3 rounded-xl active:bg-indigo-200"
+              className="bg-indigo-100 p-3 rounded-xl active:bg-indigo-200 mb-2"
               disabled={isLoading}
             >
               <Text className="text-center text-indigo-700 font-psemibold">
@@ -130,7 +130,7 @@ const ProfilePicture: React.FC<{
 
             <TouchableOpacity
               onPress={() => handleImagePick(false)}
-              className="bg-indigo-100 p-3 rounded-xl active:bg-indigo-200"
+              className="bg-indigo-100 p-3 rounded-xl active:bg-indigo-200 mb-2"
               disabled={isLoading}
             >
               <Text className="text-center text-indigo-700 font-psemibold">
