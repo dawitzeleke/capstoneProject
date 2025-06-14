@@ -231,7 +231,7 @@ const AddQuestion = () => {
     setFormState(prev => ({
       ...prev,
       options: prev.options.map((opt, i) =>
-        i === index ? text.trim() : opt
+        i === index ? text : opt
       )
     }));
   }, []);
@@ -547,8 +547,7 @@ const AddQuestion = () => {
               validationErrors={{
                 isMatrik: validationErrors.isMatrik ? 'Required' : '',
                 year: validationErrors.year ? 'Required' : ''
-              }}
-            />
+              }} submitted={false}            />
 
             <StreamDropdown
               value={formState.stream}
