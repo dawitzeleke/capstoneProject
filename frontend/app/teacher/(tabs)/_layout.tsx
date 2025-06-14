@@ -90,7 +90,7 @@ const TabsLayout: React.FC = () => {
               <TabIcon
                 icon={icons.home}
                 color={color}
-                size={{ width: 18, height: 18 }}
+                size={{ width: 22, height: 22 }}
                 name="Home"
                 focused={focused}
               />
@@ -107,7 +107,7 @@ const TabsLayout: React.FC = () => {
                 icon={icons.upload}
                 color={color}
                 size={{ width: 22, height: 22}}
-                name="AddQuestion"
+                name="Post"
                 focused={focused}
               />
             ),
@@ -140,7 +140,7 @@ const TabsLayout: React.FC = () => {
               <TabIcon
                 icon={icons.notification}
                 color={color}
-                size={{ width: 18, height: 18 }}
+                size={{ width: 22, height: 22 }}
                 name="Notification"
                 focused={focused}
               />
