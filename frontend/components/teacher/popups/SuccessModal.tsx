@@ -16,8 +16,18 @@ export const SuccessModal = ({
   message,
   color = '#4F46E5'
 }: SuccessModalProps) => (
-  <Modal transparent visible={isVisible}>
-    <View className="flex-1 justify-center items-center bg-black/40 px-6">
+  <Modal
+    transparent
+    visible={isVisible}
+    onRequestClose={onDismiss}
+    statusBarTranslucent
+  >
+    <View
+      className="flex-1 justify-center items-center bg-black/40 px-6"
+      accessibilityViewIsModal
+      aria-modal={true}
+      role="dialog"
+    >
       <View className="bg-white rounded-xl p-6 w-full max-w-[320px] items-center flex-col">
         <Pressable onPress={onDismiss} className="absolute top-3 right-3 z-10">
           <Ionicons name="close" size={24} color="#64748b" />
