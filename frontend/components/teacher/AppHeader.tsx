@@ -34,6 +34,7 @@ interface AppHeaderProps {
   onReset?: () => void;
   showResetButton?: boolean;
   right?: React.ReactNode;
+  disabled?: boolean; // Add the disabled prop
 }
 
 const AppHeader = ({
@@ -50,6 +51,7 @@ const AppHeader = ({
   onReset,
   showResetButton = false,
   right,
+  disabled = false, // Initialize disabled to false
 }: AppHeaderProps) => {
   const { width } = useWindowDimensions();
   const router = useRouter(); // Initialize useRouter
@@ -61,6 +63,7 @@ const AppHeader = ({
       onPress={button.onPress}
       className="p-1.5 rounded-lg active:opacity-80"
       android_ripple={{ color: '#e0e7ff', borderless: true }}
+      disabled={disabled} // Apply disabled prop to buttons
     >
       {button.component || (
         <Ionicons
@@ -78,7 +81,7 @@ const AppHeader = ({
       {/* Left Section */}
       <View className="flex-1 flex-row items-center flex-shrink" style={{ gap }}>
         {showBackButton && onBack && (
-          <TouchableOpacity onPress={onBack} style={{ marginRight: 12 }}>
+          <TouchableOpacity onPress={onBack} style={{ marginRight: 12 }} disabled={disabled}>
             <Ionicons name="arrow-back" size={24} color="#334155" />
           </TouchableOpacity>
         )}
@@ -109,6 +112,7 @@ const AppHeader = ({
           <ResetFormButton
             onResetConfirm={onReset}
             isVisible={false}
+            disabled={disabled} // Apply disabled prop to ResetFormButton
           />
         )}
         {buttons?.filter(b => b.side === 'right').map(renderButton)}
