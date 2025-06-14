@@ -26,7 +26,7 @@ const FormActions = ({
   );
 
   return (
-    <View className="flex-row justify-between p-4 border-t border-gray-200 gap-2">
+    <View className="flex-row justify-center p-4 border-t border-gray-200 gap-2">
       <Pressable
         className="flex-2 flex-row items-center justify-center px-4 py-2 bg-indigo-100 rounded-lg"
         onPress={onSaveDraft}
