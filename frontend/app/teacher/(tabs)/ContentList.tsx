@@ -22,7 +22,6 @@ import {
   setDifficultyFilter,
   setTypeFilter,
   setGradeFilter,
-  setPointFilter,
   clearEditingQuestion
 } from "@/redux/teacherReducer/teacherQuestionSlice";
 import {
@@ -106,12 +105,16 @@ const ContentListScreen = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [selectionMode, setSelectionMode] = useState(false);
+  const [streamFilter, setStreamFilter] = useState<string[]>([]);
+  const [matrikFilter, setMatrikFilter] = useState<boolean>(false);
 
   // Filter options
   const difficulties = [...new Set(allQuestions.map(q => q.difficulty))];
   const questionTypes = [...new Set(allQuestions.map(q => q.questionType))];
   const grades = [...new Set(allQuestions.map(q => q.grade))].sort();
-  const points = [...new Set(allQuestions.map(q => q.point))].sort();
+
+  // Define streams
+  const streams = ['Natural Science', 'Social Science', 'Business', 'Technology'];
 
   useEffect(() => {
     if (selectedIds.length === 0) {
@@ -193,7 +196,7 @@ const ContentListScreen = () => {
         {/* Header */}
         <View className="bg-white pb-2 border-b border-gray-200">
           <AppHeader
-            title="Content Management"
+            title="Uploads"
             titleStyle={{fontFamily: 'Poppins-SemiBold'}}
             onBack={() => router.back()}
             buttons={[
@@ -240,20 +243,23 @@ const ContentListScreen = () => {
             grades={[]}
             selectedGrades={filters.grades}
             onGradeChange={(values) => dispatch(setGradeFilter(values))}
-            points={[]}
-            selectedPoints={filters.points}
-            onPointChange={(values) => dispatch(setPointFilter(values))}
             onClose={() => setShowFilters(false)}
             onClearAll={() => {
               dispatch(setDifficultyFilter([]));
               dispatch(setTypeFilter([]));
               dispatch(setGradeFilter([]));
-              dispatch(setPointFilter([]));
               dispatch(setMediaTypeFilter([]));
+              setStreamFilter([]);
+              setMatrikFilter(false);
             }}
             mediaTypes={['question', 'image', 'video']}
             selectedMediaTypes={mediaTypeFilter}
             onMediaTypeChange={values => dispatch(setMediaTypeFilter(values))}
+            streams={streams}
+            selectedStreams={streamFilter}
+            onStreamChange={setStreamFilter}
+            selectedMatrik={matrikFilter}
+            onMatrikChange={setMatrikFilter}
           />
         )}
 
