@@ -62,10 +62,6 @@ const ManageQuestionCard = ({
           </Text>
           <View className="flex-row gap-2 mt-1">
             <Text className="text-sm text-gray-600 font-pregular">Grade {item.grade}</Text>
-            <Text className="text-sm text-gray-600 font-pregular">•</Text>
-            <Text className="text-sm text-gray-600 font-pregular">
-              {item.point} pts
-            </Text>
           </View>
         </View>
 
@@ -127,7 +123,7 @@ const ManageQuestionCard = ({
       {/* Footer */}
       <View className="flex-row justify-between items-center border-t border-slate-100 pt-2">
         <Text className="text-xs text-gray-400 font-pregular">
-          {new Date(item.createdAt).toLocaleDateString()}
+          {new Date(item.createdAt || '').toLocaleDateString()}
         </Text>
 
         <View className="flex-row gap-3">
@@ -143,8 +139,5 @@ const ManageQuestionCard = ({
   );
 };
 
-export default ManageQuestionCard;
-
-export default ManageQuestionCard;
 
 export default ManageQuestionCard;
