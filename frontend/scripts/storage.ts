@@ -9,7 +9,7 @@ interface UserData {
   name: string;
   email: string;
   role: string; // e.g., "student", "teacher", etc.
-  image: string; // or avatar, photoUrl, etc.
+  profilePictureUrl: string; // or avatar, photoUrl, etc.
 }
 
 export const saveUserData = async (data: UserData) => {

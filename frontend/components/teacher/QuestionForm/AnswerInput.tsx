@@ -72,7 +72,7 @@ const AnswerInput = ({
             </Pressable>
 
             <Text className="text-lg font-pmedium text-indigo-700 mt-1.5 mr-2">
-              {letter}.
+              {letter}<Text>.</Text>
             </Text>
 
             <TextInput

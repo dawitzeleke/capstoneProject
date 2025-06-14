@@ -419,7 +419,7 @@ export default function Home() {
                 </Text>
               </View>
               <Text className="text-3xl font-pbold text-white">
-                Welcome {user.firstName} ! 👋
+                Welcome {user?.name || 'User'} ! 👋
               </Text>
               <Text className="text-base text-white/80 font-pregular mt-2">
                 Ready to learn something new today?

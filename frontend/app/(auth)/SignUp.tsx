@@ -7,19 +7,19 @@ import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import { FontAwesome } from "@expo/vector-icons";
 import httpRequest from "@/util/httpRequest";
-import { saveToken } from "@/scripts/storage";
+import { saveUserData } from "@/scripts/storage";
 
 type Stream = "NaturalScience" | "SocialSience";
 
 type UserForm = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
-  grade: string;
-  stream: Stream;
-  subject: string;
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  Password: string;
+  PhoneNumber: string;
+  Grade: string;
+  Stream: Stream;
+  Subject: string;
 };
 
 type FormErrors = Partial<Record<keyof UserForm, string>>;
@@ -34,14 +34,14 @@ const grades = ["9", "10", "11", "12"];
 const SignUp = () => {
   const router = useRouter();
   const [form, setForm] = useState<UserForm>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    phoneNumber: "",
-    grade: "",
-    stream: "NaturalScience",
-    subject: "",
+    FirstName: "",
+    LastName: "",
+    Email: "",
+    Password: "",
+    PhoneNumber: "",
+    Grade: "",
+    Stream: "NaturalScience",
+    Subject: "",
   });
   const [userType, setUserType] = useState<"Student" | "Teacher">("Student");
   const [submitting, setSubmitting] = useState(false);
@@ -51,19 +51,19 @@ const SignUp = () => {
 
   const validate = () => {
     const newErrors: FormErrors = {};
-    if (!form.firstName.trim()) newErrors.firstName = "First name is required.";
-    if (!form.lastName.trim()) newErrors.lastName = "Last name is required.";
-    if (!form.email.trim()) newErrors.email = "Email is required.";
-    else if (!/\S+@\S+\.\S+/.test(form.email))
-      newErrors.email = "Invalid email format.";
-    if (!form.password.trim()) newErrors.password = "Password is required.";
-    else if (form.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters.";
-    if (!form.phoneNumber.trim())
-      newErrors.phoneNumber = "Phone number is required.";
+    if (!form.FirstName.trim()) newErrors.FirstName = "First name is required.";
+    if (!form.LastName.trim()) newErrors.LastName = "Last name is required.";
+    if (!form.Email.trim()) newErrors.Email = "Email is required.";
+    else if (!/\S+@\S+\.\S+/.test(form.Email))
+      newErrors.Email = "Invalid email format.";
+    if (!form.Password.trim()) newErrors.Password = "Password is required.";
+    else if (form.Password.length < 6)
+      newErrors.Password = "Password must be at least 6 characters.";
+    if (!form.PhoneNumber.trim())
+      newErrors.PhoneNumber = "Phone number is required.";
 
     if (userType === "Student") {
-      if (!form.grade) newErrors.grade = "Grade is required.";
+      if (!form.Grade) newErrors.Grade = "Grade is required.";
     }
 
     setErrors(newErrors);
@@ -76,16 +76,16 @@ const SignUp = () => {
     setSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append("firstName", form.firstName);
-      formData.append("lastName", form.lastName);
-      formData.append("email", form.email);
-      formData.append("password", form.password);
-      formData.append("phoneNumber", form.phoneNumber);
+      formData.append("FirstName", form.FirstName);
+      formData.append("LastName", form.LastName);
+      formData.append("Email", form.Email);
+      formData.append("Password", form.Password);
+      formData.append("PhoneNumber", form.PhoneNumber);
 
       if (userType === "Student") {
-        formData.append("grade", form.grade);
-        formData.append("subject", form.subject);
-        formData.append("stream", form.stream);
+        formData.append("Grade", form.Grade);
+        formData.append("Subject", form.Subject);
+        formData.append("Stream", form.Stream);
       }
 
       const endpoint =
@@ -93,11 +93,17 @@ const SignUp = () => {
           ? "auth/student/signup"
           : "auth/teacher/signup";
 
-      const response = await httpRequest(endpoint, formData, "POST", {
+      const response = await httpRequest(endpoint, formData, "POST", undefined, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      await saveToken(response.token);
+      await saveUserData({
+        id: response.id,
+        token: response.token,
+        name: `${form.FirstName} ${form.LastName}`,
+        email: form.Email,
+        role: userType.toLowerCase(),
+        profilePictureUrl: response.profilePictureUrl || ""
+      });
       router.replace(
         userType === "Student"
           ? "/student/(tabs)/Home"
@@ -138,48 +144,48 @@ const SignUp = () => {
 
           <FormField
             title="First Name"
-            value={form.firstName}
-            handleChangeText={(text) => setForm({ ...form, firstName: text })}
+            value={form.FirstName}
+            handleChangeText={(text) => setForm({ ...form, FirstName: text })}
             otherStyles="mt-7"
             placeholder="Enter your first name"
-            errorMessage={errors.firstName}
+            errorMessage={errors.FirstName}
           />
           <FormField
             title="Last Name"
-            value={form.lastName}
-            handleChangeText={(text) => setForm({ ...form, lastName: text })}
+            value={form.LastName}
+            handleChangeText={(text) => setForm({ ...form, LastName: text })}
             otherStyles="mt-5"
             placeholder="Enter your last name"
-            errorMessage={errors.lastName}
+            errorMessage={errors.LastName}
           />
           <FormField
             title="Email"
-            value={form.email}
-            handleChangeText={(text) => setForm({ ...form, email: text })}
+            value={form.Email}
+            handleChangeText={(text) => setForm({ ...form, Email: text })}
             otherStyles="mt-5"
             keyboardType="email-address"
             placeholder="Enter your email"
-            errorMessage={errors.email}
+            errorMessage={errors.Email}
             id="Email"
           />
           <FormField
             title="Password"
-            value={form.password}
-            handleChangeText={(text) => setForm({ ...form, password: text })}
+            value={form.Password}
+            handleChangeText={(text) => setForm({ ...form, Password: text })}
             otherStyles="mt-5"
             secureTextEntry
             placeholder="Enter your password"
-            errorMessage={errors.password}
+            errorMessage={errors.Password}
             id="Password"
           />
           <FormField
             title="Phone Number"
-            value={form.phoneNumber}
-            handleChangeText={(text) => setForm({ ...form, phoneNumber: text })}
+            value={form.PhoneNumber}
+            handleChangeText={(text) => setForm({ ...form, PhoneNumber: text })}
             otherStyles="mt-5"
             keyboardType="phone-pad"
             placeholder="Enter your phone number"
-            errorMessage={errors.phoneNumber}
+            errorMessage={errors.PhoneNumber}
           />
 
           {userType === "Student" && (
@@ -191,7 +197,7 @@ const SignUp = () => {
                 onPress={() => setGradeDropdownOpen(!gradeDropdownOpen)}
                 className="bg-gray-100 px-4 py-3 rounded-xl mb-2 flex-row justify-between items-center">
                 <Text className="text-gray-800 font-pregular">
-                  {form.grade || "Select Grade"}
+                  {form.Grade || "Select Grade"}
                 </Text>
                 <FontAwesome
                   name={gradeDropdownOpen ? "angle-up" : "angle-down"}
@@ -205,7 +211,7 @@ const SignUp = () => {
                     <Pressable
                       key={g}
                       onPress={() => {
-                        setForm({ ...form, grade: g });
+                        setForm({ ...form, Grade: g });
                         setGradeDropdownOpen(false);
                       }}
                       className="px-4 py-3 border-b border-gray-100">
@@ -214,9 +220,9 @@ const SignUp = () => {
                   ))}
                 </View>
               )}
-              {errors.grade && (
+              {errors.Grade && (
                 <Text className="text-red-500 text-sm mt-1">
-                  {errors.grade}
+                  {errors.Grade}
                 </Text>
               )}
 
@@ -230,14 +236,14 @@ const SignUp = () => {
                     onPress={() =>
                       setForm({
                         ...form,
-                        stream: stream as Stream,
-                        subject: "",
+                        Stream: stream as Stream,
+                        Subject: "",
                       })
                     }
                     className="flex-row items-center gap-2">
                     <View
                       className={`w-4 h-4 rounded-full border ${
-                        form.stream === stream ? "bg-blue-600" : ""
+                        form.Stream === stream ? "bg-blue-600" : ""
                       }`}
                     />
                     <Text className="text-gray-800 font-pregular">

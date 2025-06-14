@@ -3,64 +3,112 @@ import { View, Text, TouchableOpacity, Image, FlatList, Dimensions, ScrollView }
 import { Ionicons, Entypo, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
+import httpRequest from "@/util/httpRequest";
+import { getUserData } from "@/scripts/storage";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const screenWidth = Dimensions.get("window").width;
 
-const leaderboardData = [
-  {
-    id: "1",
-    name: "Lucas Gray",
-    score: 1570,
-    trend: "up",
-    avatar: "https://randomuser.me/api/portraits/men/4.jpg",
-    division: "Gold",
-  },
-  {
-    id: "2",
-    name: "Ava Smith",
-    score: 1462,
-    trend: "up",
-    avatar: "https://randomuser.me/api/portraits/women/5.jpg",
-    division: "Silver",
-  },
-  {
-    id: "3",
-    name: "Liam Brown",
-    score: 1418,
-    trend: "down",
-    avatar: "https://randomuser.me/api/portraits/men/6.jpg",
-    division: "Silver",
-  },
-  {
-    id: "4",
-    name: "Sophia Johnson",
-    score: 1384,
-    trend: "up",
-    avatar: "https://randomuser.me/api/portraits/women/3.jpg",
-    division: "Bronze",
-  },
-  {
-    id: "5",
-    name: "Noah Davis",
-    score: 1325,
-    trend: "down",
-    avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-    division: "Bronze",
-  },
-];
+type StudentRank = {
+  id: string;
+  name: string;
+  score: number;
+  trend: "up" | "down";
+  avatar: string;
+  division: string;
+  username: string;
+  rank?: number;
+};
 
 const Leaderboard = () => {
   const theme = useSelector((state: any) => state.theme.mode);
   const isDark = theme === "dark";
   const router = useRouter();
-  const [userRank, setUserRank] = useState({
-    rank: 8,
-    score: 85,
+  const [leaderboardData, setLeaderboardData] = useState<StudentRank[]>([]);
+  const [userRank, setUserRank] = useState<StudentRank>({
+    id: "",
+    name: "You",
+    score: 0,
     trend: "up",
-    division: "Platinum",
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-    username: "yourusername"
+    avatar: "",
+    division: "Bronze",
+    username: "",
+    rank: 0
   });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRankings = async () => {
+      try {
+        const userData = await getUserData();
+        if (!userData?.token) {
+          console.error("No user token found");
+          return;
+        }
+
+        // Fetch top 3 students
+        const topThreeResponse = await httpRequest(
+          "/students/rank",
+          {},
+          "GET",
+          userData.token
+        );
+
+        // Fetch rest of the students
+        const restResponse = await httpRequest(
+          "/students/leader-students",
+          {},
+          "GET",
+          userData.token
+        );
+
+        if (topThreeResponse?.data && restResponse?.data) {
+          // Transform the top 3 data
+          const topThreeData = topThreeResponse.data.map((student: any, index: number) => ({
+            id: student.id,
+            name: student.name || `${student.firstName} ${student.lastName}`,
+            score: student.score || 0,
+            trend: student.trend || "up",
+            avatar: student.avatar || student.profilePictureUrl || "",
+            division: student.division || "Bronze",
+            username: student.username || student.name?.toLowerCase().replace(" ", "") || "",
+            rank: index + 1
+          }));
+
+          // Transform the rest of the students data
+          const restData = restResponse.data.map((student: any, index: number) => ({
+            id: student.id,
+            name: student.name || `${student.firstName} ${student.lastName}`,
+            score: student.score || 0,
+            trend: student.trend || "up",
+            avatar: student.avatar || student.profilePictureUrl || "",
+            division: student.division || "Bronze",
+            username: student.username || student.name?.toLowerCase().replace(" ", "") || "",
+            rank: index + 4
+          }));
+
+          // Combine both datasets
+          const allData = [...topThreeData, ...restData];
+          setLeaderboardData(allData);
+
+          // Find the current user's rank
+          const currentUser = allData.find((student: StudentRank) => student.id === userData.id);
+          if (currentUser) {
+            setUserRank({
+              ...currentUser,
+              rank: allData.findIndex((student: StudentRank) => student.id === userData.id) + 1
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching rankings:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRankings();
+  }, []);
 
   const getDivisionColor = (division: string) => {
     switch (division) {
@@ -79,235 +127,214 @@ const Leaderboard = () => {
 
   const formatScore = (score: number) => `${score}%`;
 
+  if (loading) {
+    return (
+      <SafeAreaView className={`flex-1 ${isDark ? "bg-gray-900" : "bg-[#f1f3fc]"}`}>
+        <View className="flex-1 items-center justify-center">
+          <Text className={`text-lg ${isDark ? "text-white" : "text-gray-800"}`}>
+            Loading leaderboard...
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <View className={`flex-1 ${isDark ? "bg-black" : "bg-[#f1f3fc]"}`}>
-      {/* Header */}
-      <View className="px-6 pt-12 pb-6">
-        <View className="flex-row items-center justify-between mb-6">
-          <TouchableOpacity 
-            onPress={() => router.back()}
-            className="w-10 h-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-lg"
-          >
-            <Ionicons name="chevron-back" size={24} color={isDark ? "white" : "#4F46E5"} />
-          </TouchableOpacity>
-          <Text className={`text-2xl font-pbold ${isDark ? "text-white" : "text-gray-900"}`}>
+    <SafeAreaView className={`flex-1 ${isDark ? "bg-gray-900" : "bg-[#f1f3fc]"}`}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View className="px-6 pt-4">
+          <Text className={`text-2xl font-pbold ${isDark ? "text-white" : "text-gray-800"}`}>
             Leaderboard
           </Text>
-          <TouchableOpacity className="w-10 h-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-lg">
-            <Entypo name="dots-three-vertical" size={24} color={isDark ? "white" : "#4F46E5"} />
-          </TouchableOpacity>
+          <Text className={`text-base mt-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+            Top performers this week
+          </Text>
         </View>
-      </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Top 3 Users */}
-        <View className="px-4 mt-4">
-          <View className={`rounded-3xl p-6 border shadow-xl ${
-            isDark ? "bg-neutral-800/50 border-neutral-700" : "bg-white border-gray-200"
-          }`}>
-            <Text className={`text-xl font-pbold mb-6 ${isDark ? "text-white" : "text-gray-900"}`}>
-              Top Performers
-            </Text>
-            <View className="flex-row justify-center items-end mb-4">
-              {/* Second Place */}
-              <View className="items-center mx-2">
-                <View className="relative">
+        {/* Top 3 Podium */}
+        <View className="mt-6 px-6">
+          <View className="flex-row justify-between items-end h-48">
+            {/* Second Place */}
+            <View className="items-center flex-1">
+              <View className="w-20 h-20 rounded-full border-2 border-gray-300 mb-2 overflow-hidden">
+                {leaderboardData[1]?.avatar ? (
                   <Image
-                    source={{ uri: "https://randomuser.me/api/portraits/men/9.jpg" }}
-                    className="w-20 h-20 rounded-full border-4 border-blue-500 shadow-lg"
+                    source={{ uri: leaderboardData[1].avatar }}
+                    className="w-full h-full"
                   />
-                  <View className="absolute -top-2 -right-2 bg-blue-500 rounded-full w-8 h-8 items-center justify-center shadow-lg">
-                    <Text className="text-white font-pbold">2</Text>
+                ) : (
+                  <View className="w-full h-full bg-indigo-100 items-center justify-center">
+                    <Ionicons name="person" size={30} color="#4F46E5" />
                   </View>
-                </View>
-                <View className="items-center mt-3">
-                  <Text className={`font-pbold ${isDark ? "text-white" : "text-gray-900"}`}>
-                    Jackson
-                  </Text>
-                  <View className="flex-row items-center mt-1">
-                    <Text className="text-blue-400 font-psemibold">92%</Text>
-                    <Ionicons name="arrow-up" size={16} color="#10B981" style={{ marginLeft: 4 }} />
-                  </View>
-                  <View className="mt-2 px-2 py-0.5 rounded-full bg-blue-500/10 self-start">
-                    <Text className="text-blue-400 text-xs">Gold Division</Text>
-                  </View>
-                  <Text className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                    @jackson
-                  </Text>
-                </View>
+                )}
               </View>
+              <View className="bg-gray-200 w-20 h-24 rounded-t-xl items-center justify-end pb-2">
+                <Text className="text-lg font-pbold text-gray-600">2</Text>
+              </View>
+              <Text className="mt-2 font-pmedium text-gray-600" numberOfLines={1}>
+                {leaderboardData[1]?.name || "No data"}
+              </Text>
+              <Text className="text-sm text-gray-500">
+                {leaderboardData[1]?.score || 0} pts
+              </Text>
+            </View>
 
-              {/* First Place */}
-              <View className="items-center mx-2">
-                <View className="relative">
-                  <MaterialIcons
-                    name="stars"
-                    size={32}
-                    color="#FCD34D"
-                    style={{ position: 'absolute', top: -16, left: '50%', transform: [{ translateX: -16 }] }}
-                  />
+            {/* First Place */}
+            <View className="items-center flex-1">
+              <View className="w-24 h-24 rounded-full border-2 border-yellow-400 mb-2 overflow-hidden">
+                {leaderboardData[0]?.avatar ? (
                   <Image
-                    source={{ uri: "https://randomuser.me/api/portraits/men/8.jpg" }}
-                    className="w-24 h-24 rounded-full border-4 border-yellow-500 shadow-lg"
+                    source={{ uri: leaderboardData[0].avatar }}
+                    className="w-full h-full"
                   />
-                  <View className="absolute -top-2 -right-2 bg-yellow-500 rounded-full w-8 h-8 items-center justify-center shadow-lg">
-                    <Text className="text-white font-pbold">1</Text>
+                ) : (
+                  <View className="w-full h-full bg-indigo-100 items-center justify-center">
+                    <Ionicons name="person" size={36} color="#4F46E5" />
                   </View>
-                </View>
-                <View className="items-center mt-3">
-                  <Text className="text-yellow-400 font-pbold text-lg">Eiden</Text>
-                  <View className="flex-row items-center mt-1">
-                    <Text className="text-yellow-400 font-psemibold text-lg">98%</Text>
-                    <Ionicons name="arrow-up" size={16} color="#10B981" style={{ marginLeft: 4 }} />
-                  </View>
-                  <View className="mt-2 px-2 py-0.5 rounded-full bg-yellow-500/10 self-start">
-                    <Text className="text-yellow-400 text-xs">Master Division</Text>
-                  </View>
-                  <Text className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                    @eiden
-                  </Text>
-                </View>
+                )}
               </View>
+              <View className="bg-yellow-400 w-20 h-32 rounded-t-xl items-center justify-end pb-2">
+                <Text className="text-lg font-pbold text-white">1</Text>
+              </View>
+              <Text className="mt-2 font-pmedium text-gray-800" numberOfLines={1}>
+                {leaderboardData[0]?.name || "No data"}
+              </Text>
+              <Text className="text-sm text-gray-600">
+                {leaderboardData[0]?.score || 0} pts
+              </Text>
+            </View>
 
-              {/* Third Place */}
-              <View className="items-center mx-2">
-                <View className="relative">
+            {/* Third Place */}
+            <View className="items-center flex-1">
+              <View className="w-20 h-20 rounded-full border-2 border-amber-600 mb-2 overflow-hidden">
+                {leaderboardData[2]?.avatar ? (
                   <Image
-                    source={{ uri: "https://randomuser.me/api/portraits/women/7.jpg" }}
-                    className="w-20 h-20 rounded-full border-4 border-green-500 shadow-lg"
+                    source={{ uri: leaderboardData[2].avatar }}
+                    className="w-full h-full"
                   />
-                  <View className="absolute -top-2 -right-2 bg-green-500 rounded-full w-8 h-8 items-center justify-center shadow-lg">
-                    <Text className="text-white font-pbold">3</Text>
+                ) : (
+                  <View className="w-full h-full bg-indigo-100 items-center justify-center">
+                    <Ionicons name="person" size={30} color="#4F46E5" />
                   </View>
-                </View>
-                <View className="items-center mt-3">
-                  <Text className={`font-pbold ${isDark ? "text-white" : "text-gray-900"}`}>
-                    Emma Aria
-                  </Text>
-                  <View className="flex-row items-center mt-1">
-                    <Text className="text-green-400 font-psemibold">89%</Text>
-                    <Ionicons name="arrow-up" size={16} color="#10B981" style={{ marginLeft: 4 }} />
-                  </View>
-                  <View className="mt-2 px-2 py-0.5 rounded-full bg-green-500/10 self-start">
-                    <Text className="text-green-400 text-xs">Gold Division</Text>
-                  </View>
-                  <Text className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                    @emmaaria
-                  </Text>
-                </View>
+                )}
               </View>
+              <View className="bg-amber-600 w-20 h-20 rounded-t-xl items-center justify-end pb-2">
+                <Text className="text-lg font-pbold text-white">3</Text>
+              </View>
+              <Text className="mt-2 font-pmedium text-gray-600" numberOfLines={1}>
+                {leaderboardData[2]?.name || "No data"}
+              </Text>
+              <Text className="text-sm text-gray-500">
+                {leaderboardData[2]?.score || 0} pts
+              </Text>
             </View>
           </View>
+        </View>
 
-          {/* Your Rank */}
-          <View className={`rounded-3xl p-6 mt-4 border shadow-xl ${
-            isDark ? "bg-neutral-800/50 border-neutral-700" : "bg-white border-gray-200"
-          }`}>
-            <Text className={`text-xl font-pbold mb-6 ${isDark ? "text-white" : "text-gray-900"}`}>
-              Your Rank
-            </Text>
-            <View className={`flex-row justify-between items-center p-4 rounded-2xl ${
-              isDark ? "bg-neutral-900" : "bg-gray-50"
-            }`}>
-              <View className="flex-row items-center">
-                <Text className={`font-pbold mr-3 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                  #{userRank.rank}
-                </Text>
-                <Image
-                  source={{ uri: userRank.avatar }}
-                  className="w-12 h-12 rounded-full mr-3 shadow-md"
-                />
-                <View>
-                  <Text className={`font-psemibold ${isDark ? "text-white" : "text-gray-900"}`}>
-                    You
-                  </Text>
-                  <View className="mt-1">
-                    <View className="px-2 py-0.5 rounded-full self-start" style={{ backgroundColor: `${getDivisionColor(userRank.division)}20` }}>
-                      <Text 
-                        className="text-xs"
-                        style={{ color: getDivisionColor(userRank.division) }}
-                      >
-                        {userRank.division}
-                      </Text>
-                    </View>
-                    <Text className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                      @{userRank.username}
-                    </Text>
+        {/* Current User Rank */}
+        <View className={`mt-6 mx-6 p-4 rounded-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center space-x-3">
+              <Text className="text-lg font-pbold text-gray-400">#{userRank.rank}</Text>
+              <View className="w-12 h-12 rounded-full border-2 border-indigo-500 overflow-hidden">
+                {userRank.avatar ? (
+                  <Image
+                    source={{ uri: userRank.avatar }}
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <View className="w-full h-full bg-indigo-100 items-center justify-center">
+                    <Ionicons name="person" size={24} color="#4F46E5" />
                   </View>
-                </View>
+                )}
               </View>
-              <View className="flex-row items-center">
-                <Text className={`font-pbold mr-2 ${isDark ? "text-white" : "text-gray-900"}`}>
-                  {formatScore(userRank.score)}
+              <View>
+                <Text className={`font-pmedium ${isDark ? "text-white" : "text-gray-800"}`}>
+                  {userRank.name}
                 </Text>
+                <Text className="text-sm text-gray-500">{userRank.division}</Text>
+              </View>
+            </View>
+            <View className="items-end">
+              <Text className={`font-pbold ${isDark ? "text-white" : "text-gray-800"}`}>
+                {userRank.score} pts
+              </Text>
+              <View className="flex-row items-center">
                 <Ionicons
-                  name={userRank.trend === "up" ? "arrow-up" : "arrow-down"}
+                  name={userRank.trend === "up" ? "trending-up" : "trending-down"}
                   size={16}
                   color={userRank.trend === "up" ? "#10B981" : "#EF4444"}
                 />
+                <Text
+                  className={`text-sm ml-1 ${
+                    userRank.trend === "up" ? "text-green-500" : "text-red-500"
+                  }`}
+                >
+                  {userRank.trend === "up" ? "Rising" : "Falling"}
+                </Text>
               </View>
             </View>
           </View>
+        </View>
 
-          {/* Leaderboard List */}
-          <View className={`rounded-3xl p-6 mt-4 mb-4 border shadow-xl ${
-            isDark ? "bg-neutral-800/50 border-neutral-700" : "bg-white border-gray-200"
-          }`}>
-            <Text className={`text-xl font-pbold mb-6 ${isDark ? "text-white" : "text-gray-900"}`}>
-              Rankings
-            </Text>
-            <FlatList
-              data={leaderboardData}
-              keyExtractor={(item) => item.id}
-              scrollEnabled={false}
-              renderItem={({ item, index }) => (
-                <View className={`flex-row justify-between items-center p-4 rounded-2xl mb-3 ${
-                  isDark ? "bg-neutral-900" : "bg-gray-50"
-                }`}>
-                  <View className="flex-row items-center">
-                    <Text className={`font-pbold mr-3 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                      #{index + 4}
-                    </Text>
+        {/* Rest of Rankings */}
+        <View className="mt-6 px-6">
+          <Text className={`text-lg font-pbold mb-4 ${isDark ? "text-white" : "text-gray-800"}`}>
+            All Rankings
+          </Text>
+          {leaderboardData.slice(3).map((student, index) => (
+            <View
+              key={student.id}
+              className={`flex-row items-center justify-between py-3 ${
+                index !== leaderboardData.length - 4 ? "border-b border-gray-200" : ""
+              }`}
+            >
+              <View className="flex-row items-center space-x-3">
+                <Text className="text-lg font-pbold text-gray-400">#{student.rank}</Text>
+                <View className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden">
+                  {student.avatar ? (
                     <Image
-                      source={{ uri: item.avatar }}
-                      className="w-12 h-12 rounded-full mr-3 shadow-md"
+                      source={{ uri: student.avatar }}
+                      className="w-full h-full"
                     />
-                    <View>
-                      <Text className={`font-psemibold ${isDark ? "text-white" : "text-gray-900"}`}>
-                        {item.name}
-                      </Text>
-                      <View className="mt-1">
-                        <View className="px-2 py-0.5 rounded-full self-start" style={{ backgroundColor: `${getDivisionColor(item.division)}20` }}>
-                          <Text 
-                            className="text-xs"
-                            style={{ color: getDivisionColor(item.division) }}
-                          >
-                            {item.division}
-                          </Text>
-                        </View>
-                        <Text className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                          @{item.name.toLowerCase().replace(" ", "")}
-                        </Text>
-                      </View>
+                  ) : (
+                    <View className="w-full h-full bg-indigo-100 items-center justify-center">
+                      <Ionicons name="person" size={20} color="#4F46E5" />
                     </View>
-                  </View>
-                  <View className="flex-row items-center">
-                    <Text className={`font-pbold mr-2 ${isDark ? "text-white" : "text-gray-900"}`}>
-                      {formatScore(Math.floor(item.score / 25))}
-                    </Text>
-                    <Ionicons
-                      name={item.trend === "up" ? "arrow-up" : "arrow-down"}
-                      size={16}
-                      color={item.trend === "up" ? "#10B981" : "#EF4444"}
-                    />
-                  </View>
+                  )}
                 </View>
-              )}
-            />
-          </View>
+                <View>
+                  <Text className={`font-pmedium ${isDark ? "text-white" : "text-gray-800"}`}>
+                    {student.name}
+                  </Text>
+                  <Text className="text-sm text-gray-500">{student.division}</Text>
+                </View>
+              </View>
+              <View className="items-end">
+                <Text className={`font-pbold ${isDark ? "text-white" : "text-gray-800"}`}>
+                  {student.score} pts
+                </Text>
+                <View className="flex-row items-center">
+                  <Ionicons
+                    name={student.trend === "up" ? "trending-up" : "trending-down"}
+                    size={16}
+                    color={student.trend === "up" ? "#10B981" : "#EF4444"}
+                  />
+                  <Text
+                    className={`text-sm ml-1 ${
+                      student.trend === "up" ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    {student.trend === "up" ? "Rising" : "Falling"}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          ))}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -6,7 +6,6 @@ const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
-    "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
@@ -28,6 +27,7 @@ export const httpRequest = async (
       headers: {
         ...(config?.headers || {}),
         Authorization: `Bearer ${token}`, // optional
+        ...(data instanceof FormData ? {} : { "Content-Type": "application/json" }),
       },
       ...config,
     });

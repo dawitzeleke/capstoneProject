@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { httpRequest } from "@/util/httpRequest";
 import { LinearGradient } from "expo-linear-gradient";
+import icons from "../../../constants/icons";
 
 type Division = 'bronze' | 'silver' | 'gold' | 'diamond';
 
@@ -54,7 +55,18 @@ const divisionThemes: Record<Division, DivisionTheme> = {
 };
 
 export default function Profile() {
-  const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState<{
+    leaderborad?: number;
+    division?: string;
+    activeDays?: number;
+    badges?: any[];
+    completedQuestions?: any[];
+    followingCount?: number;
+    points?: number;
+    questionsDone?: number;
+    savedQuestionsCount?: number;
+    progressLevel?: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const currentTheme = useSelector((state: any) => state.theme.mode);
@@ -62,6 +74,8 @@ export default function Profile() {
   const user = useSelector((state: any) => state.user.user);
   const router = useRouter();
   const [division, setDivision] = useState<Division>("gold");
+
+  console.log(user)
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -97,6 +111,7 @@ export default function Profile() {
     fetchSettings();
   }, [user]);
 
+  console.log(user.profilePictureUrl)
 
   return (
     <ScrollView className={`flex-1 ${isDark ? "bg-black" : "bg-[#f1f3fc]"} mb-16`}>
@@ -121,7 +136,7 @@ export default function Profile() {
         <View className="flex-row items-center">
           <View className="relative">
             <Image
-              source={{ uri: `${user.profilePictureUrl}` }}
+              source={{ uri: `${user.profilePictureUrl ? user.profilePictureUrl : `https://ui-avatars.com/api/?name=${user.name}&background=0D8ABC&color=fff`}` }}
               className="w-24 h-24 rounded-full border-4 border-white/20"
             />
             <TouchableOpacity className="absolute bottom-0 right-0 bg-white p-2 rounded-full">
@@ -168,7 +183,7 @@ export default function Profile() {
                 className={`text-xl font-pbold ${
                   isDark ? "text-white" : "text-gray-900"
                 }`}>
-                122
+                {settings?.followingCount}
               </Text>
               <Text
                 className={`text-sm font-pregular ${
@@ -185,7 +200,7 @@ export default function Profile() {
                 className={`text-xl font-pbold ${
                   isDark ? "text-white" : "text-gray-900"
                 }`}>
-                300
+                {settings?.savedQuestionsCount}
               </Text>
               <Text
                 className={`text-sm font-pregular ${
@@ -201,7 +216,7 @@ export default function Profile() {
               className={`text-xl font-pbold ${
                 isDark ? "text-white" : "text-gray-900"
               }`}>
-              1.2k
+              {settings?.points}
             </Text>
             <Text
               className={`text-sm font-pregular ${
@@ -229,7 +244,7 @@ export default function Profile() {
               icon: <MaterialIcons name="insights" size={24} color="white" />,
               bg: isDark ? "bg-green-500" : "bg-purple-600",
               label: "Progress",
-              stat: "+500",
+              stat: `${settings?.progressLevel || 0}%`,
             },
             {
               href: "/student/(tabs)/Leaderboard",
@@ -238,21 +253,21 @@ export default function Profile() {
               ),
               bg: isDark ? "bg-blue-500" : "bg-indigo-600",
               label: "Leader Board",
-              stat: "+9k",
+              stat: `${settings?.leaderborad}`,
             },
             {
               href: "/student/(tabs)/Activity",
               icon: <FontAwesome5 name="running" size={24} color="white" />,
               bg: isDark ? "bg-yellow-500" : "bg-orange-500",
               label: "Activity",
-              stat: "+28",
+              stat: `${settings?.activeDays}`,
             },
             {
               href: "/student/(tabs)/QuestionsDone",
               icon: <FontAwesome5 name="tasks" size={24} color="white" />,
               bg: isDark ? "bg-red-500" : "bg-red-400",
               label: "Questions Done",
-              stat: "+250",
+              stat: `${settings?.questionsDone}`,
             },
           ].map((card, index) => (
             <Link

@@ -1,15 +1,20 @@
 // types/questionTypes.ts
 export enum DifficultyLevel {
-    Easy = 'Easy',
-    Medium = 'Medium',
-    Hard = 'Hard'
+    Easy = 0,
+    Medium = 1,
+    Hard = 2
 }
 
 export enum QuestionTypeEnum {
-    MultipleChoice = 'MultipleChoice',
-    TrueFalse = 'TrueFalse',
-    ProblemSolving = 'ProblemSolving',
-    Code = 'Code'
+    MultipleChoice = 0,
+    TrueFalse = 1,
+    ProblemSolving = 2,
+    Code = 3
+}
+
+export enum StreamEnum {
+    Natural = 0,
+    Social = 1
 }
 
 export enum ContentStatus {
@@ -30,7 +35,7 @@ export interface QuestionItem {
     difficulty: DifficultyLevel;
     questionType: QuestionTypeEnum;
     createdBy: string;
-    stream: string;
+    stream: StreamEnum;
     hint: string;
     tags: string[];
     status: ContentStatus;
@@ -39,6 +44,7 @@ export interface QuestionItem {
     isMatrik: boolean;
     year: string;
     chapter: string;
+    explanation?: string;
 }
 
 export interface QuestionFormState {
@@ -51,7 +57,7 @@ export interface QuestionFormState {
     difficulty: DifficultyLevel;
     courseName: string;
     grade: number;
-    stream: string;
+    stream: StreamEnum;
     chapter: string;
     isMatrik: boolean;
     year: string;
@@ -62,6 +68,7 @@ export interface QuestionFormState {
     point: number;
     questionType: QuestionTypeEnum;
     createdBy: string;
+    explanation: string;
 }
 
 export interface ValidationErrors {
@@ -78,6 +85,9 @@ export interface ValidationErrors {
     isMatrik: boolean;
     year: boolean;
     hint: boolean;
+    explanation: boolean;
+    point: boolean;
+    questionType: boolean;
 }
 
 export type QuestionFormMode = "create" | "edit";

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { View, ScrollView, Pressable, Text, Alert } from 'react-native';
+import { View, ScrollView, Pressable, Text, Alert, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
@@ -335,22 +335,50 @@ const UploadOtherScreen = () => {
         setModalState((prev: ModalState) => ({
           ...prev,
           success: false,
-          draftSuccess: false
+          draftSuccess: false,
+          message: '',
+          color: ''
         }));
       }, 2000);
     }
 
     if (modalState.error) {
       timeoutId = setTimeout(() => {
-        setModalState((prev: ModalState) => ({ ...prev, error: false }));
+        setModalState((prev: ModalState) => ({ 
+          ...prev, 
+          error: false,
+          message: '',
+          color: ''
+        }));
       }, 3000);
     }
 
-    return () => timeoutId && clearTimeout(timeoutId);
-  }, [modalState, router, dispatch, formState.type]);
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [modalState.success, modalState.draftSuccess, modalState.error, router, dispatch, formState.type]);
+
+  const handleCloseModal = useCallback(() => {
+    setModalState((prev: ModalState) => ({
+      ...prev,
+      success: false,
+      error: false,
+      draftSuccess: false,
+      cancel: false,
+      message: '',
+      color: ''
+    }));
+  }, []);
 
   const handleCancel = useCallback(() => {
-    setModalState((prev: ModalState) => ({ ...prev, cancel: true }));
+    setModalState((prev: ModalState) => ({ 
+      ...prev, 
+      cancel: true,
+      message: 'Are you sure you want to cancel?',
+      color: '#EF4444'
+    }));
   }, []);
 
   // Map media validation errors to question validation errors structure for FormActions
@@ -362,10 +390,15 @@ const UploadOtherScreen = () => {
     difficulty: false,
     questionType: false,
     point: false,
-    options: [false, false, false, false],
+    options: [false, false, false, false, false],
     explanation: false,
     tags: validationErrors.tags,
     correctOption: false,
+    stream: false,
+    chapter: false,
+    isMatrik: false,
+    year: false,
+    hint: false
   };
 
   return (
@@ -514,35 +547,73 @@ const UploadOtherScreen = () => {
       />
 
       <SuccessModal
-        isVisible={modalState.success}
-        onDismiss={() => setModalState((prev: ModalState) => ({ ...prev, success: false }))}
-        message={modalState.message}
-        icon={formState.type === 'image' ? 'image' : 'videocam'}
-        color={modalState.color}
-      />
-
-      <SuccessModal
-        isVisible={modalState.draftSuccess}
-        onDismiss={() => setModalState((prev: ModalState) => ({ ...prev, draftSuccess: false }))}
-        message={modalState.message}
-        icon="save"
-      />
+        visible={modalState.success}
+        onClose={handleCloseModal}
+      >
+        <View className="items-center">
+          <View className="w-16 h-16 bg-green-100 rounded-full items-center justify-center mb-4">
+            <Ionicons name="checkmark-circle" size={32} color="#22c55e" />
+          </View>
+          <Text className="text-xl font-semibold text-gray-900 mb-2">Success!</Text>
+          <Text className="text-gray-600 text-center mb-4">{modalState.message}</Text>
+          <TouchableOpacity
+            onPress={handleCloseModal}
+            className="bg-green-500 py-3 rounded-lg w-full"
+          >
+            <Text className="text-white text-center font-semibold">Continue</Text>
+          </TouchableOpacity>
+        </View>
+      </SuccessModal>
 
       <ErrorModal
-        isVisible={modalState.error}
-        message={modalState.message}
-        onDismiss={() => setModalState((prev: ModalState) => ({ ...prev, error: false }))}
-      />
+        visible={modalState.error}
+        onClose={handleCloseModal}
+      >
+        <View className="items-center">
+          <View className="w-16 h-16 bg-red-100 rounded-full items-center justify-center mb-4">
+            <Ionicons name="alert-circle" size={32} color="#ef4444" />
+          </View>
+          <Text className="text-xl font-semibold text-gray-900 mb-2">Error</Text>
+          <Text className="text-gray-600 text-center mb-4">{modalState.message}</Text>
+          <TouchableOpacity
+            onPress={handleCloseModal}
+            className="bg-red-500 py-3 rounded-lg w-full"
+          >
+            <Text className="text-white text-center font-semibold">Try Again</Text>
+          </TouchableOpacity>
+        </View>
+      </ErrorModal>
 
       <CancelModal
-        isVisible={modalState.cancel}
+        visible={modalState.cancel}
+        onClose={handleCloseModal}
         onConfirm={() => {
-          resetForm();
-          router.push('/teacher/ContentList');
-          setModalState((prev: ModalState) => ({ ...prev, cancel: false }));
+          handleCloseModal();
+          router.back();
         }}
-        onCancel={() => setModalState((prev: ModalState) => ({ ...prev, cancel: false }))}
-      />
+      >
+        <View className="items-center">
+          <Text className="text-lg font-semibold text-gray-900 mb-2">Discard Changes?</Text>
+          <Text className="text-gray-600 text-center mb-6">Are you sure you want to discard this upload?</Text>
+          <View className="flex-col space-y-4 w-full">
+            <TouchableOpacity
+              onPress={handleCloseModal}
+              className="w-full bg-gray-100 px-6 py-3 rounded-lg"
+            >
+              <Text className="text-gray-600 font-medium text-center">Continue Editing</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                handleCloseModal();
+                router.back();
+              }}
+              className="w-full bg-red-100 px-6 py-3 rounded-lg"
+            >
+              <Text className="text-red-600 font-medium text-center">Discard</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </CancelModal>
     </View>
   );
 };

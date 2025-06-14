@@ -1,23 +1,23 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { StreamEnum } from '@/types/questionTypes';
 
 type StreamDropdownProps = {
-  value: string;
-  onChange: (stream: string) => void;
+  value: StreamEnum;
+  onChange: (stream: StreamEnum) => void;
   error: boolean;
   submitted: boolean;
 };
 
 const streams = [
-  'Natural Science',
-  'Social Science',
-  'Business',
-  'Technology'
+  { value: StreamEnum.Natural, label: 'Natural Science' },
+  { value: StreamEnum.Social, label: 'Social Science' }
 ];
 
 const StreamDropdown = ({ value, onChange, error, submitted }: StreamDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const selectedStream = streams.find(s => s.value === value);
 
   return (
     <View className="bg-white rounded-xl shadow p-4 mb-4">
@@ -37,8 +37,8 @@ const StreamDropdown = ({ value, onChange, error, submitted }: StreamDropdownPro
         }`}
         accessibilityRole="combobox"
       >
-        <Text className={`text-base font-pregular ${value ? 'text-black' : 'text-slate-400'}`}>
-          {value || 'Select Stream'}
+        <Text className={`text-base font-pregular ${value !== undefined ? 'text-black' : 'text-slate-400'}`}>
+          {selectedStream?.label || 'Select Stream'}
         </Text>
         <Ionicons 
           name={isOpen ? 'chevron-up' : 'chevron-down'} 
@@ -52,20 +52,20 @@ const StreamDropdown = ({ value, onChange, error, submitted }: StreamDropdownPro
           <ScrollView>
             {streams.map((stream) => (
               <Pressable
-                key={stream}
+                key={stream.value}
                 onPress={() => {
-                  onChange(stream);
+                  onChange(stream.value);
                   setIsOpen(false);
                 }}
                 className={`px-4 py-3 ${
-                  value === stream ? 'bg-indigo-50' : 'bg-white'
+                  value === stream.value ? 'bg-indigo-50' : 'bg-white'
                 }`}
                 accessibilityRole="menuitem"
               >
                 <Text className={`text-base ${
-                  value === stream ? 'text-indigo-700 font-psemibold' : 'text-slate-600 font-pregular'
+                  value === stream.value ? 'text-indigo-700 font-psemibold' : 'text-slate-600 font-pregular'
                 }`}>
-                  {stream}
+                  {stream.label}
                 </Text>
               </Pressable>
             ))}

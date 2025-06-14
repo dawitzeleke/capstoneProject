@@ -1,18 +1,12 @@
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { Pressable, View, Text } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
-type RootStackParamList = {
-    UploadOtherScreen: undefined;
-    AddQuestionScreen: undefined;
-};
 
 type ContentTypeSelectorProps = {
     currentScreen: 'UploadOther' | 'AddQuestion';
 };
 
 const ContentTypeSelector = ({ currentScreen }: ContentTypeSelectorProps) => {
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const router = useRouter();
 
     return (
         <View className="flex-row m-4 bg-white rounded-lg shadow-slate-300 shadow-sm">
@@ -20,7 +14,7 @@ const ContentTypeSelector = ({ currentScreen }: ContentTypeSelectorProps) => {
                 className={`flex-1 py-3 items-center ${
                     currentScreen === 'AddQuestion' ? 'bg-indigo-600 rounded-lg' : ''
                 }`}
-                onPress={() => navigation.navigate('AddQuestion')}
+                onPress={() => router.push('/teacher/(tabs)/AddQuestion')}
             >
                 <Text className={`text-sm font-pmedium ${
                     currentScreen === 'AddQuestion' ? 'text-white' : 'text-slate-500'
@@ -33,7 +27,7 @@ const ContentTypeSelector = ({ currentScreen }: ContentTypeSelectorProps) => {
                 className={`flex-1 py-3 items-center ${
                     currentScreen === 'UploadOther' ? 'bg-indigo-600 rounded-lg' : ''
                 }`}
-                onPress={() => navigation.navigate('UploadOther')}
+                onPress={() => router.push('/teacher/(tabs)/UploadOther')}
             >
                 <Text className={`text-sm font-pmedium ${
                     currentScreen === 'UploadOther' ? 'text-white' : 'text-slate-500'
