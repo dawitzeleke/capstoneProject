@@ -10,15 +10,24 @@ public class CreateVideoContentCommandHandler: IRequestHandler<CreateVideoConten
 {
     private readonly ICloudinaryService _cloudinaryService;
     private readonly IVideoContentRepository _videoContentRepository;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreateVideoContentCommandHandler(ICloudinaryService cloudinary, IVideoContentRepository videoContentRepository)
+    public CreateVideoContentCommandHandler(ICloudinaryService cloudinary, IVideoContentRepository videoContentRepository,
+        ICurrentUserService currentUserService)
     {
-        _cloudinaryService=cloudinary;
-        _videoContentRepository=videoContentRepository;
+        _cloudinaryService = cloudinary;
+        _videoContentRepository = videoContentRepository;
+        _currentUserService = currentUserService;
     }
 
     public async Task<VideoContent> Handle(CreateVideoContentCommand request,CancellationToken cancellationToken){
-       
+
+        var userId = _currentUserService.UserId.ToString();
+        if (string.IsNullOrEmpty(userId))
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
+        
         var uploadResponse = await _cloudinaryService.UploadVideoAsync(request.VideoStream);
         if (uploadResponse.Url == null)
         {
@@ -33,7 +42,7 @@ public class CreateVideoContentCommandHandler: IRequestHandler<CreateVideoConten
             VideoUrl = uploadResponse.Url,
             Tags = request.Tags,
             PublicId = uploadResponse.PublicId,
-            CreatedBy = request.CreatedBy,
+            CreatedBy = userId,
             CreatedAt = DateTime.UtcNow,
         };
         var response= await _videoContentRepository.CreateAsync(videoContent);
