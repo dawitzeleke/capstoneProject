@@ -489,6 +489,7 @@ const AddQuestion = () => {
       >
         <AppHeader
           title="Upload Content"
+          titleStyle={{fontFamily: 'Poppins-SemiBold'}}
           onBack={router.back}
           showResetButton={true}
           onReset={resetForm}
