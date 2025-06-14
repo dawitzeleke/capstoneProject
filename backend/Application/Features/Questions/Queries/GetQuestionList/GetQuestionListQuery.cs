@@ -15,7 +15,6 @@ public class GetQuestionListQuery : IRequest<PaginatedList<Question>>
     public string? CreatorId { get; set; }
     public string? StudentId { get; set; }
     public DifficultyLevel? DifficultyLevel { get; set; }
-
     // Pagination
     public PaginationDto Pagination { get; set; } = new PaginationDto();
 

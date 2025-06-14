@@ -15,21 +15,25 @@ const CourseNameInput: React.FC<CourseNameInputProps> = ({
   submitted
 }) => {
   return (
-    <View className="mb-4">
-      <Text className="text-sm font-medium text-gray-700 mb-1">
-        Course Name <Text className="text-red-500">*</Text>
-      </Text>
+    <View className="bg-white rounded-xl shadow p-4 mb-4 border-b border-slate-200">
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-lg font-psemibold text-slate-800">
+          Course Name<Text className="text-red-500 m-1 text-lg">*</Text>
+        </Text>
+        {submitted && error && (
+          <Text className="text-red-500 text-xs">Required</Text>
+        )}
+      </View>
       <TextInput
-        className={`border rounded-lg px-3 py-2 ${
-          error && submitted ? 'border-red-500' : 'border-gray-300'
+        placeholder="Enter course name (e.g. Biology)"
+        placeholderTextColor="#94a3b8"
+        className={`text-base h-12 px-2 text-black font-pregular ${
+          submitted && error ? "border-2 border-red-200 bg-red-50 rounded" : "border-b border-slate-200"
         }`}
         value={value}
         onChangeText={onChange}
-        placeholder="Enter course name"
+        accessibilityLabel="Course name input"
       />
-      {error && submitted && (
-        <Text className="text-red-500 text-sm mt-1">Course name is required</Text>
-      )}
     </View>
   );
 };

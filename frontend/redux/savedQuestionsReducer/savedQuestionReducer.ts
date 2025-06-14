@@ -3,6 +3,7 @@
 import {
   SET_SAVED_QUESTIONS,
   CLEAR_SAVED_QUESTIONS,
+  UPDATE_SAVED_QUESTION,
   SavedQuestionsActionTypes,
   REMOVE_SAVED_QUESTION,
   Question,
@@ -11,7 +12,11 @@ import {
 // Reducer State
 export interface SavedQuestionsState {
   list: Question[];
+  ids: string[];
 }
+
+
+
 
 const initialState: SavedQuestionsState = {
   list: [
@@ -34,6 +39,7 @@ const initialState: SavedQuestionsState = {
       author: "yosef",
     },
   ],
+  ids: [],
 };
 
 // Reducer
@@ -43,7 +49,7 @@ const savedQuestionsReducer = (
 ): SavedQuestionsState => {
   switch (action.type) {
     case SET_SAVED_QUESTIONS:
-      return { ...state, list: action.payload };
+      return { ...state, list: action.payload,ids: action.payload.map(q => q.id) };
 
     case CLEAR_SAVED_QUESTIONS:
       return { ...state, list: [] };
@@ -51,11 +57,17 @@ const savedQuestionsReducer = (
     case REMOVE_SAVED_QUESTION:
       return {
         ...state,
-        list: state.list.filter((q) => q.id !== action.payload),
+        // to update the ids we check if it present before then remove and if not present we add the id
+        list: state.list.filter((q) => q.id !== action.payload), ids: state.ids.includes(action.payload) ? state.ids.filter(id => id !== action.payload) : [...state.ids, action.payload] 
+      };
+    case UPDATE_SAVED_QUESTION:
+      return {
+        ...state,
+        list: [action.payload, ...state.list],
       };
 
     default:
-      return state;
+      return state; 
   }
 };
 

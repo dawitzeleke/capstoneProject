@@ -9,8 +9,8 @@ import { formatError } from '@/util/error';
 // Create axios instance directly
 const api = axios.create({
   baseURL: Platform.OS === 'android' || Platform.OS === 'ios' 
-    ? 'https://cognify-d5we.onrender.com'
-    : 'http://localhost:5019',
+    ? 'http://localhost:5019'
+    :'https://cognify-d5we.onrender.com',
   timeout: 10000,
   headers: {
     'Accept': 'application/json',

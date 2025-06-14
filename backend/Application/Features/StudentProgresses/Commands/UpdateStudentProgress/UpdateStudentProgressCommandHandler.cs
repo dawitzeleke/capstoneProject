@@ -28,14 +28,19 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         _currentUserService = currentUserService;
         _questionRepository = questionRepository;
         _studentRepository = studentRepository;
-        
     }
 
     public async Task<bool> Handle(UpdateStudentProgressCommand request, CancellationToken cancellationToken)
     {
         // check if student progress exists
         // if not, create a new one
-        var studentProgress = await _studentProgressRepository.GetStudentProgress(request.StudentId);
+        var student_id = _currentUserService.UserId.ToString();
+        if (string.IsNullOrEmpty(student_id))
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
+        
+        var studentProgress = await _studentProgressRepository.GetStudentProgress(student_id);
         var month_year = DateTime.Now.ToString("MMMM yyyy");
         var day = DateTime.Now.Day-1;
         
@@ -44,7 +49,7 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
            
             var newStudentProgress = new StudentProgress
             {
-                StudentId = request.StudentId,
+                StudentId = student_id,
                 Progresses = new Dictionary<string,string>()
             };
             studentProgress = await _studentProgressRepository.CreateAsync(newStudentProgress);
@@ -53,7 +58,6 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         var update_response = updateSolvedAttemptedQuestions(request);
         if (update_response == null)
         {
-            Console.WriteLine("Failed to update solved and attempted questions");
             return false;
         }
 
@@ -73,7 +77,7 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
             progress.Questions[day].UnionWith(request.CorrectQuestions);
             var response = await _monthlyProgressRepository.UpdateAsync(progress);
             if (response == null)
-            {;
+            { 
                 return false;
             }
 
@@ -92,9 +96,9 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
             var response = await _studentProgressRepository.UpdateAsync(studentProgress);
             if (response!=null)
             {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
         return false;
     }
@@ -103,6 +107,10 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
     {
         var totalPoints = 0;
         var studentId = _currentUserService.UserId.ToString();
+        if (string.IsNullOrEmpty(studentId))
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
         // Get the previously solved questionIds and attempted questionIds for the student
         var previous_solved_question_Ids = await _studentSolvedQuestionsRepository.GetSolvedQuestionIds(new QuestionFilterDto
         {
@@ -116,7 +124,6 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
 
         // Get previously solvedQuestion entities for the student
         var solvedQuestions = await _studentSolvedQuestionsRepository.GetSolvedQuestions(studentId);
-        
         // ## previously solved also currently solved questions
         var solvedToUpdate = solvedQuestions
             .Where(q => request.CorrectQuestions.Contains(q.QuestionId))
@@ -127,7 +134,6 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         {
             return false;
         }
-        Console.WriteLine("Solved Questions updated successfully");
         
         // ## previously solved but currently attempted questions
          var previous_solved_current_attempted = solvedQuestions
@@ -140,7 +146,6 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         {
             return false;
         }
-        Console.WriteLine("Solved Questions updated successfully");
 
         // ## newly solved questionIds
         var new_solved_question_Ids = request.CorrectQuestions
@@ -180,7 +185,6 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         {
             return false;
         }
-        Console.WriteLine("Solved Questions created successfully");
 
         // ## newly attempted questions
         var new_attempted_question_Ids = request.AttemptedQuestions
@@ -216,7 +220,6 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         var create_attempted_response = await _studentQuestionAttemptsRepository.InsertManyAsync(newAttemptedQuestion);
         if (create_attempted_response != null)
         {
-            Console.WriteLine("Attempted Questions created successfully");
 
         }
 
@@ -230,7 +233,6 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         //  send remove request to => remove from attempted questions
         await _studentQuestionAttemptsRepository.RemoveManyAsync(attemptedToRemove);
         
-        Console.WriteLine("Attempted Questions removed successfully");
 
         // prepare list of previously attempted but currently solved questions as new solved questions
         var newSolvedFromAttempted = attemptedToRemove
@@ -253,9 +255,7 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         // check if the create request was successful
         if (create_solved_from_attempted_response == null)
         {
-            Console.WriteLine("Failed to create solved questions from attempted questions");
         }
-        Console.WriteLine("Solved Questions created from Attempted Questions successfully");
         
 
         // ## previously attempted also currently attempted questions
@@ -266,9 +266,7 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         var update_result = await _studentQuestionAttemptsRepository.UpdateAttemptedQuestions(attemptedToUpdate, studentId, 1);
         if (update_result == null)
         {
-            Console.WriteLine("Failed to update attempted questions");
         }
-        Console.WriteLine("Attempted Questions updated successfully");
         string[] newSOlvedFromAttemptedIds = [];
         foreach(var question in newSolvedFromAttempted){
             newSOlvedFromAttemptedIds.Append(question.QuestionId);
@@ -312,7 +310,6 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         var response = await _studentRepository.UpdateTotalPointsAsync(studentId, totalPoints);
         if (response == null)
         {
-            Console.WriteLine("Failed to update total points");
         }
 
         // update the question's total correct answers

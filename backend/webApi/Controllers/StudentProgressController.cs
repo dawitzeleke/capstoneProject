@@ -5,6 +5,8 @@ using backend.Domain.Entities;
 using backend.Application.Features.StudentProgresses.Commands.UpdateStudentProgress;
 using backend.Application.Features.StudentProgresses.Queries.GetStudentProgress;
 using backend.Application.Features.StudentProgresses.Commands.UpdateStudentProgress;
+using Microsoft.AspNetCore.Authorization;
+
 namespace backend.webApi.Controllers;
 
 [ApiController]
@@ -19,8 +21,9 @@ public class StudentProgressController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("{studentId}")]
-    public async Task<IActionResult> GetStudentProgress(string studentId)
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetStudentProgress()
     {
         var studentProgress = await _mediator.Send(new GetStudentProgressQuery() {});
         if (studentProgress == null)
@@ -30,6 +33,7 @@ public class StudentProgressController : ControllerBase
         return Ok(studentProgress);
     }
 
+    [Authorize]
     [HttpPut]
     public async Task<IActionResult> UpdateStudentProgress([FromForm] UpdateStudentProgressCommand studentProgress)
     {

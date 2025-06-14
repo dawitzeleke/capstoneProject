@@ -72,21 +72,8 @@ const AddQuestion = () => {
   const [showResetModal, setShowResetModal] = useState(false);
   const shouldLoadDraft = useRef(!editingQuestionId);
 
-  // Use the hoisted stable reference for initial state
-  const [formState, setFormState] = useState<QuestionFormState>(() => {
-    if (editingQuestionId) {
-      const questionToEdit = questions.find(q => q.id === editingQuestionId);
-      if (questionToEdit) {
-        return {
-          ...questionToEdit,
-          correctOption: questionToEdit.correctOption,
-          options: [...questionToEdit.options],
-          hint: questionToEdit.hint || '',
-        };
-      }
-    }
-    return EMPTY_FORM_STATE;
-  });
+  // Initialize form state with empty values
+  const [formState, setFormState] = useState<QuestionFormState>(EMPTY_FORM_STATE);
 
   // Modal and loading states
   const [modalState, setModalState] = useState({
@@ -117,50 +104,44 @@ const AddQuestion = () => {
   const [isPosting, setIsPosting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
 
-  // Form initialization and reset
-  useFocusEffect(
-    useCallback(() => {
-      if (editingQuestionId) {
-        const questionToEdit = questions.find(q => q.id === editingQuestionId);
-        if (questionToEdit) {
-          const formState: QuestionFormState = {
-            ...questionToEdit,
-            correctOption: questionToEdit.correctOption,
-            options: [...questionToEdit.options],
-            hint: questionToEdit.hint || '',
-          };
-          setFormState(formState);
+  // Update form state when editing
+  useEffect(() => {
+    if (editingQuestionId) {
+      const questionToEdit = questions.find(q => q.id === editingQuestionId);
+      if (questionToEdit) {
+        setFormState({
+          ...questionToEdit,
+          correctOption: questionToEdit.correctOption || "",
+          options: [...questionToEdit.options],
+          hint: questionToEdit.hint || "",
+          year: questionToEdit.year || "",
+          chapter: questionToEdit.chapter || "",
+          stream: questionToEdit.stream || "",
+        });
+      }
+      shouldLoadDraft.current = false;
+    } else if (shouldLoadDraft.current) {
+      const loadDraft = async () => {
+        try {
+          const savedDraft = await AsyncStorage.getItem('questionDraft');
+          if (savedDraft) {
+            const parsedDraft = JSON.parse(savedDraft);
+            setFormState({
+              ...parsedDraft,
+              hint: parsedDraft.hint || "",
+              year: parsedDraft.year || "",
+              chapter: parsedDraft.chapter || "",
+              stream: parsedDraft.stream || "",
+            });
+          }
+        } catch (error) {
+          console.error('Error loading draft:', error);
         }
         shouldLoadDraft.current = false;
-      } else if (shouldLoadDraft.current) {
-        const loadDraft = async () => {
-          try {
-            const savedDraft = await AsyncStorage.getItem('questionDraft');
-            if (savedDraft) {
-              const parsedDraft = JSON.parse(savedDraft);
-              const formState: QuestionFormState = {
-                ...parsedDraft,
-                hint: parsedDraft.hint || '',
-              };
-              setFormState(formState);
-            }
-          } catch (error) {
-            console.error('Error loading draft:', error);
-          }
-          shouldLoadDraft.current = false;
-        };
-        loadDraft();
-      } else {
-        setFormState(EMPTY_FORM_STATE);
-      }
-
-      return () => {
-        if (!editingQuestionId) {
-          dispatch(clearEditingQuestion());
-        }
       };
-    }, [editingQuestionId, questions, dispatch])
-  );
+      loadDraft();
+    }
+  }, [editingQuestionId, questions]);
 
   // Form handlers
   const handleDifficultyChange = (value: DifficultyLevel) => {
@@ -189,20 +170,20 @@ const AddQuestion = () => {
   // Validation
   const validateForm = useCallback(() => {
     const errors = {
-      questionText: formState.questionText.trim() === "",
-      courseName: formState.courseName.trim() === "",
+      questionText: !formState.questionText || formState.questionText.trim() === "",
+      courseName: !formState.courseName || formState.courseName.trim() === "",
       description: false,
       grade: !formState.grade,
       difficulty: !formState.difficulty,
       options: formState.options.map((opt, i) => 
-        i < 2 ? opt.trim() === "" : false
+        i < 2 ? !opt || opt.trim() === "" : false
       ),
       tags: formState.tags.length === 0,
       correctOption: !formState.correctOption || !formState.options.includes(formState.correctOption),
-      stream: formState.stream.trim() === "",
+      stream: !formState.stream || formState.stream.trim() === "",
       chapter: false,
       isMatrik: false,
-      year: formState.isMatrik && !formState.year.trim(),
+      year: formState.isMatrik && (!formState.year || formState.year.trim() === ""),
       hint: false,
     };
 
