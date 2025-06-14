@@ -41,7 +41,6 @@ import ChapterInput from "@/components/teacher/QuestionForm/ChapterInput";
 import httpRequest from "@/util/httpRequest";
 import QuestionTypeDropdown from "@/components/teacher/QuestionForm/QuestionTypeDropdown";
 import DifficultySelector from "@/components/teacher/QuestionForm/DifficultySelector";
-import PointSelector from "@/components/teacher/QuestionForm/PointSelector";
 import ExplanationInput from "@/components/teacher/QuestionForm/ExplanationInput";
 
 interface AddQuestionValidationErrors extends ValidationErrors {
@@ -108,7 +107,6 @@ const EMPTY_FORM_STATE: QuestionFormState = {
   year: "",
   stream: "",
   chapter: "",
-  point: 1,
   questionType: QuestionTypeEnum.MultipleChoice,
   createdBy: "",
   explanation: "",
@@ -480,12 +478,17 @@ const AddQuestion = () => {
   // Render
   return (
     <View className="flex-1 bg-slate-50">
-      <ScrollView className="pb-10" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="pb-10"
+        showsVerticalScrollIndicator={false}
+        aria-hidden={showPreviewModal}
+      >
         <AppHeader
           title="Upload Content"
           onBack={router.back}
           showResetButton={true}
           onReset={resetForm}
+          disabled={showPreviewModal}
           buttons={[
             {
               icon: "folder-open",
