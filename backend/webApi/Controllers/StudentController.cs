@@ -4,7 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Application.Features.Students.Commands.SaveQuestion;
 using backend.Application.Features.Students.Commands.SaveContent;
 using backend.Application.Features.Students.Queries.GetSavedQuestions;
-
+using backend.Domain.Enums;
+using backend.webApi.PresentationDtos;
+using backend.Application.Features.Students.Queries.GetLeaderStudent;
+using backend.Application.Features.Students.Queries.GetStudentRank;
+using backend.Application.Features.Students.Queries.GetLeaderStudent;
 
 [ApiController]
 [Route("api/students")]
@@ -41,8 +45,8 @@ public class StudentsController : ControllerBase
     }
 
     [Authorize(Roles = "Student")]
-    [HttpGet("save-question/")]
-    public async Task<IActionResult> GetSavedQuestions([FromQuery] string studentId)
+    [HttpGet("saved-question/")]
+    public async Task<IActionResult> GetSavedQuestions()
     {
         var result = await _mediator.Send(new GetSavedQuestionsQuery());
         return Ok(result);
@@ -66,4 +70,27 @@ public class StudentsController : ControllerBase
         return result ? Ok("Content Saved Successfully") : BadRequest("Save failed");
     }
 
+    [Authorize(Roles = "Student")]
+    [HttpGet("rank")]
+    public async Task<IActionResult> GetStudentRank()
+    {
+        var result = await _mediator.Send(new GetStudentRankQuery());
+        if (result == null)
+        {
+            return NotFound(ApiResponse.ErrorResponse("Student rank not found"));
+        }
+            
+        return Ok(ApiResponse.SuccessResponse(result,"Student rank retrieved successfully"));
+    }
+
+    [HttpGet("leader-students")]
+    public async Task<IActionResult> GetLeaderStudents([FromQuery] DivisionEnums division = DivisionEnums.Beginner, [FromQuery] int topN = 10)
+    {
+        var result = await _mediator.Send(new GetLeaderStudentsQuery { TopCount = topN, Division = division });
+        if (result == null || !result.Any())
+        {
+            return NotFound(ApiResponse.ErrorResponse("No leader students found"));
+        }
+        return Ok(ApiResponse.SuccessResponse(result, "Leader students retrieved successfully"));
+    }
 }

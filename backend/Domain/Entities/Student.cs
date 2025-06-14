@@ -16,5 +16,6 @@ namespace backend.Domain.Entities
         public StreamEnum Stream { get; set; }
         public string School { get; set; }
         public int TotalPoints { get; set; }
+        public DivisionEnums Division { get; set; }
     }
 }

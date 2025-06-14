@@ -6,6 +6,7 @@ using backend.Application.Features.StudentProgresses.Commands.UpdateStudentProgr
 using backend.Application.Features.StudentProgresses.Queries.GetStudentProgress;
 using backend.Application.Features.StudentProgresses.Commands.UpdateStudentProgress;
 using Microsoft.AspNetCore.Authorization;
+using backend.Application.Features.Students.Queries.GetStudentPerformance;
 
 namespace backend.webApi.Controllers;
 
@@ -43,5 +44,16 @@ public class StudentProgressController : ControllerBase
             return NotFound();
         }
         return Ok(response);
+    }
+    [Authorize]
+    [HttpGet("performance")]
+    public async Task<IActionResult> GetStudentPerformance()
+    {
+        var studentPerformance = await _mediator.Send(new GetStudentPerformanceQuery());
+        if (studentPerformance == null)
+        {
+            return NotFound();
+        }
+        return Ok(studentPerformance);
     }
 }
