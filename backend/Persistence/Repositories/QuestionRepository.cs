@@ -96,16 +96,12 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
 
     public async Task<bool> AddRelatedBlog(string questionId, string blogId)
     {
-        var update = Builders<Question>.Update.AddToSet(q => q.RelatedBlog, blogId);
-        var result = await _questions.UpdateOneAsync(q => q.Id == questionId, update);
-        return result.ModifiedCount > 0;
+        return true;
     }
 
     public async Task<bool> RemoveRelatedBlog(string questionId, string blogId)
     {
-        var update = Builders<Question>.Update.Pull(q => q.RelatedBlog, blogId);
-        var result = await _questions.UpdateOneAsync(q => q.Id == questionId, update);
-        return result.ModifiedCount > 0;
+       return true;
     }
 
     public async Task<bool> UpdateTotalCorrectAnswers(List<string> questionIds, int value)
@@ -120,5 +116,6 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
 
         return result.ModifiedCount > 0;
     }
+
 
 }

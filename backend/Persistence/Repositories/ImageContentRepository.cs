@@ -2,6 +2,8 @@ using MongoDB.Driver;
 using backend.Persistence.DatabaseContext;
 using backend.Application.Contracts.Persistence;
 using backend.Domain.Entities;
+using backend.Application.Dtos.PaginationDtos;
+using backend.Application.Dtos.ImageContentDtos;
 
 namespace backend.Persistence.Repositories;
 
@@ -23,5 +25,27 @@ public class ImageContentRepository : GenericRepository<ImageContent>, IImageCon
 
         var filter = Builders<ImageContent>.Filter.In(ic => ic.Id, ids);
         return await _imageContents.Find(filter).ToListAsync();
+    }
+
+    public async Task<List<ImageContent>> GetFilteredImageContents(ImageContentFilterDto filter, PaginationDto pagination)
+    {
+        var query = _imageContents.AsQueryable();
+        if (filter.CreatorId!="" && filter.CreatorId != null)
+        {
+            query = query.Where(ic => ic.UpdatedBy == filter.CreatorId);
+        }
+        if(pagination.Limit!= null)
+        {
+            query = query.Take(pagination.Limit);
+        }else
+        {
+            query = query.Take(10); 
+        }
+        if (filter.Status.HasValue)
+        {
+            query = query.Where(ic => ic.Status == filter.Status);
+        }
+        var results =query.ToList();
+        return results;
     }
 }

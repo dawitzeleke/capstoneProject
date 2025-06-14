@@ -16,6 +16,8 @@ using backend.Application.Features.Questions.Commands.RemoveRelatedBlog;
 using backend.Application.Dtos.PaginationDtos;
 using backend.webApi.PresentationDtos;
 using backend.Domain.Enums;
+using backend.Application.Features.Teachers.Queries.GetDraft;
+
 
 
 
@@ -112,6 +114,46 @@ public class QuestionsController : ControllerBase
             return Ok();
         }
         return NotFound();
+    }
+
+
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("create-draft")]
+    public async Task<IActionResult> CreateDraftQuestion([FromQuery] CreateQuestionCommand  draftQuestion)
+    {
+        draftQuestion.Status = ContentStatusEnum.Draft;
+        var response = await _mediator.Send(draftQuestion);
+        if (response == null)
+        {
+            return BadRequest(new ApiResponse(false, "Failed to create draft question", null));
+        }
+        return Ok(new ApiResponse(true, "Draft question created successfully", response));
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("draft")]
+    public async Task<IActionResult> GetDraftQuestion(GetDraftQuery request)
+    {
+        var result = await _mediator.Send(request);
+        if (result == null || result.Count == 0)
+        {
+            return NotFound(new ApiResponse(false, "No draft questions found", null));
+        }
+        return Ok(new ApiResponse(true, "Draft questions retrieved successfully", result));
+
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpPut("draft")]
+    public async Task<IActionResult> UpdateDraftQuestion([FromBody] UpdateQuestionCommand question)
+    {
+        question.Status = ContentStatusEnum.Draft;
+        var response = await _mediator.Send(question);
+        if (response == null)
+        {
+            return NotFound(new ApiResponse(false, "Draft question not found", null));
+        }
+        return Ok(new ApiResponse(true, "Draft question updated successfully", response));
     }
 
 
