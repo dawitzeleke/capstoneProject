@@ -44,12 +44,12 @@ const Filter: React.FC<Props> = ({ filter, onChange }) => {
               key={option}
               onPress={() => onChange(option)}
               className={`py-1.5 px-3 mr-2 rounded-full ${
-                isActive ? 'bg-[#4F46E5]' : 'bg-[#dfddff]'
+                isActive ? 'bg-[#4F46E5]' : 'bg-indigo-100'
               }`}
             >
               <Text
                 className={`text-sm ${
-                  isActive ? 'text-white font-psemibold' : 'text-black font-pregular'
+                  isActive ? 'text-white font-psemibold' : 'text-[#4F46E5] font-pregular'
                 }`}
               >
                 {FILTER_LABELS[option]}
