@@ -17,112 +17,160 @@ import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { AppDispatch } from "@/redux/store";
 import { httpRequest } from "@/util/httpRequest";
+
 const screenWidth = Dimensions.get("window").width;
 
+interface ProgressData {
+  month: string;
+  year: string;
+  days_in_month: number;
+  heatmap: number[];
+}
+
 const Progress = () => {
- 
   const user = useSelector((state: any) => state.user.user);
   const currentTheme = useSelector((state: any) => state.theme.mode);
   const progressData = useSelector((state: any) => state.progress.progressData);
   const isDark = currentTheme === "dark";
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const today = new Date();
-   const dispatch = useDispatch<AppDispatch>();
-  const studentId = user?.id
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+  const dispatch = useDispatch<AppDispatch>();
+  const studentId = user?.id;
+  const token = user?.token;
 
-  console.log(studentId)
+  // Get current month data
+  const currentMonthData = useMemo(() => {
+    if (!progressData || progressData.length === 0) return null;
 
-  const isCurrentMonth =
-    currentMonth.getMonth() === today.getMonth() &&
-    currentMonth.getFullYear() === today.getFullYear();
-
-  const handlePreviousMonth = () => {
-    const newDate = new Date(currentMonth);
-    newDate.setMonth(newDate.getMonth() - 1);
-    setCurrentMonth(newDate);
-  };
-
-  const handleNextMonth = () => {
-    if (!isCurrentMonth) {
-      const newDate = new Date(currentMonth);
-      newDate.setMonth(newDate.getMonth() + 1);
-      setCurrentMonth(newDate);
+    const monthData = progressData[currentMonthIndex];
+    
+    // Transform the flat array into weeks (5 weeks x 7 days)
+    const weeks: number[][] = [];
+    const daysInMonth = monthData.days_in_month;
+    const firstDay = new Date(parseInt(monthData.year), getMonthNumber(monthData.month), 1).getDay();
+    
+    // Initialize weeks array
+    for (let i = 0; i < 5; i++) {
+      weeks.push(Array(7).fill(0));
     }
-  };
-  const token = user?.token; // Get the token from the user state
-  const barChartData = useMemo(() => {
-    const daysMap: Record<number, string> = {
-      0: "Sun",
-      1: "Mon",
-      2: "Tue",
-      3: "Wed",
-      4: "Thu",
-      5: "Fri",
-      6: "Sat",
-    };
 
-    const dayTotals: Record<string, number> = {
-      Sun: 0,
-      Mon: 0,
-      Tue: 0,
-      Wed: 0,
-      Thu: 0,
-      Fri: 0,
-      Sat: 0,
-    };
-
-    progressData.forEach((item: any) => {
-      const date = new Date(item.date);
-      const day = daysMap[date.getDay()];
-      if (day in dayTotals) {
-        dayTotals[day] += item.count;
+    // Fill in the data
+    for (let day = 0; day < daysInMonth; day++) {
+      const weekIndex = Math.floor((day + firstDay) / 7);
+      const dayIndex = (day + firstDay) % 7;
+      if (weekIndex < 5) { // Ensure we don't exceed our 5 weeks
+        weeks[weekIndex][dayIndex] = monthData.heatmap[day];
       }
-    });
+    }
 
     return {
-      labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      month: monthData.month,
+      year: monthData.year,
+      days_in_month: monthData.days_in_month,
+      heatmap: weeks
+    };
+  }, [progressData, currentMonthIndex]);
+
+  // Helper function to convert month name to number
+  function getMonthNumber(monthName: string): number {
+    const months: { [key: string]: number } = {
+      'January': 0, 'February': 1, 'March': 2, 'April': 3,
+      'May': 4, 'June': 5, 'July': 6, 'August': 7,
+      'September': 8, 'October': 9, 'November': 10, 'December': 11
+    };
+    return months[monthName] || 0;
+  }
+
+  // Get the latest week's data for the bar chart
+  const barChartData = useMemo(() => {
+    if (!progressData || progressData.length === 0) return null;
+
+    // Get the latest month's data
+    const latestMonth = progressData[progressData.length - 1];
+    
+    // Transform the flat array into weeks (5 weeks x 7 days)
+    const weeks: number[][] = [];
+    const daysInMonth = latestMonth.days_in_month;
+    const firstDay = new Date(parseInt(latestMonth.year), getMonthNumber(latestMonth.month), 1).getDay();
+    
+    // Initialize weeks array
+    for (let i = 0; i < 5; i++) {
+      weeks.push(Array(7).fill(0));
+    }
+
+    // Fill in the data
+    for (let day = 0; day < daysInMonth; day++) {
+      const weekIndex = Math.floor((day + firstDay) / 7);
+      const dayIndex = (day + firstDay) % 7;
+      if (weekIndex < 5) { // Ensure we don't exceed our 5 weeks
+        weeks[weekIndex][dayIndex] = latestMonth.heatmap[day];
+      }
+    }
+
+    // Get the last non-empty week
+    let latestWeek = weeks[0];
+    for (let i = weeks.length - 1; i >= 0; i--) {
+      if (weeks[i].some(value => value > 0)) {
+        latestWeek = weeks[i];
+        break;
+      }
+    }
+
+    return {
+      labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
       datasets: [
         {
-          data: [
-            dayTotals["Mon"],
-            dayTotals["Tue"],
-            dayTotals["Wed"],
-            dayTotals["Thu"],
-            dayTotals["Fri"],
-            dayTotals["Sat"],
-            dayTotals["Sun"],
-          ],
+          data: latestWeek,
         },
       ],
     };
   }, [progressData]);
 
-  useEffect(() => {
-  const fetchProgressData = async () => {
-    try {
-      const data = await httpRequest(
-        `/StudentProgress/${studentId}`,
-        undefined, 
-        "GET",
-        token
-      );
-      console.log("Fetched progress data:", data);
-      if (data) {
-        dispatch(setProgressData(data));
-      }
-    } catch (error) {
-      console.error("Failed to fetch student progress data:", error);
+  const handlePreviousMonth = () => {
+    if (currentMonthIndex > 0) {
+      setCurrentMonthIndex(prev => prev - 1);
     }
   };
 
-  if (studentId) {
-    fetchProgressData();
+  const handleNextMonth = () => {
+    if (currentMonthIndex < progressData.length - 1) {
+      setCurrentMonthIndex(prev => prev + 1);
+    }
+  };
+
+  useEffect(() => {
+    const fetchProgressData = async () => {
+      try {
+        const data = await httpRequest(
+          `/StudentProgress/${studentId}`,
+          undefined, 
+          "GET",
+          token
+        );
+        console.log("Fetched progress data:", data);
+        if (data) {
+          dispatch(setProgressData(data));
+        }
+      } catch (error) {
+        console.error("Failed to fetch student progress data:", error);
+      }
+    };
+
+    if (studentId) {
+      fetchProgressData();
+    }
+  }, [studentId, token, dispatch]);
+
+  if (!progressData || progressData.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text className="text-gray-500">No progress data available</Text>
+      </View>
+    );
   }
-}, [studentId, token, dispatch]);
 
   return (
     <ScrollView
-      className={`flex-1 px-4 mb-16 pt-6 pb-20 ${
+      className={`flex-1 px-4 pt-6 pb-20 ${
         isDark ? "bg-black" : "bg-[#f1f3fc]"
       }`}>
       {/* Header */}
@@ -150,132 +198,164 @@ const Progress = () => {
       </View>
 
       {/* Bar Chart */}
-      <View
-        className={`py-5 px-4 rounded-2xl shadow-md mb-6 items-center ${
-          isDark ? "bg-neutral-800" : "bg-white border border-gray-200"
-        }`}>
-        <BarChart
-          data={barChartData}
-          width={screenWidth - 50}
-          height={220}
-          fromZero
-          withInnerLines={false}
-          withHorizontalLabels={true}
-          yAxisLabel=""
-          yAxisSuffix=""
-          showBarTops={false}
-          chartConfig={{
-            backgroundGradientFromOpacity: 0,
-            backgroundGradientToOpacity: 0,
-            decimalPlaces: 0,
-            barRadius: 6,
-            fillShadowGradient: isDark ? "#ffffff" : "#6366F1",
-            fillShadowGradientOpacity: 1,
-            color: () => (isDark ? "#ffffff" : "#6366F1"),
-            labelColor: () => (isDark ? "#ffffff" : "#374151"),
-            propsForBackgroundLines: {
-              stroke: isDark ? "#374151" : "#D1D5DB",
-            },
-            barPercentage: 0.7,
-          }}
-        />
+      {barChartData && (
+        <View
+          className={`py-5 px-4 rounded-2xl shadow-md mb-6 items-center ${
+            isDark ? "bg-neutral-800" : "bg-white border border-gray-200"
+          }`}>
+          <Text
+            className={`text-lg font-pbold mb-4 ${
+              isDark ? "text-gray-200" : "text-gray-800"
+            }`}>
+            Latest Week's Activity
+          </Text>
+          <BarChart
+            data={barChartData}
+            width={screenWidth - 50}
+            height={220}
+            fromZero
+            withInnerLines={false}
+            withHorizontalLabels={true}
+            yAxisLabel=""
+            yAxisSuffix=""
+            showBarTops={false}
+            chartConfig={{
+              backgroundGradientFromOpacity: 0,
+              backgroundGradientToOpacity: 0,
+              decimalPlaces: 0,
+              barRadius: 6,
+              fillShadowGradient: isDark ? "#ffffff" : "#6366F1",
+              fillShadowGradientOpacity: 1,
+              color: () => (isDark ? "#ffffff" : "#6366F1"),
+              labelColor: () => (isDark ? "#ffffff" : "#374151"),
+              propsForBackgroundLines: {
+                stroke: isDark ? "#374151" : "#D1D5DB",
+              },
+              barPercentage: 0.7,
+            }}
+          />
+        </View>
+      )}
+
+      {/* Calendar Header */}
+      <View className="flex-row items-center justify-between mb-2 px-1">
+        <TouchableOpacity
+          onPress={handlePreviousMonth}
+          disabled={currentMonthIndex === 0}
+          className={`p-1.5 rounded-lg ${
+            currentMonthIndex === 0
+              ? isDark
+                ? "bg-gray-800/50"
+                : "bg-gray-100/50"
+              : isDark
+              ? "bg-gray-800"
+              : "bg-gray-100"
+          }`}>
+          <Ionicons
+            name="chevron-back"
+            size={18}
+            color={
+              currentMonthIndex === 0
+                ? isDark
+                  ? "#666"
+                  : "#9CA3AF"
+                : isDark
+                ? "#ccc"
+                : "#4B5563"
+            }
+          />
+        </TouchableOpacity>
+        <View className="items-center">
+          <Text
+            className={`text-base font-pmedium ${
+              isDark ? "text-gray-200" : "text-gray-800"
+            }`}>
+            {currentMonthData?.month}
+          </Text>
+          <Text
+            className={`text-sm font-pregular ${
+              isDark ? "text-gray-400" : "text-gray-500"
+            }`}>
+            {currentMonthData?.year}
+          </Text>
+        </View>
+        <TouchableOpacity
+          onPress={handleNextMonth}
+          disabled={currentMonthIndex === progressData.length - 1}
+          className={`p-1.5 rounded-lg ${
+            currentMonthIndex === progressData.length - 1
+              ? isDark
+                ? "bg-gray-800/50"
+                : "bg-gray-100/50"
+              : isDark
+              ? "bg-gray-800"
+              : "bg-gray-100"
+          }`}>
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color={
+              currentMonthIndex === progressData.length - 1
+                ? isDark
+                  ? "#666"
+                  : "#9CA3AF"
+                : isDark
+                ? "#ccc"
+                : "#4B5563"
+            }
+          />
+        </TouchableOpacity>
       </View>
 
-      {/* Stats and Heatmap */}
-      <View className="flex-row justify-between mb-16">
-        <View className="flex-col flex-1 mr-4">
-          {/* Circular Progress */}
-          <View
-            className={`p-5 rounded-2xl mb-4 shadow-md ${
-              isDark ? "bg-neutral-800" : "bg-white border border-gray-200"
-            }`}>
-            <CircularProgressChart isDark={isDark} />
-          </View>
+      {/* Heatmap */}
+      <View className="mb-6">
+        <Heatmap data={currentMonthData} isDark={isDark} />
+      </View>
 
-          {/* Correct Attempts */}
-          <View
-            className={`p-5 rounded-2xl shadow-md items-center justify-center ${
-              isDark ? "bg-neutral-800" : "bg-white border border-gray-200"
+      {/* Stats Section */}
+      <View className="flex-row mb-6">
+        {/* Circular Progress */}
+        <View
+          className={`p-5 rounded-2xl shadow-md flex-1 mr-4 ${
+            isDark ? "bg-neutral-800" : "bg-white border border-gray-200"
+          }`}>
+          <CircularProgressChart isDark={isDark} />
+          <Text
+            className={`text-base text-center font-pmedium ${
+                isDark ? "text-gray-400" : "text-gray-500"
+              }`}>
+            Accuracy Rate
+          </Text>
+        </View>
+
+        {/* Correct Attempts */}
+        <View
+          className={`p-5 rounded-2xl shadow-md flex-1 ${
+            isDark ? "bg-neutral-800" : "bg-white border border-gray-200"
+          }`}>
+          <View className="items-center justify-center">
+            <View className={`w-16 h-16 rounded-full items-center justify-center mb-3 ${
+              isDark ? "bg-emerald-900/30" : "bg-emerald-50"
             }`}>
-            <Ionicons
-              name="checkmark-circle-outline"
-              size={28}
-              color="#10B981"
-            />
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={32}
+                color="#10B981"
+              />
+            </View>
             <Text
-              className={`font-pbold text-2xl text-center ${
+              className={`font-pbold text-3xl mb-1 ${
                 isDark ? "text-white" : "text-gray-800"
               }`}>
               349
             </Text>
             <Text
-              className={`text-lg font-pbold mt-2 text-center ${
+              className={`text-base text-center font-pmedium ${
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}>
               Correct Attempts
             </Text>
           </View>
-        </View>
-
-        {/* Heatmap */}
-        <View
-          className={`rounded-2xl shadow-md flex-1 ml-2 p-4 ${
-            isDark ? "bg-neutral-900" : "bg-white border border-gray-200"
-          }`}>
-          <View className="flex-row items-center justify-between mb-3">
-            <TouchableOpacity
-              onPress={handlePreviousMonth}
-              className={`p-1.5 rounded-lg ${
-                isDark ? "bg-gray-800" : "bg-gray-100"
-              }`}>
-              <Ionicons
-                name="chevron-back"
-                size={18}
-                color={isDark ? "#ccc" : "#4B5563"}
-              />
-            </TouchableOpacity>
-            <View className="items-center">
-              <Text
-                className={`text-sm font-pmedium ${
-                  isDark ? "text-gray-200" : "text-gray-800"
-                }`}>
-                {currentMonth.toLocaleString("default", { month: "long" })}
-              </Text>
-              <Text
-                className={`text-xs font-pregular ${
-                  isDark ? "text-gray-400" : "text-gray-500"
-                }`}>
-                {currentMonth.getFullYear()}
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={handleNextMonth}
-              disabled={isCurrentMonth}
-              className={`p-1.5 rounded-lg ${
-                isCurrentMonth
-                  ? isDark
-                    ? "bg-gray-800/50"
-                    : "bg-gray-100/50"
-                  : isDark
-                  ? "bg-gray-800"
-                  : "bg-gray-100"
-              }`}>
-              <Ionicons
-                name="chevron-forward"
-                size={18}
-                color={
-                  isCurrentMonth
-                    ? isDark
-                      ? "#666"
-                      : "#9CA3AF"
-                    : isDark
-                    ? "#ccc"
-                    : "#4B5563"
-                }
-              />
-            </TouchableOpacity>
-          </View>
-          <Heatmap />
         </View>
       </View>
     </ScrollView>

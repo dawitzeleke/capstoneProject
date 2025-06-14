@@ -18,9 +18,13 @@ const CircularProgressChart = ({ isDark }: { isDark: boolean }) => {
         }
         activeStrokeColor={isDark ? "#ffffff" : "#d6ddff"} // Keep the stroke color white for both modes
         inActiveStrokeColor={isDark ? "#ffffff" : "#d6ddff"} // Darker for dark mode and lighter for light mode
-        title={"Rate"}
-        titleColor={isDark ? "#ffffff" : "#1f2937"} // White for dark mode, dark gray for light mode
-        titleStyle={{ fontSize: 14, fontWeight: "bold" }}
+        title={"%"}
+        titleColor={isDark ? "rgba(255, 255, 255, 1)" : "rgba(99, 102, 241, 1)"} // Match value color
+        titleStyle={{ 
+          fontSize: 20, 
+          fontWeight: "bold",
+          fontFamily: "Poppins"
+        }}
       />
     </View>
   );

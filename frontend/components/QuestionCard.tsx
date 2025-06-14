@@ -85,16 +85,23 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
     const sendProgressUpdate = async () => {
       try {
         const formData = new FormData();
-        formData.append("questionId", question.id);
-        formData.append(
-          "isCorrect",
-          (selectedOption === correctAnswer).toString()
-        );
+        formData.append("CorrectQuestions", JSON.stringify({
+          [question.id]: selectedOption === correctAnswer
+        }));
+        formData.append("AttemptedQuestions", JSON.stringify({
+          [question.id]: selectedOption
+        }));
+        formData.append("StudentId", user.id);
+
+        console.log('Form Data:', {
+          CorrectQuestions: { [question.id]: selectedOption === correctAnswer },
+          AttemptedQuestions: { [question.id]: selectedOption }
+        });
 
         const data = await httpRequest(
-          "/Students/settings",
+          "/StudentProgress/",
           formData,
-          "PATCH",
+          "PUT",
           user.token,
           {
             headers: {
@@ -103,6 +110,8 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
             },
           }
         );
+
+        console.log(data)
         dispatch(clearAttempts());
       } catch (error) {
         console.error("Error updating progress:", error);
@@ -134,7 +143,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
     <View
       style={{ height: height * 0.94 }}
       className={`justify-center mb-2 mt-4 p-5 w-full relative rounded-2xl ${
-        isDark ? "bg-black" : "bg-white border border-gray-200"
+        isDark ? "bg-black" : "bg-white"
       }`}>
       {/* User Info */}
       <View className="absolute top-2 w-full h-[60px] left-0 flex flex-row justify-between items-center px-6">
@@ -242,8 +251,8 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
 
       {/* Details Section */}
       <View
-        className="absolute p-2 bottom-0 left-0 right-0"
-        style={{ backgroundColor: descriptionBg }}>
+        className="absolute p-2 bottom-0 border-1 left-0 right-0"
+        style={{}}>
         <Text
           className={`font-pmedium ${
             isDark ? "text-gray-300" : "text-gray-800"

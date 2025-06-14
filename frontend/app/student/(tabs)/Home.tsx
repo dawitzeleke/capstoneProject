@@ -143,9 +143,9 @@ export default function Home() {
             onPress={(e) => e.stopPropagation()}
             className={`w-[90%] rounded-3xl p-8 ${currentTheme === "dark" ? 'bg-gray-900' : 'bg-white'} shadow-xl`}
           >
-            <View className="flex-row justify-between items-center mb-8">
+            <View className="flex-row justify-between items-center mb-4">
               <Text className={`text-2xl font-pbold ${currentTheme === "dark" ? 'text-white' : 'text-gray-900'}`}>
-                Customize Your Experience
+                Customize Your Questions
               </Text>
               <TouchableOpacity 
                 onPress={handleClose}
@@ -163,7 +163,7 @@ export default function Home() {
               <View className="flex-row space-x-3">
                 <TouchableOpacity
                   onPress={() => handleTypeSelect('default')}
-                  className={`flex-1 py-3 px-4 rounded-xl border-2 ${
+                  className={`flex-1 py-3 px-4 mx-2 rounded-xl border-2 ${
                     customizeType === 'default'
                       ? 'border-indigo-500 bg-indigo-50'
                       : currentTheme === "dark"
@@ -220,7 +220,7 @@ export default function Home() {
                       <TouchableOpacity
                         key={level}
                         onPress={() => handleDifficultySelect(level as 'easy' | 'medium' | 'hard')}
-                        className={`flex-1 py-3 px-4 rounded-xl border-2 ${
+                        className={`flex-1 py-3  mx-2 rounded-xl border-2 ${
                           difficulty === level
                             ? 'border-indigo-500 bg-indigo-50'
                             : currentTheme === "dark"
@@ -254,7 +254,7 @@ export default function Home() {
                       <TouchableOpacity
                         key={subject.id}
                         onPress={() => handleSubjectToggle(subject.id)}
-                        className={`flex-row items-center py-3 px-4 rounded-xl border-2 ${
+                        className={`flex-row items-center my-1 py-3 px-4 rounded-xl border-2 ${
                           subject.checked
                             ? 'border-indigo-500 bg-indigo-50'
                             : currentTheme === "dark"

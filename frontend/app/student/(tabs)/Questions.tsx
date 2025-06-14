@@ -141,7 +141,7 @@ const Questions = () => {
       )}
 
       {/* Render the list of questions only if not loading */}
-      {isLoading && questions.length > 0 ? (
+      {questions.length > 0 ? (
         <QuestionsList
           questions={questions}
           loadMoreQuestions={loadMoreQuestions}
