@@ -73,7 +73,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:8081")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -96,6 +97,22 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            //  if the request is for the SignalR hub,
+            if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/hubs/leaderboard")))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+
     };
 });
 
