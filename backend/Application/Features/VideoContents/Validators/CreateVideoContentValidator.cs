@@ -35,6 +35,7 @@ public class CreateVideoContentCommandValidator : AbstractValidator<CreateVideoC
 
     private bool IsValidUrl(string url)
     {
+        if (string.IsNullOrWhiteSpace(url)) return true; // Allow empty/null thumbnail
         return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
     }

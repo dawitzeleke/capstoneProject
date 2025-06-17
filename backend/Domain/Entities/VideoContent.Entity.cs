@@ -1,8 +1,12 @@
 using backend.Domain.Common;
+using MongoDB.Bson.Serialization.Attributes;
 namespace backend.Domain.Entities;
 
 public class VideoContent : ContentEntity
 {
+    [BsonIgnore]
+    public override string Id { get; set; }
+
     public string? Title { get; set; }
     public string? Description { get; set; }
     public string VideoUrl { get; set; }

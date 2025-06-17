@@ -40,12 +40,12 @@ const ContentList = ({
         const deleteItem = () => onDelete(item.id);
         const previewItem = () => onPreview(item);
 
-        // Determine which card component to render based on item type
-        if ("type" in item && (item.type === "image" || item.type === "video")) {
+        // Check if the item is a MediaItem by checking for the type property
+        if ('type' in item && (item.type === 'image' || item.type === 'video')) {
           return (
             <MediaCard
               key={item.id}
-              item={item}
+              item={item as MediaItem}
               isSelected={isSelected}
               onToggleSelection={toggleSelection}
               onEdit={editItem}
@@ -57,10 +57,11 @@ const ContentList = ({
             />
           );
         } else {
+          // If it's not a MediaItem, it must be a QuestionItem
           return (
             <ManageQuestionCard
               key={item.id}
-              item={item}
+              item={item as QuestionItem}
               isSelected={isSelected}
               onToggleSelection={toggleSelection}
               onEdit={editItem}

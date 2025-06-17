@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Pressable, View, Text, Image, ActivityIndicator } from 'react-native';
+import { Pressable, View, Text, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
-import Video from 'react-native-video';
 
 const MAX_FILE_SIZE_MB = 50; // 50MB
 
@@ -14,6 +13,7 @@ export interface FileData {
 }
 
 type FilePickerProps = {
+  file: FileData | null;
   allowedTypes: string[];
   fileTypeLabel: string;
   onFilePicked: (file: FileData | null) => void;
@@ -22,13 +22,13 @@ type FilePickerProps = {
 };
 
 const FilePicker = ({ 
+  file,
   allowedTypes, 
   fileTypeLabel, 
-  onFilePicked, 
+  onFilePicked,
   error = false,
   loading = false
 }: FilePickerProps) => {
-  const [pickedFile, setPickedFile] = useState<FileData | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
 
   const handleFilePick = async () => {
@@ -53,15 +53,13 @@ const FilePicker = ({
           type: asset.mimeType || allowedTypes[0],
           size: asset.size || 0,
         };
-        
-        setPickedFile(newFile);
+
         onFilePicked(newFile);
         setPreviewError(null);
       }
     } catch (err) {
       const error = err as Error;
       setPreviewError(error.message || 'Failed to pick file');
-      setPickedFile(null);
       onFilePicked(null);
       setTimeout(() => setPreviewError(null), 3000);
     }
@@ -93,7 +91,7 @@ const FilePicker = ({
             <Text className={`text-sm ${
               error || previewError ? 'text-red-500' : 'text-slate-500'
             } text-center`}>
-              {pickedFile ? 'Tap to change file' : `Max ${MAX_FILE_SIZE_MB}MB`}
+              {file ? 'Tap to change file' : `Max ${MAX_FILE_SIZE_MB}MB`}
             </Text>
           </View>
         )}
@@ -105,47 +103,20 @@ const FilePicker = ({
         </Text>
       )}
 
-      {pickedFile && !loading && (
+      {file && !loading && (
         <View className="mt-4 p-3 bg-indigo-50 rounded-lg">
           <View className="flex-row items-center justify-between">
             <Text className="text-indigo-800 font-pmedium flex-1" numberOfLines={1}>
-              {pickedFile.name}
+              {file.name}
             </Text>
             <Text className="text-indigo-600 text-sm">
-              {(pickedFile.size / 1024 / 1024).toFixed(1)}MB
+              {(file.size / 1024 / 1024).toFixed(1)}MB
             </Text>
-          </View>
-
-          <View className="mt-4 aspect-video bg-gray-100 rounded-lg overflow-hidden">
-            {pickedFile.type.startsWith('image/') ? (
-              <Image
-                source={{ uri: pickedFile.uri }}
-                className="w-full h-full"
-                resizeMode="contain"
-                onError={() => setPreviewError('Failed to load image')}
-              />
-            ) : pickedFile.type.startsWith('video/') ? (
-              <Video
-                source={{ uri: pickedFile.uri }}
-                style={{ width: '100%', height: '100%' }}
-                resizeMode="contain"
-                controls
-                paused={true}
-                onError={() => setPreviewError('Failed to load video')}
-              />
-            ) : (
-              <View className="flex-1 items-center justify-center">
-                <Ionicons name="document" size={48} color="#64748b" />
-              </View>
-            )}
           </View>
 
           <Pressable
             className="mt-3 flex-row items-center justify-end"
-            onPress={() => {
-              setPickedFile(null);
-              onFilePicked(null);
-            }}
+            onPress={() => onFilePicked(null)}
             disabled={loading}
           >
             <Ionicons name="close-circle" size={20} color="#EF4444" />

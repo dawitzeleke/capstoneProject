@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { QuestionItem, ContentStatus } from "@/types/questionTypes";
+import { QuestionItem, ContentStatus, QuestionTypeEnum } from "@/types/questionTypes";
 
 interface ManageQuestionCardProps {
   item: QuestionItem;
@@ -14,6 +14,21 @@ interface ManageQuestionCardProps {
   selectionMode: boolean;
   setSelectionMode: (value: boolean) => void;
 }
+
+const getQuestionTypeDisplay = (type: QuestionTypeEnum): string => {
+  switch (type) {
+    case QuestionTypeEnum.MultipleChoice:
+      return "Multiple Choice";
+    case QuestionTypeEnum.TrueFalse:
+      return "True False";
+    case QuestionTypeEnum.ProblemSolving:
+      return "Problem Solving";
+    case QuestionTypeEnum.Code:
+      return "Code";
+    default:
+      return "Unknown Type";
+  }
+};
 
 const ManageQuestionCard = ({
   item,
@@ -28,8 +43,7 @@ const ManageQuestionCard = ({
 }: ManageQuestionCardProps) => {
   return (
     <Pressable
-      className={`bg-white rounded-lg p-4 mb-3 shadow ${isSelected ? "border-2 border-indigo-600 bg-indigo-50" : ""
-        }`}
+      className={`bg-white rounded-lg p-4 mb-3 shadow ${isSelected ? "border-2 border-indigo-600 bg-indigo-50" : ""}`}
       onLongPress={() => {
         if (!selectionMode) {
           onToggleSelection();
@@ -45,13 +59,11 @@ const ManageQuestionCard = ({
       }}
     >
       {selectionMode && (
-        
-          <Ionicons
-            name={isSelected ? "checkmark-circle" : "ellipse-outline"}
-            size={24}
-            color={isSelected ? "#4F46E5" : "#cbd5e1"}
-          />
-      
+        <Ionicons
+          name={isSelected ? "checkmark-circle" : "ellipse-outline"}
+          size={24}
+          color={isSelected ? "#4F46E5" : "#cbd5e1"}
+        />
       )}
 
       {/* Header Section */}
@@ -80,7 +92,7 @@ const ManageQuestionCard = ({
       </View>
 
       {/* Difficulty and Type */}
-      <View className="flex-row gap-2 mb-2">
+      <View className="flex-row gap-2 mb-3">
         <View className="bg-indigo-100 px-2 py-1 rounded">
           <Text className="text-xs text-indigo-700 font-pmedium">
             {item.difficulty}
@@ -88,7 +100,7 @@ const ManageQuestionCard = ({
         </View>
         <View className="bg-slate-100 px-2 py-1 rounded">
           <Text className="text-xs text-slate-700 font-pmedium">
-            {item.questionType.replace(/([A-Z])/g, ' $1').trim()}
+            {getQuestionTypeDisplay(item.questionType)}
           </Text>
         </View>
       </View>
@@ -125,9 +137,9 @@ const ManageQuestionCard = ({
       </View>
 
       {/* Footer */}
-      <View className="flex-row justify-between items-center border-t border-slate-100 pt-2">
+      <View className="flex-row justify-between items-center">
         <Text className="text-xs text-gray-400 font-pregular">
-          {new Date(item.createdAt).toLocaleDateString()}
+          {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'No date'}
         </Text>
 
         <View className="flex-row gap-3">
@@ -142,9 +154,5 @@ const ManageQuestionCard = ({
     </Pressable>
   );
 };
-
-export default ManageQuestionCard;
-
-export default ManageQuestionCard;
 
 export default ManageQuestionCard;
