@@ -27,9 +27,10 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
     }
 
 
-    public async Task<PaginatedList<Question>> GetFilteredQuestions(QuestionFilterDto filter,PaginationDto pagination, List<string> solvedQuestionIds = null){
-        var query = _questions.AsQueryable(); 
-           
+    public async Task<PaginatedList<Question>> GetFilteredQuestions(QuestionFilterDto filter, PaginationDto pagination, List<string> solvedQuestionIds = null)
+    {
+        var query = _questions.AsQueryable();
+
         if (filter.Grade.HasValue)
         {
             query = query.Where(q => q.Grade == filter.Grade);
@@ -46,20 +47,20 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         }
 
         if (solvedQuestionIds != null && solvedQuestionIds.Any())
-            {
-                query = query.Where(q => !solvedQuestionIds.Contains(q.Id));
-            }
+        {
+            query = query.Where(q => !solvedQuestionIds.Contains(q.Id));
+        }
 
         var results = query
-            .Take(pagination.Limit +1)
+            .Take(pagination.Limit + 1)
             .ToList();
-        
+
         var paginatedResult = new PaginatedList<Question>(null);
 
         // Set Items and HasMore
         paginatedResult.Items = results.Take(pagination.Limit).ToList();
         paginatedResult.HasMore = results.Count > pagination.Limit;
-        
+
         return paginatedResult;
     }
 
@@ -101,7 +102,7 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
 
     public async Task<bool> RemoveRelatedBlog(string questionId, string blogId)
     {
-       return true;
+        return true;
     }
 
     public async Task<bool> UpdateTotalCorrectAnswers(List<string> questionIds, int value)
@@ -117,5 +118,19 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         return result.ModifiedCount > 0;
     }
 
+    public async Task<List<Question>> GetQuestionsByTeacherIdAsync(string teacherId)
+    {
+        // list all questions created by a specific teacher and thier status is published
+        if (string.IsNullOrEmpty(teacherId))
+        {
+            return new List<Question>();
+        }
+        // Assuming the Question entity has a CreatedBy property that stores the teacher's ID
+        var filter = Builders<Question>.Filter.And(
+            Builders<Question>.Filter.Eq(q => q.CreatedBy, teacherId),
+            Builders<Question>.Filter.Eq(q => q.Status, ContentStatusEnum.Published)
+        );
+        return await _questions.Find(filter).ToListAsync();
+    }
 
 }
