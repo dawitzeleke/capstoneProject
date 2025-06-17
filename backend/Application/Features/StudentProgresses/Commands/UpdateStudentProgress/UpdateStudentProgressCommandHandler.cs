@@ -4,7 +4,8 @@ using backend.Domain.Enums;
 using backend.Application.Contracts.Persistence;
 using backend.Application.Dtos.QuestionDtos;
 using backend.Application.Features.StudentProgresses.Queries;
-
+using backend.Application.Contracts.Services;
+using Microsoft.VisualBasic;
 
 namespace backend.Application.Features.StudentProgresses.Commands.UpdateStudentProgress;
 
@@ -17,9 +18,10 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
     private readonly ICurrentUserService _currentUserService;
     private readonly IQuestionRepository _questionRepository;
     private readonly IStudentRepository _studentRepository;
+    private readonly ILeaderboardNotifier _leaderboardNotifier;
 
     public UpdateStudentProgressCommandHandler(IStudentProgressRepository studentProgressRepository, IMonthlyProgressRepository monthlyProgress,
-        IStudentSolvedQuestionsRepository studentSolvedQuestionsRepository, IStudentQuestionAttemptsRepository studentQuestionAttemptsRepository, 
+        IStudentSolvedQuestionsRepository studentSolvedQuestionsRepository, IStudentQuestionAttemptsRepository studentQuestionAttemptsRepository,
         ICurrentUserService currentUserService, IQuestionRepository questionRepository, IStudentRepository studentRepository)
     {
         _studentProgressRepository = studentProgressRepository;
@@ -33,8 +35,6 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
 
     public async Task<bool> Handle(UpdateStudentProgressCommand request, CancellationToken cancellationToken)
     {
-        // check if student progress exists
-        // if not, create a new one
         var student_id = _currentUserService.UserId.ToString();
         if (string.IsNullOrEmpty(student_id))
         {
@@ -102,7 +102,6 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
             }
             return false;
         }
-        return false;
     }
 
     public async Task<bool> updateSolvedAttemptedQuestions(UpdateStudentProgressCommand request)
@@ -323,9 +322,9 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
         {
             Console.WriteLine("Failed to update student division.");
         }
-
-
-
+        var leaders = await _studentRepository.GetLeaderStudentsAsync(division, 30);
+        //  based on the new division notify the leaderboard system
+        await _leaderboardNotifier.NotifyDivisionLeadersAsync(leaders);
         // update the question's total correct answers
         var questionIds = new_solved_question_Ids.Union(newSOlvedFromAttemptedIds).ToList();
         var updateQuestionResponse = await _questionRepository.UpdateTotalCorrectAnswers(questionIds, 1);

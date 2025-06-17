@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using backend.webApi.Extensions;
+using backend.WebApi.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,8 +47,11 @@ builder.Services.AddSwaggerGen(c=>{
 
 });
 
+
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddInfrastructureServices();
+builder.Services.AddSignalR(); // SignalR required
+builder.Services.AddWebApiServices(); // Register presentation-layer services
 
 // builder.Services.AddScoped<AuthService>();
 builder.Services.AddControllers()
@@ -95,7 +100,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
-
+app.MapHub<LeaderBoardHub>("/hubs/leaderboard");
 // register the exception handler
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
