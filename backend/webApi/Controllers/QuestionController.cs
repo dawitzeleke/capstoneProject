@@ -17,6 +17,7 @@ using backend.Application.Dtos.PaginationDtos;
 using backend.webApi.PresentationDtos;
 using backend.Domain.Enums;
 using backend.Application.Features.Teachers.Queries.GetDraft;
+using backend.Application.Features.Questions.Queries.GetTeachersQuestion;
 
 
 
@@ -114,6 +115,18 @@ public class QuestionsController : ControllerBase
             return Ok();
         }
         return NotFound();
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("posted-questions")]
+    public async Task<IActionResult> GetPostedQuestionsByTeacher()
+    {
+        var response = await _mediator.Send(new GetTeachersPostedQuestionQuery());
+        if (response == null || response.Count == 0)
+        {
+            return NotFound(new ApiResponse(false, "No posted questions found", null));
+        }
+        return Ok(new ApiResponse(true, "Posted questions retrieved successfully", response));
     }
 
 
