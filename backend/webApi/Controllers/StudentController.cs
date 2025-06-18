@@ -22,6 +22,7 @@ public class StudentsController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize]
     [HttpGet("detail")]
     public async Task<IActionResult> GetStudentInformation()
     {
