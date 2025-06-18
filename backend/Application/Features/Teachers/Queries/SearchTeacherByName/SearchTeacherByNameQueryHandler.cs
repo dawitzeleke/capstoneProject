@@ -12,8 +12,9 @@ public class SearchTeacherByNameQueryHandler : IRequestHandler<SearchTeacherByNa
 
     public async Task<List<TeacherDto>> Handle(SearchTeacherByNameQuery request, CancellationToken cancellationToken)
     {
-        var teachers = await _teacherRepository.GetTeachersAsync(
-            request.SearchTerm,
+        var teachers = await _teacherRepository.GetTeacherByNameAsync(
+            request.FirstName,
+            request.LastName,
             request.PageNumber,
             request.PageSize
         );

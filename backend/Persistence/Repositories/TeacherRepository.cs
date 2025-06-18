@@ -54,6 +54,35 @@ public class TeacherRepository : GenericRepository<Teacher>, ITeacherRepository
             .Limit(pageSize)
             .ToListAsync();
     }
+
+    public async Task<List<Teacher>> GetTeacherByNameAsync(string firstName, string lastName, int pageNumber = 1, int pageSize = 10)
+    {
+        var filters = new List<FilterDefinition<Teacher>>();
+
+        if (!string.IsNullOrWhiteSpace(firstName))
+        {
+            filters.Add(Builders<Teacher>.Filter.Regex(
+                t => t.FirstName,
+                new MongoDB.Bson.BsonRegularExpression($"^{firstName}", "i")));
+        }
+
+        if (!string.IsNullOrWhiteSpace(lastName))
+        {
+            filters.Add(Builders<Teacher>.Filter.Regex(
+                t => t.LastName,
+                new MongoDB.Bson.BsonRegularExpression($"^{lastName}", "i")));
+        }
+
+        var filter = filters.Count > 0
+            ? Builders<Teacher>.Filter.And(filters)
+            : Builders<Teacher>.Filter.Empty;
+
+        return await _teachers.Find(filter)
+            .Skip((pageNumber - 1) * pageSize)
+            .Limit(pageSize)
+            .ToListAsync();
+    }
+
     public async Task<int> CountAsync()
     {
         return (int)await _teachers.CountDocumentsAsync(new BsonDocument());
