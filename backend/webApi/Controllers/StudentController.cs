@@ -34,6 +34,17 @@ public class StudentsController : ControllerBase
         return Ok(ApiResponse.SuccessResponse(result, "Student information retrieved successfully"));
     }
     
+    [Authorize(Roles = "Student")]
+    [HttpGet("settings")]   
+    public async Task<IActionResult> GetStudentSettings()
+    {
+        var result = await _mediator.Send(new GetStudentSettingsQuery());
+        if (result == null)
+        {
+            return NotFound(ApiResponse.ErrorResponse("Student settings not found"));
+        }
+        return Ok(ApiResponse.SuccessResponse(result, "Student settings retrieved successfully"));
+    }
 
     [Authorize(Roles = "Student")]
     [HttpPatch("settings")]
