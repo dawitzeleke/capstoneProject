@@ -37,7 +37,7 @@ public class StudentProgressController : ControllerBase
 
     [Authorize]
     [HttpPut]
-    public async Task<IActionResult> UpdateStudentProgress([FromForm] UpdateStudentProgressCommand studentProgress)
+    public async Task<IActionResult> UpdateStudentProgress([FromBody] UpdateStudentProgressCommand studentProgress)
     {
         var response = await _mediator.Send(studentProgress);
         if (response == null)
