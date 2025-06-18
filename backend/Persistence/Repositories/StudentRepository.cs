@@ -51,7 +51,7 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
             .Limit(pageSize)
             .ToListAsync();
     }
-    
+
     public async Task<int> CountAsync()
     {
         return (int)await _students.CountDocumentsAsync(new BsonDocument());
@@ -125,12 +125,25 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
         return (int)count + 1; // +1 to convert count to rank
     }
 
-    public async Task<List<Student>> GetLeaderStudentsAsync(DivisionEnums division, int topCount)
+    
+    public async Task<Dictionary<DivisionEnums, List<Student>>> GetLeaderStudentsAsync(int topCount)
     {
-        var filter = Builders<Student>.Filter.Eq(s => s.Division, division);
-        return await _students.Find(filter)
-            .SortByDescending(s => s.TotalPoints)
-            .Limit(topCount)
-            .ToListAsync();
+        var topStudentsByDivision = new Dictionary<DivisionEnums, List<Student>>();
+
+        // Get all possible enum values for Division
+        var divisions = Enum.GetValues(typeof(DivisionEnums)).Cast<DivisionEnums>();
+
+        foreach (var division in divisions)
+        {
+            var filter = Builders<Student>.Filter.Eq(s => s.Division, division);
+            var studentsInDivision = await _students.Find(filter)
+                .SortByDescending(s => s.TotalPoints)
+                .Limit(topCount)
+                .ToListAsync();
+
+            topStudentsByDivision.Add(division, studentsInDivision);
+        }
+
+        return topStudentsByDivision;
     }
 }
