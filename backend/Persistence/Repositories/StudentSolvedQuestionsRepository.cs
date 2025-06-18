@@ -36,7 +36,7 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
     public async Task<List<StudentSolvedQuestions>> GetSolvedQuestions(string studentId, PaginationDto pagination = null)     
     {
         var query = _studentSolvedQuestions.AsQueryable();
-        if (!string.IsNullOrEmpty(studentId))
+        if (string.IsNullOrEmpty(studentId))
         {
             return null;
         }
@@ -53,6 +53,10 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
             .ThenBy(q => q.Id)
             .Limit(pagination?.Limit ?? 20)
             .ToListAsync();
+        if (solvedQuestions == null || !solvedQuestions.Any())
+        {
+            return new List<StudentSolvedQuestions>();
+        }
         return solvedQuestions;
     }
 
@@ -89,6 +93,7 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
 
     public async Task<bool> UpdateSolvedQuestions(List<StudentSolvedQuestions> solvedQuestions, string studentId, int value)
     {
+        Console.WriteLine($"Updating solved questions for student {studentId} with value {value}");
         if (solvedQuestions == null || !solvedQuestions.Any())
             return false;
         var tasks = new List<Task>();
@@ -105,7 +110,16 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
             tasks.Add(_studentSolvedQuestions.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true }));
         }
 
+        //  need to receive the result of all tasks to ensure all updates are completed
         await Task.WhenAll(tasks);
+        // check if all updates were successful
+        var allUpdated = tasks.All(t => t.IsCompletedSuccessfully);
+        if (!allUpdated)
+        {
+            Console.WriteLine("Not all updates were successful.");
+            return false;
+        }
+        Console.WriteLine("All updates were successful.");
         return true;
 
     }
