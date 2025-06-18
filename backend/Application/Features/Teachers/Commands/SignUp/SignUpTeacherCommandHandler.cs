@@ -64,9 +64,13 @@ public class SignUpTeacherCommandHandler : IRequestHandler<SignUpTeacherCommand,
 
         return new AuthResponseDto
         {
+            Id = newTeacher.Id,
+            FirstName = newTeacher.FirstName,
+            LastName = newTeacher.LastName,
             Token = token,
             Email = newTeacher.Email,
-            Role = UserRole.Teacher
+            Role = UserRole.Teacher,
+            ProfilePictureUrl = newTeacher.ProfilePictureUrl
         };
     }
 }

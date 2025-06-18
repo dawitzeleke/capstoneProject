@@ -57,9 +57,13 @@ public class SignUpAdminCommandHandler : IRequestHandler<SignUpAdminCommand, Aut
 
         return new AuthResponseDto
         {
+            Id = newAdmin.Id,
+            FirstName = newAdmin.FirstName,
+            LastName = newAdmin.LastName,
             Token = token,
             Email = newAdmin.Email,
-            Role = UserRole.Admin
+            Role = UserRole.Admin,
+            ProfilePictureUrl = newAdmin.ProfilePictureUrl,
         };
     }
 }

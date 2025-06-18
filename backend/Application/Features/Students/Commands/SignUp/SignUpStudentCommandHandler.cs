@@ -70,7 +70,8 @@ public class SignUpStudentCommandHandler : IRequestHandler<SignUpStudentCommand,
             LastName = newStudent.LastName,
             Token = token,
             Email = newStudent.Email,
-            Role = UserRole.Student
+            Role = UserRole.Student,
+            ProfilePictureUrl = newStudent.ProfilePictureUrl
         };
     }
 }
