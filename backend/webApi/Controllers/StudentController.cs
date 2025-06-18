@@ -9,6 +9,7 @@ using backend.webApi.PresentationDtos;
 using backend.Application.Features.Students.Queries.GetLeaderStudent;
 using backend.Application.Features.Students.Queries.GetStudentRank;
 using backend.Application.Features.Students.Queries.GetLeaderStudent;
+using backend.Application.Features.Students.Queries.GetStudentDetail;
 
 [ApiController]
 [Route("api/students")]
@@ -21,15 +22,17 @@ public class StudentsController : ControllerBase
         _mediator = mediator;
     }
 
-    [Authorize(Roles = "Student")]
-    [HttpGet("settings")]
-    public async Task<IActionResult> GetSettings()
+    [HttpGet("detail")]
+    public async Task<IActionResult> GetStudentInformation()
     {
-        var query = new GetStudentSettingsQuery { };
-        var result = await _mediator.Send(query);
-        Console.WriteLine("Student Settings Query Executed");
-        return Ok(result);
+        var result = await _mediator.Send(new GetStudentDetailQuery());
+        if (result == null)
+        {
+            return NotFound(ApiResponse.ErrorResponse("Student not found"));
+        }
+        return Ok(ApiResponse.SuccessResponse(result, "Student information retrieved successfully"));
     }
+    
 
     [Authorize(Roles = "Student")]
     [HttpPatch("settings")]

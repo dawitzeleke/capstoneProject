@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using backend.Application.Contracts.Services;
 using backend.Domain.Entities;
+using backend.Domain.Enums;
 
 namespace backend.Infrastructure.Services.HubServices;
 
@@ -12,7 +13,7 @@ public class SignalRLeaderBoardNotifierService<THub> : ILeaderboardNotifier wher
         _hubContext = hubContext;
     }
 
-    public async Task NotifyDivisionLeadersAsync(List<Student> leaders)
+    public async Task NotifyDivisionLeadersAsync(Dictionary<DivisionEnums, List<Student>> leaders)
     {
         if (leaders == null || !leaders.Any())
             return;

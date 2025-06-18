@@ -317,12 +317,13 @@ public class UpdateStudentProgressCommandHandler : IRequestHandler<UpdateStudent
 
         var division = DivisionHelper.GetDivisionByPoints(totalPoints);
         // Update the student's division based on total points
+
         var divisionUpdateResponse = await _studentRepository.UpdateStudentDivisionAsync(studentId, division);
         if (divisionUpdateResponse == null)
         {
             Console.WriteLine("Failed to update student division.");
         }
-        var leaders = await _studentRepository.GetLeaderStudentsAsync(division, 30);
+        var leaders = await _studentRepository.GetLeaderStudentsAsync(30);
         //  based on the new division notify the leaderboard system
         await _leaderboardNotifier.NotifyDivisionLeadersAsync(leaders);
         // update the question's total correct answers

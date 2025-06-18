@@ -53,7 +53,6 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
             .ThenBy(q => q.Id)
             .Limit(pagination?.Limit ?? 20)
             .ToListAsync();
-        
         return solvedQuestions;
     }
 
@@ -92,7 +91,7 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
     {
         if (solvedQuestions == null || !solvedQuestions.Any())
             return false;
-         var tasks = new List<Task>();
+        var tasks = new List<Task>();
 
         foreach (var attempt in solvedQuestions)
         {
