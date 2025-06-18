@@ -88,6 +88,7 @@ export default function Profile() {
           "GET",
           user.token
         );
+        console.log(response)
         const response2 = await httpRequest(
           "/students/get-following",
           {},

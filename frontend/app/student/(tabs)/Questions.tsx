@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../redux/store";
 import ReportOption from "../../../components/ReportOptions";
@@ -21,6 +21,8 @@ const Questions = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.user);
   const token = user?.token; // Get the token from the user state
+  const [videos, setVideos] = useState<VideoItem[]>([]); // <-- Add this
+
   useEffect(() => {
     const loadQuest = async () => {
       dispatch(setLoading());
@@ -28,10 +30,11 @@ const Questions = () => {
         const response = await httpRequest("/Questions/", null, "GET", token);
         console.log("here", response);
         const resonse2 = await httpRequest("/VideoContent", null, "GET");
-        const resonse3 = await httpRequest("/ImageContent", null, "GET");
+        // const resonse3 = await httpRequest("/ImageContent", null, "GET");
         console.log(resonse2, "herey");
-        console.log(resonse3);
+        // console.log(resonse3);
         dispatch(setQuestions(response.data.items));
+        setVideos(resonse2); // <-- Set videos from backend
       } catch (err) {
         console.error(err);
         console.log(err);
@@ -53,50 +56,6 @@ const Questions = () => {
     isLike: boolean;
   };
 
-  const videos: VideoItem[] = [
-    {
-      id: "v1",
-      type: "video",
-      videoUrl:
-        "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-      title: "Explore Nature",
-      description:
-        "Beautiful scenes from the forest and riverside with peaceful sounds of nature.",
-      likes: "134k",
-      isLike: false,
-    },
-    {
-      id: "v2",
-      type: "video",
-      videoUrl: "https://media.w3.org/2010/05/sintel/trailer.mp4",
-      title: "Tech Innovations",
-      description:
-        "Latest inventions and breakthroughs in modern technology, AI, and robotics.",
-      likes: "256k",
-      isLike: false,
-    },
-    {
-      id: "v3",
-      type: "video",
-      videoUrl: "https://media.w3.org/2010/05/bunny/trailer.mp4",
-      title: "Ocean Life",
-      description:
-        "Dive into the mysteries of the sea and discover stunning marine creatures.",
-      likes: "87k",
-      isLike: true,
-    },
-    {
-      id: "v4",
-      type: "video",
-      videoUrl: "https://media.w3.org/2010/05/video/movie_300.mp4",
-      title: "Wildlife Moments",
-      description:
-        "Close encounters with majestic animals in their natural habitats.",
-      likes: "412k",
-      isLike: false,
-    },
-  ];
-
   const isLoading = useSelector(
     (state: RootState) => state.questions.isLoading
   );
@@ -115,6 +74,8 @@ const Questions = () => {
   const displayReport = useSelector(
     (state: RootState) => state.option.isReportOpen
   );
+
+  console.log(videos, "video")
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar
@@ -147,7 +108,7 @@ const Questions = () => {
           loadMoreQuestions={loadMoreQuestions}
           hasMoreQuestions={hasMoreQuestions}
           isLoading={isLoading}
-          videos={videos}
+          videos={videos} // <-- Use backend videos here
         />
       ) : (
         <View className="flex justify-center items-center">

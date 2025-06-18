@@ -141,7 +141,7 @@ const Progress = () => {
     const fetchProgressData = async () => {
       try {
         const data = await httpRequest(
-          `/StudentProgress/${studentId}`,
+          `/StudentProgress`,
           undefined, 
           "GET",
           token

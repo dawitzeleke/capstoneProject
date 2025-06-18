@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,32 +8,214 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Animated,
+  Keyboard,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
-import { setTeacherData } from "../../redux/userTeacherReducer/userTeacherActions";
+import { 
+  setTeacherData, 
+  fetchTeachersRequest, 
+  fetchTeachersSuccess, 
+  fetchTeachersFailure 
+} from "../../redux/userTeacherReducer/userTeacherActions";
 import TeacherItem from "@/components/TeacherItem";
 import { RootState, AppDispatch } from "../../redux/store";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { httpRequest } from "../../util/httpRequest";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"teachers" | "content">("teachers");
+  const [hasSearched, setHasSearched] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
-  const currentTheme = useSelector((state: RootState) => state.theme.mode);
-  const teachers = useSelector((state: RootState) => state.userTeacher.teachers);
+  // Animation values
+  const fadeAnim = React.useRef(new Animated.Value(1)).current;
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
-  const filteredTeachers = teachers.filter((teacher) =>
-    teacher.name.toLowerCase().includes(query.toLowerCase())
-  );
+  const currentTheme = useSelector((state: RootState) => state.theme.mode);
+  const { teachers, loading, error } = useSelector((state: RootState) => state.userTeacher);
+
+  // Keyboard listeners
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
+  }, []);
+
+  // Animate the placeholder on mount - only when keyboard is not visible
+  useEffect(() => {
+    if (isKeyboardVisible) {
+      // Stop animation when keyboard is visible
+      fadeAnim.stopAnimation();
+      scaleAnim.stopAnimation();
+      return;
+    }
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 0.7,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnim, {
+            toValue: 1.05,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnim, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+        ]),
+      ])
+    ).start();
+  }, [isKeyboardVisible]);
+
+  // Fetch teachers when query changes (with debounce) - only if user has searched
+  useEffect(() => {
+    if (!hasSearched) return;
+    
+    const timeoutId = setTimeout(() => {
+      if (activeTab === "teachers" && query.trim()) {
+        fetchTeachers();
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [query, activeTab, hasSearched]);
+
+  const fetchTeachers = async () => {
+    try {
+      dispatch(fetchTeachersRequest());
+      
+      // Build the endpoint with query parameters
+      let endpoint = '/teachers/search';
+      if (query) {
+        endpoint += `?searchTerm=${encodeURIComponent(query)}&pageNumber=1&pageSize=10`;
+      } else {
+        endpoint += '?pageNumber=1&pageSize=10';
+      }
+      
+      const data = await httpRequest(endpoint, null, 'GET');
+      
+      // Transform the API data to match the expected format
+      const transformedTeachers = data.map((teacher: any) => ({
+        id: teacher.id,
+        name: `${teacher.firstName} ${teacher.lastName}`,
+        title: teacher.subjects?.length > 0 ? `Teaches ${teacher.subjects.join(", ")}` : "Teacher",
+        followers: "0", // This would need to come from a different endpoint
+        questions: "0", // This would need to come from a different endpoint
+        imageUrl: teacher.profilePictureUrl || "https://i.pravatar.cc/150?img=1",
+      }));
+      
+      dispatch(fetchTeachersSuccess(transformedTeachers));
+    } catch (err: any) {
+      console.error("Error fetching teachers:", err);
+      dispatch(fetchTeachersFailure(err.message || "Failed to fetch teachers"));
+    }
+  };
+
+  const handleSearch = () => {
+    if (query.trim()) {
+      setHasSearched(true);
+      fetchTeachers();
+    }
+  };
 
   const handlePress = (teacher: (typeof teachers)[0]) => {
     dispatch(setTeacherData(teacher));
     router.push("/student/(tabs)/TeacherDetail");
   };
+
+  // Placeholder component with animation
+  const SearchPlaceholder = () => (
+    <Animated.View 
+      style={{
+        opacity: fadeAnim,
+        transform: [{ scale: scaleAnim }],
+      }}
+      className="flex-1 items-center justify-center px-8"
+    >
+      <View className="items-center">
+        {/* Animated search icon */}
+        <View className={`w-24 h-24 rounded-full items-center justify-center mb-6 ${
+          currentTheme === "dark" ? "bg-indigo-500/20" : "bg-indigo-100"
+        }`}>
+          <Ionicons
+            name="search"
+            size={48}
+            color={currentTheme === "dark" ? "#6366f1" : "#4f46e5"}
+          />
+        </View>
+        
+        {/* Title */}
+        <Text className={`text-2xl font-pbold text-center mb-3 ${
+          currentTheme === "dark" ? "text-white" : "text-gray-900"
+        }`}>
+          Search for Teachers
+        </Text>
+        
+        {/* Subtitle */}
+        <Text className={`text-base font-pmedium text-center mb-6 ${
+          currentTheme === "dark" ? "text-gray-400" : "text-gray-600"
+        }`}>
+          Find amazing teachers and discover new learning opportunities
+        </Text>
+        
+        {/* Search tips */}
+        <View className="space-y-2">
+          <View className="flex-row items-center">
+            <Ionicons
+              name="bulb-outline"
+              size={16}
+              color={currentTheme === "dark" ? "#6366f1" : "#4f46e5"}
+            />
+            <Text className={`text-sm font-pmedium ml-2 ${
+              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}>
+              Search by name, subject, or expertise
+            </Text>
+          </View>
+          <View className="flex-row items-center">
+            <Ionicons
+              name="star-outline"
+              size={16}
+              color={currentTheme === "dark" ? "#6366f1" : "#4f46e5"}
+            />
+            <Text className={`text-sm font-pmedium ml-2 ${
+              currentTheme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}>
+              Browse verified teachers with great reviews
+            </Text>
+          </View>
+        </View>
+      </View>
+    </Animated.View>
+  );
 
   return (
     <SafeAreaView className={`flex-1 ${currentTheme === "dark" ? "bg-black" : "bg-[#f1f3fc]"}`}>
@@ -78,6 +260,8 @@ const SearchScreen = () => {
                 placeholderTextColor={currentTheme === "dark" ? "#9ca3af" : "#6b7280"}
                 value={query}
                 onChangeText={setQuery}
+                onSubmitEditing={handleSearch}
+                returnKeyType="search"
                 className={`flex-1 ml-3 font-pregular text-base ${
                   currentTheme === "dark" ? "text-white" : "text-gray-900"
                 }`}
@@ -91,6 +275,21 @@ const SearchScreen = () => {
                   />
                 </TouchableOpacity>
               )}
+              <TouchableOpacity 
+                onPress={handleSearch}
+                disabled={!query.trim()}
+                className={`ml-2 px-3 py-1 rounded-lg ${
+                  query.trim() 
+                    ? currentTheme === "dark" ? "bg-indigo-600" : "bg-indigo-500"
+                    : currentTheme === "dark" ? "bg-gray-700" : "bg-gray-300"
+                }`}
+              >
+                <Text className={`text-sm font-pmedium ${
+                  query.trim() ? "text-white" : currentTheme === "dark" ? "text-gray-500" : "text-gray-500"
+                }`}>
+                  Search
+                </Text>
+              </TouchableOpacity>
             </View>
 
             {/* Toggle Buttons */}
@@ -154,47 +353,83 @@ const SearchScreen = () => {
           <View className="flex-1 px-4 pt-4">
             {activeTab === "teachers" ? (
               <>
-                {query.length > 0 && (
-                  <Text
-                    className={`text-sm font-pmedium mb-4 ${
-                      currentTheme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }`}>
-                    {filteredTeachers.length} results found
-                  </Text>
-                )}
-                <FlatList
-                  data={filteredTeachers}
-                  keyExtractor={(item) => item.id}
-                  renderItem={({ item }) => (
-                    <TeacherItem
-                      name={item.name}
-                      title={item.title}
-                      followers={item.followers}
-                      questions={item.questions}
-                      imageUrl={item.imageUrl}
-                      onPress={() => handlePress(item)}
-                      theme={currentTheme}
-                    />
-                  )}
-                  showsVerticalScrollIndicator={false}
-                  ListEmptyComponent={
-                    <View className="flex-1 items-center justify-center mt-10">
-                      <MaterialIcons
-                        name="search-off"
-                        size={48}
-                        color={currentTheme === "dark" ? "#4b5563" : "#9ca3af"}
-                      />
+                {!hasSearched && !isKeyboardVisible ? (
+                  <SearchPlaceholder />
+                ) : (
+                  <>
+                    {query.length > 0 && (
                       <Text
-                        className={`text-center mt-4 text-base font-pmedium ${
-                          currentTheme === "dark" ? "text-gray-400" : "text-gray-500"
+                        className={`text-sm font-pmedium mb-4 ${
+                          currentTheme === "dark" ? "text-gray-400" : "text-gray-600"
                         }`}>
-                        {query.length > 0
-                          ? "No matching teachers found."
-                          : "Search for teachers to get started."}
+                        {teachers.length} results found
                       </Text>
-                    </View>
-                  }
-                />
+                    )}
+                    
+                    {loading ? (
+                      <View className="flex-1 items-center justify-center mt-10">
+                        <ActivityIndicator 
+                          size="large" 
+                          color={currentTheme === "dark" ? "#6366f1" : "#4f46e5"} 
+                        />
+                        <Text
+                          className={`text-center mt-4 text-base font-pmedium ${
+                            currentTheme === "dark" ? "text-gray-400" : "text-gray-500"
+                          }`}>
+                          Searching teachers...
+                        </Text>
+                      </View>
+                    ) : error ? (
+                      <View className="flex-1 items-center justify-center mt-10">
+                        <MaterialIcons
+                          name="error-outline"
+                          size={48}
+                          color={currentTheme === "dark" ? "#ef4444" : "#dc2626"}
+                        />
+                        <Text
+                          className={`text-center mt-4 text-base font-pmedium ${
+                            currentTheme === "dark" ? "text-red-400" : "text-red-600"
+                          }`}>
+                          {error}
+                        </Text>
+                      </View>
+                    ) : (
+                      <FlatList
+                        data={teachers}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => (
+                          <TeacherItem
+                            name={item.name}
+                            title={item.title}
+                            followers={item.followers}
+                            questions={item.questions}
+                            imageUrl={item.imageUrl}
+                            onPress={() => handlePress(item)}
+                            theme={currentTheme}
+                          />
+                        )}
+                        showsVerticalScrollIndicator={false}
+                        ListEmptyComponent={
+                          <View className="flex-1 items-center justify-center mt-10">
+                            <MaterialIcons
+                              name="search-off"
+                              size={48}
+                              color={currentTheme === "dark" ? "#4b5563" : "#9ca3af"}
+                            />
+                            <Text
+                              className={`text-center mt-4 text-base font-pmedium ${
+                                currentTheme === "dark" ? "text-gray-400" : "text-gray-500"
+                              }`}>
+                              {query.length > 0
+                                ? "No matching teachers found."
+                                : "Search for teachers to get started."}
+                            </Text>
+                          </View>
+                        }
+                      />
+                    )}
+                  </>
+                )}
               </>
             ) : (
               <View className="flex-1 items-center justify-center">

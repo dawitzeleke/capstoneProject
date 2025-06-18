@@ -1,6 +1,4 @@
-
-
-import { SET_TEACHER_DATA, RESET_TEACHER_DATA } from "./userTeacherActionTypes";
+import { SET_TEACHER_DATA, RESET_TEACHER_DATA, FETCH_TEACHERS_REQUEST, FETCH_TEACHERS_SUCCESS, FETCH_TEACHERS_FAILURE } from "./userTeacherActionTypes";
 import { TeacherData, TeacherActionTypes } from "./userTeacherActions";
 
 // Define the Teacher interface
@@ -17,36 +15,15 @@ interface Teacher {
 interface TeacherState {
   teacherData: TeacherData | null;
   teachers: Teacher[];
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: TeacherState = {
   teacherData: null,
-  teachers: [
-    {
-      id: "1",
-      name: "Birhanu Temesgen",
-      title: "Teaches Biology at SOT",
-      followers: "2k",
-      questions: "400",
-      imageUrl: "https://i.pravatar.cc/150?img=11",
-    },
-    {
-      id: "2",
-      name: "Helen Gebre",
-      title: "Teaches Math at HNS",
-      followers: "1.2k",
-      questions: "220",
-      imageUrl: "https://i.pravatar.cc/150?img=25",
-    },
-    {
-      id: "3",
-      name: "Yared Lemma",
-      title: "Teaches Physics at MHS",
-      followers: "3.4k",
-      questions: "180",
-      imageUrl: "https://i.pravatar.cc/150?img=33",
-    },
-  ],
+  teachers: [],
+  loading: false,
+  error: null,
 };
 
 const teacherReducer = (
@@ -64,6 +41,28 @@ const teacherReducer = (
       return {
         ...state,
         teacherData: null,
+      };
+
+    case FETCH_TEACHERS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+
+    case FETCH_TEACHERS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        teachers: action.payload,
+        error: null,
+      };
+
+    case FETCH_TEACHERS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
       };
 
     default:

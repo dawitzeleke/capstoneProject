@@ -81,21 +81,18 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
     );
   };
   useEffect(() => {
-    if (sendLimit !== 10 || !user?.token || !selectedOption) return;
+    if (sendLimit !== 10 || !user?.token) return;
     const sendProgressUpdate = async () => {
       try {
         const formData = new FormData();
-        formData.append("CorrectQuestions", JSON.stringify({
-          [question.id]: selectedOption === correctAnswer
-        }));
-        formData.append("AttemptedQuestions", JSON.stringify({
-          [question.id]: selectedOption
-        }));
+        formData.append("CorrectQuestions", JSON.stringify(correctAttempts));
+        formData.append("AttemptedQuestions", JSON.stringify(attemptedQuestions));
         formData.append("StudentId", user.id);
 
         console.log('Form Data:', {
-          CorrectQuestions: { [question.id]: selectedOption === correctAnswer },
-          AttemptedQuestions: { [question.id]: selectedOption }
+          CorrectQuestions: correctAttempts,
+          AttemptedQuestions: attemptedQuestions,
+          StudentId: user.id
         });
 
         const data = await httpRequest(
@@ -119,7 +116,7 @@ const QuestionCard: React.FC<QuestionProps> = ({ question }) => {
     };
 
     sendProgressUpdate();
-  }, [correctAttempts, attemptedQuestions, selectedOption, sendLimit]);
+  }, [correctAttempts, attemptedQuestions, sendLimit, user?.token, user?.id, dispatch]);
 
   const toggleExpanded = () => {
     Animated.timing(heightAnim, {
