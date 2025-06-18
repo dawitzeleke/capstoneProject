@@ -14,7 +14,6 @@ import {
   toggleSelection,
   deleteQuestion,
   setEditingQuestion,
-  selectDisplayQuestions,
   setSearchTerm,
   setActiveTab,
   clearSelections,
@@ -39,10 +38,12 @@ import { DifficultyLevel, QuestionTypeEnum, type QuestionItem, ContentStatus } f
 import type { MediaItem, MediaStatus } from "@/types/mediaTypes";
 import BulkActionsBar from "@/components/teacher/BulkActionsBar";
 import FilterPanel from "@/components/teacher/FilterPanel";
+import httpRequest from "@/util/httpRequest";
 
 const ContentListScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const user = useSelector((state: RootState) => state.user.user);
 
   // Redux state
   const {
@@ -52,32 +53,130 @@ const ContentListScreen = () => {
     filters
   } = useSelector((state: RootState) => state.teacherQuestions);
 
-  // Get all questions for filters
-  const allQuestions = useSelector((state: RootState) => state.teacherQuestions.questions || []);
-
   // Get media data
   const mediaTypeFilter = useSelector((state: RootState) => state.media.mediaTypeFilter);
   const showQuestions = !mediaTypeFilter || mediaTypeFilter.length === 0 || mediaTypeFilter.includes('question');
   const showImages = !mediaTypeFilter || mediaTypeFilter.length === 0 || mediaTypeFilter.includes('image');
   const showVideos = !mediaTypeFilter || mediaTypeFilter.length === 0 || mediaTypeFilter.includes('video');
 
-  const allMedia = useSelector((state: RootState) => [
-    ...state.media.images,
-    ...state.media.videos,
-  ]);
-  
+  // State for API data
+  const [questions, setQuestions] = useState<QuestionItem[]>([]);
+  const [media, setMedia] = useState<MediaItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch questions from API
+  const fetchQuestions = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Use different endpoint based on active tab
+      let endpoint = '/Questions';
+      if (activeTab === 'draft') {
+        endpoint = '/Questions/draft';
+      } else if (activeTab === 'posted') {
+        endpoint = '/Questions/posted-questions';
+      }
+
+      // Only build query parameters for regular questions endpoint
+      let url = endpoint;
+      if (activeTab !== 'draft' && activeTab !== 'posted') {
+        const params = new URLSearchParams();
+        if (activeTab !== 'all') {
+          params.append('status', activeTab);
+        }
+        if (filters.difficulties.length > 0) {
+          params.append('difficulty', filters.difficulties.join(','));
+        }
+        if (filters.questionTypes.length > 0) {
+          params.append('questionType', filters.questionTypes.join(','));
+        }
+        if (filters.grades.length > 0) {
+          params.append('grade', filters.grades.join(','));
+        }
+        if (filters.points.length > 0) {
+          params.append('point', filters.points.join(','));
+        }
+        if (searchTerm) {
+          params.append('search', searchTerm);
+        }
+        url = `${endpoint}?${params.toString()}`;
+      }
+
+      const response = await httpRequest(
+        url,
+        null,
+        'GET',
+        user?.token
+      );
+
+      if (response?.data) {
+        setQuestions(response.data.items || []);
+      }
+    } catch (err) {
+      console.error('Error fetching questions:', err);
+      setError('Failed to fetch questions');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch media from API
+  const fetchMedia = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (activeTab !== 'all') {
+        params.append('status', activeTab);
+      }
+      if (mediaTypeFilter.length > 0) {
+        params.append('type', mediaTypeFilter.join(','));
+      }
+      if (searchTerm) {
+        params.append('search', searchTerm);
+      }
+
+      const response = await httpRequest(
+        `/Media?${params.toString()}`,
+        null,
+        'GET',
+        user?.token
+      );
+
+      if (response?.data) {
+        setMedia(response.data.items || []);
+      }
+    } catch (err) {
+      console.error('Error fetching media:', err);
+      setError('Failed to fetch media');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data when filters or search term changes
+  useEffect(() => {
+    if (showQuestions) {
+      fetchQuestions();
+    }
+    if (showImages || showVideos) {
+      fetchMedia();
+    }
+  }, [activeTab, filters, searchTerm, mediaTypeFilter]);
+
   // Filter media based on activeTab
-  const filteredMedia = allMedia.filter(item => {
+  const filteredMedia = media.filter(item => {
     const typeMatch = (item.type === 'image' && showImages) || (item.type === 'video' && showVideos);
     const statusMatch = activeTab === 'all' || item.status === activeTab;
     return typeMatch && statusMatch;
   });
 
-  const displayQuestions = useSelector(selectDisplayQuestions) || [];
-  const filteredQuestions = showQuestions ? displayQuestions : [];
-  
   // Apply search term to questions
-  const searchedQuestions = filteredQuestions.filter(item => 
+  const searchedQuestions = questions.filter(item => 
     item.questionText.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.options.some(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -92,7 +191,7 @@ const ContentListScreen = () => {
   );
 
   const combinedItems = [...searchedQuestions, ...searchedMedia].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime()
   );
 
   // Local state
@@ -107,12 +206,6 @@ const ContentListScreen = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [selectionMode, setSelectionMode] = useState(false);
 
-  // Filter options
-  const difficulties = [...new Set(allQuestions.map(q => q.difficulty))];
-  const questionTypes = [...new Set(allQuestions.map(q => q.questionType))];
-  const grades = [...new Set(allQuestions.map(q => q.grade))].sort();
-  const points = [...new Set(allQuestions.map(q => q.point))].sort();
-
   useEffect(() => {
     if (selectedIds.length === 0) {
       setSelectionMode(false);
@@ -123,15 +216,18 @@ const ContentListScreen = () => {
     dispatch(toggleSelection(id));
   };
 
-  const handleEditQuestion = (item: QuestionItem) => {
-    dispatch(setEditingQuestion(item));
-    router.push({
-      pathname: "/teacher/(tabs)/AddQuestion",
-      params: { questionId: item.id }
-    });
+  const handleEditQuestion = (id: string) => {
+    const question = questions.find(q => q.id === id);
+    if (question) {
+      dispatch(setEditingQuestion(question.id));
+      router.push({
+        pathname: "/teacher/(tabs)/AddQuestion",
+        params: { questionId: question.id }
+      });
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     setItemToDelete(id);
     setShowDeleteModal(true);
   };
@@ -141,26 +237,69 @@ const ContentListScreen = () => {
 
     if (itemToDelete) {
       const isMedia = filteredMedia.some(m => m.id === itemToDelete);
-      if (isMedia) {
-        const media = filteredMedia.find(m => m.id === itemToDelete);
-        if (media) await dispatch(deleteMediaContent({ id: media.id, type: media.type }));
-      } else {
-        dispatch(deleteQuestion(itemToDelete));
+      try {
+        if (isMedia) {
+          const media = filteredMedia.find(m => m.id === itemToDelete);
+          if (media) {
+            await httpRequest(
+              `/Media/${media.id}`,
+              null,
+              'DELETE',
+              user?.token
+            );
+            setMedia(prev => prev.filter(m => m.id !== media.id));
+          }
+        } else {
+          await httpRequest(
+            `/Questions/${itemToDelete}`,
+            null,
+            'DELETE',
+            user?.token
+          );
+          setQuestions(prev => prev.filter(q => q.id !== itemToDelete));
+        }
+        setSuccessMessage("Item deleted successfully");
+      } catch (err) {
+        console.error('Error deleting item:', err);
+        setError('Failed to delete item');
       }
-      setSuccessMessage("Item deleted successfully");
     } else if (selectedIds.length > 0) {
       // Bulk delete for both questions and media
-      const mediaToDelete = filteredMedia.filter(m => selectedIds.includes(m.id));
-      const questionsToDelete = displayQuestions.filter(q => selectedIds.includes(q.id));
-      if (questionsToDelete.length > 0) {
-        dispatch(deleteMultipleQuestions(questionsToDelete.map(q => q.id)));
+      try {
+        const mediaToDelete = filteredMedia.filter(m => selectedIds.includes(m.id));
+        const questionsToDelete = questions.filter(q => selectedIds.includes(q.id));
+
+        // Delete questions
+        for (const question of questionsToDelete) {
+          await httpRequest(
+            `/Questions/${question.id}`,
+            null,
+            'DELETE',
+            user?.token
+          );
+        }
+
+        // Delete media
+        for (const media of mediaToDelete) {
+          await httpRequest(
+            `/Media/${media.id}`,
+            null,
+            'DELETE',
+            user?.token
+          );
+        }
+
+        // Update local state
+        setQuestions(prev => prev.filter(q => !selectedIds.includes(q.id)));
+        setMedia(prev => prev.filter(m => !selectedIds.includes(m.id)));
+
+        setSuccessMessage(
+          `${selectedIds.length} ${selectedIds.length === 1 ? 'item' : 'items'} deleted successfully`
+        );
+      } catch (err) {
+        console.error('Error deleting items:', err);
+        setError('Failed to delete items');
       }
-      for (const media of mediaToDelete) {
-        await dispatch(deleteMediaContent({ id: media.id, type: media.type }));
-      }
-      setSuccessMessage(
-        `${selectedIds.length} ${selectedIds.length === 1 ? 'item' : 'items'} deleted successfully`
-      );
     }
 
     setPreviewQuestion(null);
@@ -231,10 +370,10 @@ const ContentListScreen = () => {
         {/* Filter Panel */}
         {showFilters && (
           <FilterPanel
-            difficulties={Object.values(DifficultyLevel)}
+            difficulties={Object.values(DifficultyLevel).filter((value): value is DifficultyLevel => typeof value === 'number')}
             selectedDifficulties={filters.difficulties}
             onDifficultyChange={(values) => dispatch(setDifficultyFilter(values))}
-            questionTypes={Object.values(QuestionTypeEnum)}
+            questionTypes={Object.values(QuestionTypeEnum).filter((value): value is QuestionTypeEnum => typeof value === 'number')}
             selectedTypes={filters.questionTypes}
             onTypeChange={(values) => dispatch(setTypeFilter(values))}
             grades={[]}
@@ -272,17 +411,19 @@ const ContentListScreen = () => {
           activeTab={activeTab}
           onTabChange={(tab: ContentStatus | MediaStatus | "all") => {
             dispatch(setActiveTab(tab));
-            // Also update media filter if needed
-            // The logic here might need refinement based on desired filtering behavior
-            // For now, leaving the mediaTypeFilter dispatch commented out or adjusted if needed.
-            // if (tab !== 'all') {
-            //   dispatch(setMediaTypeFilter(['question', 'image', 'video']));
-            // }
           }}
         />
 
         {/* Content List or Empty State */}
-        {combinedItems.length === 0 ? (
+        {loading ? (
+          <View className="flex-1 items-center justify-center py-8">
+            <Text className="text-gray-500">Loading...</Text>
+          </View>
+        ) : error ? (
+          <View className="flex-1 items-center justify-center py-8">
+            <Text className="text-red-500">{error}</Text>
+          </View>
+        ) : combinedItems.length === 0 ? (
           <EmptyState onPress={() => {
             dispatch(clearEditingQuestion());
             dispatch(setEditingMedia(null));
@@ -318,42 +459,38 @@ const ContentListScreen = () => {
 
       {/* Modals & Toasts */}
       {showDeleteModal && (
-        (() => {
-          const selectedMedia = filteredMedia.filter(m => (itemToDelete ? [itemToDelete] : selectedIds).includes(m.id));
-          const selectedQuestions = displayQuestions.filter(q => (itemToDelete ? [itemToDelete] : selectedIds).includes(q.id));
-          let deleteTitle = "Delete Item?";
-          let deleteMessage = "Are you sure you want to delete this item? This action cannot be undone.";
-          if ((itemToDelete ? 1 : selectedIds.length) === 1) {
-            if (selectedMedia.length === 1) {
-              deleteTitle = "Delete Media?";
-              deleteMessage = "Are you sure you want to delete this media? This action cannot be undone.";
-            } else if (selectedQuestions.length === 1) {
-              deleteTitle = "Delete Question?";
-              deleteMessage = "Are you sure you want to delete this question? This action cannot be undone.";
-            }
-          } else if ((itemToDelete ? 1 : selectedIds.length) > 1) {
-            if (selectedMedia.length > 0 && selectedQuestions.length > 0) {
-              deleteTitle = "Delete Items?";
-              deleteMessage = "Are you sure you want to delete the selected items? This action cannot be undone.";
-            } else if (selectedMedia.length > 0) {
-              deleteTitle = "Delete Media?";
-              deleteMessage = "Are you sure you want to delete the selected media? This action cannot be undone.";
-            } else if (selectedQuestions.length > 0) {
-              deleteTitle = "Delete Questions?";
-              deleteMessage = "Are you sure you want to delete the selected questions? This action cannot be undone.";
-            }
-          }
-          return (
         <DeleteConfirmationModal
           visible={showDeleteModal}
           onConfirm={handleConfirmDelete}
           onCancel={() => setShowDeleteModal(false)}
           count={itemToDelete ? 1 : selectedIds.length}
-              title={deleteTitle}
-              message={deleteMessage}
+          title={(() => {
+            const selectedMedia = filteredMedia.filter(m => (itemToDelete ? [itemToDelete] : selectedIds).includes(m.id));
+            const selectedQuestions = questions.filter(q => (itemToDelete ? [itemToDelete] : selectedIds).includes(q.id));
+            if ((itemToDelete ? 1 : selectedIds.length) === 1) {
+              if (selectedMedia.length === 1) return "Delete Media?";
+              if (selectedQuestions.length === 1) return "Delete Question?";
+              return "Delete Item?";
+            }
+            if (selectedMedia.length > 0 && selectedQuestions.length > 0) return "Delete Items?";
+            if (selectedMedia.length > 0) return "Delete Media?";
+            if (selectedQuestions.length > 0) return "Delete Questions?";
+            return "Delete Items?";
+          })()}
+          message={(() => {
+            const selectedMedia = filteredMedia.filter(m => (itemToDelete ? [itemToDelete] : selectedIds).includes(m.id));
+            const selectedQuestions = questions.filter(q => (itemToDelete ? [itemToDelete] : selectedIds).includes(q.id));
+            if ((itemToDelete ? 1 : selectedIds.length) === 1) {
+              if (selectedMedia.length === 1) return "Are you sure you want to delete this media? This action cannot be undone.";
+              if (selectedQuestions.length === 1) return "Are you sure you want to delete this question? This action cannot be undone.";
+              return "Are you sure you want to delete this item? This action cannot be undone.";
+            }
+            if (selectedMedia.length > 0 && selectedQuestions.length > 0) return "Are you sure you want to delete the selected items? This action cannot be undone.";
+            if (selectedMedia.length > 0) return "Are you sure you want to delete the selected media? This action cannot be undone.";
+            if (selectedQuestions.length > 0) return "Are you sure you want to delete the selected questions? This action cannot be undone.";
+            return "Are you sure you want to delete the selected items? This action cannot be undone.";
+          })()}
         />
-          );
-        })()
       )}
 
       <QuestionPreviewModal
@@ -377,7 +514,7 @@ const ContentListScreen = () => {
         mode="preview"
       />
 
-      {showMediaPreview && (
+      {showMediaPreview && previewMedia && (
         <MediaPreviewModal
           visible={showMediaPreview}
           media={previewMedia}
@@ -387,15 +524,17 @@ const ContentListScreen = () => {
               router.push({ pathname: '/teacher/UploadOther', params: { mediaId: previewMedia.id } });
               setShowMediaPreview(false);
             }
-          } }
+          }}
           onDelete={() => {
             if (previewMedia) {
               setItemToDelete(previewMedia.id);
               setShowDeleteModal(true);
               setShowMediaPreview(false);
             }
-          } }
-          loading={false} mode={"preview"}        />
+          }}
+          loading={false}
+          mode="preview"
+        />
       )}
 
       {showSuccessToast && <SuccessToast message={successMessage} />}
