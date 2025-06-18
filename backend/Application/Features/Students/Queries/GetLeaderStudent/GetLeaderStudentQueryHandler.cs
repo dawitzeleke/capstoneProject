@@ -6,7 +6,7 @@ using backend.Application.Contracts.Persistence;
 
 namespace backend.Application.Features.Students.Queries.GetLeaderStudent;
 
-public class GetLeaderStudentsQueryHandler : IRequestHandler<GetLeaderStudentsQuery, List<Student>>
+public class GetLeaderStudentsQueryHandler : IRequestHandler<GetLeaderStudentsQuery, Dictionary<DivisionEnums, List<Student>>>
 {
     private readonly IStudentRepository _studentRepository;
 
@@ -15,9 +15,9 @@ public class GetLeaderStudentsQueryHandler : IRequestHandler<GetLeaderStudentsQu
         _studentRepository = studentRepository;
     }
 
-    public async Task<List<Student>> Handle(GetLeaderStudentsQuery request, CancellationToken cancellationToken)
+    public async Task<Dictionary<DivisionEnums, List<Student>>> Handle(GetLeaderStudentsQuery request, CancellationToken cancellationToken)
     {
-        var students = await _studentRepository.GetLeaderStudentsAsync(request.Division, request.TopCount);
+        var students = await _studentRepository.GetLeaderStudentsAsync(request.TopCount);
         return students;       
     }
 }
