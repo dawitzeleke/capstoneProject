@@ -7,6 +7,7 @@ using backend.Application.Features.StudentProgresses.Queries.GetStudentProgress;
 using backend.Application.Features.StudentProgresses.Commands.UpdateStudentProgress;
 using Microsoft.AspNetCore.Authorization;
 using backend.Application.Features.Students.Queries.GetStudentPerformance;
+using backend.webApi.PresentationDtos;
 
 namespace backend.webApi.Controllers;
 
@@ -41,9 +42,9 @@ public class StudentProgressController : ControllerBase
         var response = await _mediator.Send(studentProgress);
         if (response == null)
         {
-            return NotFound();
+            return NotFound(new ApiResponse(false,"Student progress not found or update failed",null));
         }
-        return Ok(response);
+        return Ok(new ApiResponse(true, "Student progress updated successfully", response));
     }
     [Authorize]
     [HttpGet("performance")]

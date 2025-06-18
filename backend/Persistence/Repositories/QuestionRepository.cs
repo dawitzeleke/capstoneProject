@@ -71,9 +71,17 @@ public class QuestionRepository : GenericRepository<Question>, IQuestionReposito
         {
             return new List<Question>();
         }
+        try
+        {
+            var questions = await _questions.Find(_ => true).ToListAsync();
+            var response = questions.Where(q => ids.Contains(q.Id)).ToList();
+            return response;
 
-        var filter = Builders<Question>.Filter.In(q => q.Id, ids);
-        return await _questions.Find(filter).ToListAsync();
+        }
+        catch (Exception)
+        {
+            return new List<Question>();
+        }
     }
     public async Task<int> CountAsync()
     {
