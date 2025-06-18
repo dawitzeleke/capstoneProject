@@ -65,6 +65,9 @@ public class SignUpStudentCommandHandler : IRequestHandler<SignUpStudentCommand,
 
         return new AuthResponseDto
         {
+            Id = newStudent.Id,
+            FirstName = newStudent.FirstName,
+            LastName = newStudent.LastName,
             Token = token,
             Email = newStudent.Email,
             Role = UserRole.Student
