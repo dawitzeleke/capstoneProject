@@ -28,9 +28,9 @@ public class QuestionRecommendationController : ControllerBase
         _currentUserService = currentUserService;
     }
 
-    [Authorize(Roles ="Student")]
+    [Authorize(Roles = "Student")]
     [HttpGet("recommend")]
-    public async Task<IActionResult> Recommend(string courseName = null, int limit = 5)
+    public async Task<IActionResult> Recommend([FromQuery] string courseName = null, [FromQuery] int limit = 5)
     {
         var studentId = _currentUserService.UserId;
         var questions = await _recommendationService.GetRecommendations(studentId, courseName, limit);
