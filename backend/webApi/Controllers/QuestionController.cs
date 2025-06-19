@@ -132,7 +132,7 @@ public class QuestionsController : ControllerBase
 
     [Authorize(Roles = "Teacher")]
     [HttpPost("create-draft")]
-    public async Task<IActionResult> CreateDraftQuestion([FromForm] CreateQuestionCommand  draftQuestion)
+    public async Task<IActionResult> CreateDraftQuestion([FromForm] CreateQuestionCommand draftQuestion)
     {
         draftQuestion.Status = ContentStatusEnum.Draft;
         var response = await _mediator.Send(draftQuestion);
@@ -563,63 +563,188 @@ public class QuestionsController : ControllerBase
                 Tags = new[] { "vitamins", "nutrition" },
                 Explanation = "Vitamin K is needed for synthesis of clotting factors."
             }
-            
+
         }
         );
-                questions.AddRange(new[]
-        {
-            // PHYSICS
-            new CreateQuestionCommand {
-                QuestionText = "What is the unit of force?",
-                Description = "Units in physics",
-                Options = new[] { "Joule", "Newton", "Pascal", "Watt" },
-                CorrectOption = "Newton",
-                CourseName = "Physics",
-                Point = 5,
-                Grade = 9,
-                Difficulty = DifficultyLevel.Easy,
-                QuestionType = QuestionTypeEnum.MultipleChoice,
-                CreatedBy = teacherIds[0],
-                Stream = StreamEnum.NaturalScience,
-                Hint = "Named after a famous scientist.",
-                Tags = new[] { "units", "force" },
-                Explanation = "The SI unit of force is Newton (N)."
-            },
-            new CreateQuestionCommand {
-                QuestionText = "What does Newton's First Law state?",
-                Description = "Laws of motion",
-                Options = new[] { "F = ma", "Objects in motion stay in motion", "Energy is conserved", "Action = reaction" },
-                CorrectOption = "Objects in motion stay in motion",
-                CourseName = "Physics",
-                Point = 5,
-                Grade = 10,
-                Difficulty = DifficultyLevel.Medium,
-                QuestionType = QuestionTypeEnum.MultipleChoice,
-                CreatedBy = teacherIds[1],
-                Stream = StreamEnum.NaturalScience,
-                Hint = "Also called the law of inertia.",
-                Tags = new[] { "laws of motion" },
-                Explanation = "It describes inertia — objects resist change in motion."
-            },
-            new CreateQuestionCommand {
-                QuestionText = "Which form of energy is stored in a stretched rubber band?",
-                Description = "Types of energy",
-                Options = new[] { "Kinetic", "Potential", "Thermal", "Chemical" },
-                CorrectOption = "Potential",
-                CourseName = "Physics",
-                Point = 5,
-                Grade = 9,
-                Difficulty = DifficultyLevel.Easy,
-                QuestionType = QuestionTypeEnum.MultipleChoice,
-                CreatedBy = teacherIds[0],
-                Stream = StreamEnum.NaturalScience,
-                Hint = "Stored energy.",
-                Tags = new[] { "energy", "potential energy" },
-                Explanation = "Potential energy is stored in stretched or compressed objects."
-            },
+        questions.AddRange(new[]
+    {
+                // PHYSICS
+                new CreateQuestionCommand {
+                    QuestionText = "What is the unit of force?",
+                    Description = "Units in physics",
+                    Options = new[] { "Joule", "Newton", "Pascal", "Watt" },
+                    CorrectOption = "Newton",
+                    CourseName = "Physics",
+                    Point = 5,
+                    Grade = 9,
+                    Difficulty = DifficultyLevel.Easy,
+                    QuestionType = QuestionTypeEnum.MultipleChoice,
+                    CreatedBy = teacherIds[0],
+                    Stream = StreamEnum.NaturalScience,
+                    Hint = "Named after a famous scientist.",
+                    Tags = new[] { "units", "force" },
+                    Explanation = "The SI unit of force is Newton (N)."
+                },
+                new CreateQuestionCommand {
+                    QuestionText = "What does Newton's First Law state?",
+                    Description = "Laws of motion",
+                    Options = new[] { "F = ma", "Objects in motion stay in motion", "Energy is conserved", "Action = reaction" },
+                    CorrectOption = "Objects in motion stay in motion",
+                    CourseName = "Physics",
+                    Point = 5,
+                    Grade = 10,
+                    Difficulty = DifficultyLevel.Medium,
+                    QuestionType = QuestionTypeEnum.MultipleChoice,
+                    CreatedBy = teacherIds[1],
+                    Stream = StreamEnum.NaturalScience,
+                    Hint = "Also called the law of inertia.",
+                    Tags = new[] { "laws of motion" },
+                    Explanation = "It describes inertia — objects resist change in motion."
+                },
 
+                new CreateQuestionCommand {
+                    QuestionText = "Which form of energy is stored in a stretched rubber band?",
+                    Description = "Types of energy",
+                    Options = new[] { "Kinetic", "Potential", "Thermal", "Chemical" },
+                    CorrectOption = "Potential",
+                    CourseName = "Physics",
+                    Point = 5,
+                    Grade = 9,
+                    Difficulty = DifficultyLevel.Easy,
+                    QuestionType = QuestionTypeEnum.MultipleChoice,
+                    CreatedBy = teacherIds[0],
+                    Stream = StreamEnum.NaturalScience,
+                    Hint = "Stored energy.",
+                    Tags = new[] { "energy", "potential energy" },
+                    Explanation = "Potential energy is stored in stretched or compressed objects."
+                },
+                new CreateQuestionCommand
+    {
+        QuestionText = "What is the acceleration due to gravity on Earth?",
+        Description = "Gravity and acceleration",
+        Options = new[] { "9.8 m/s²", "6.67 m/s²", "3.0 m/s²", "1.6 m/s²" },
+        CorrectOption = "9.8 m/s²",
+        CourseName = "Physics",
+        Point = 5,
+        Grade = 10,
+        Difficulty = DifficultyLevel.Easy,
+        QuestionType = QuestionTypeEnum.MultipleChoice,
+        CreatedBy = teacherIds[1],
+        Stream = StreamEnum.NaturalScience,
+        Hint = "It's approximately 10 m/s².",
+        Tags = new[] { "gravity", "acceleration", "earth" },
+        Explanation = "The standard acceleration due to gravity on Earth is 9.8 meters per second squared."
+    },
+
+    new CreateQuestionCommand
+    {
+        QuestionText = "Which subatomic particle has a negative charge?",
+        Description = "Atomic structure",
+        Options = new[] { "Proton", "Neutron", "Electron", "Positron" },
+        CorrectOption = "Electron",
+        CourseName = "Physics",
+        Point = 5,
+        Grade = 10,
+        Difficulty = DifficultyLevel.Easy,
+        QuestionType = QuestionTypeEnum.MultipleChoice,
+        CreatedBy = teacherIds[1],
+        Stream = StreamEnum.NaturalScience,
+        Hint = "It's found outside the nucleus.",
+        Tags = new[] { "atomic structure", "particles", "charge" },
+        Explanation = "Electrons are negatively charged subatomic particles found in the electron cloud."
+    },
+
+    new CreateQuestionCommand
+    {
+        QuestionText = "What is the speed of light in vacuum?",
+        Description = "Fundamental constants",
+        Options = new[] { "3.0 x 10^8 m/s", "1.5 x 10^8 m/s", "3.0 x 10^6 m/s", "1.5 x 10^6 m/s" },
+        CorrectOption = "3.0 x 10^8 m/s",
+        CourseName = "Physics",
+        Point = 5,
+        Grade = 10,
+        Difficulty = DifficultyLevel.Medium,
+        QuestionType = QuestionTypeEnum.MultipleChoice,
+        CreatedBy = teacherIds[1],
+        Stream = StreamEnum.NaturalScience,
+        Hint = "It's a universal constant denoted by 'c'.",
+        Tags = new[] { "speed of light", "constants", "vacuum" },
+        Explanation = "The speed of light in vacuum is approximately 3.0 x 10^8 meters per second."
+    },
+
+    new CreateQuestionCommand
+    {
+        QuestionText = "Which law explains why we need to wear seatbelts?",
+        Description = "Laws of motion and safety",
+        Options = new[] { "Newton's First Law", "Newton's Second Law", "Newton's Third Law", "Law of Universal Gravitation" },
+        CorrectOption = "Newton's First Law",
+        CourseName = "Physics",
+        Point = 5,
+        Grade = 10,
+        Difficulty = DifficultyLevel.Easy,
+        QuestionType = QuestionTypeEnum.MultipleChoice,
+        CreatedBy = teacherIds[1],
+        Stream = StreamEnum.NaturalScience,
+        Hint = "Also called the law of inertia.",
+        Tags = new[] { "laws of motion", "safety", "inertia" },
+        Explanation = "Newton's First Law states that an object in motion stays in motion unless acted upon by an external force."
+    },
+
+    new CreateQuestionCommand
+    {
+        QuestionText = "What is the main energy transformation in a hydroelectric power plant?",
+        Description = "Energy conversion",
+        Options = new[] { "Kinetic to electrical", "Chemical to thermal", "Thermal to kinetic", "Electrical to chemical" },
+        CorrectOption = "Kinetic to electrical",
+        CourseName = "Physics",
+        Point = 5,
+        Grade = 10,
+        Difficulty = DifficultyLevel.Medium,
+        QuestionType = QuestionTypeEnum.MultipleChoice,
+        CreatedBy = teacherIds[1],
+        Stream = StreamEnum.NaturalScience,
+        Hint = "It involves moving water and generators.",
+        Tags = new[] { "energy", "hydroelectric", "transformation" },
+        Explanation = "Hydroelectric plants convert the kinetic energy of moving water into electrical energy."
+    },
+
+    new CreateQuestionCommand
+    {
+        QuestionText = "Which phenomenon causes a straw to appear bent in a glass of water?",
+        Description = "Light and optics",
+        Options = new[] { "Reflection", "Refraction", "Diffraction", "Dispersion" },
+        CorrectOption = "Refraction",
+        CourseName = "Physics",
+        Point = 5,
+        Grade = 10,
+        Difficulty = DifficultyLevel.Easy,
+        QuestionType = QuestionTypeEnum.MultipleChoice,
+        CreatedBy = teacherIds[1],
+        Stream = StreamEnum.NaturalScience,
+        Hint = "It's the bending of light as it passes from one medium to another.",
+        Tags = new[] { "optics", "refraction", "light" },
+        Explanation = "Refraction is the bending of light as it passes from one medium to another, making the straw appear bent."
+    },
+
+    new CreateQuestionCommand
+    {
+        QuestionText = "What is the SI unit of power?",
+        Description = "Units and measurements",
+        Options = new[] { "Joule", "Watt", "Newton", "Pascal" },
+        CorrectOption = "Watt",
+        CourseName = "Physics",
+        Point = 5,
+        Grade = 10,
+        Difficulty = DifficultyLevel.Easy,
+        QuestionType = QuestionTypeEnum.MultipleChoice,
+        CreatedBy = teacherIds[1],
+        Stream = StreamEnum.NaturalScience,
+        Hint = "It's named after James Watt.",
+        Tags = new[] { "units", "power", "SI" },
+        Explanation = "The watt (W) is the SI unit of power, named after James Watt."
+    },
             // CHEMISTRY
-            new CreateQuestionCommand {
+                    new CreateQuestionCommand {
                 QuestionText = "What is the center of an atom called?",
                 Description = "Atomic structure",
                 Options = new[] { "Electron", "Nucleus", "Proton", "Neutron" },

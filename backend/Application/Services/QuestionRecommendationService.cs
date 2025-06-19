@@ -54,7 +54,7 @@ namespace backend.Application.Services
 
             // 5. Score each question
             var recommendations = allQuestions
-                .Where(q => !solvedQuestionIds.Contains(q.Id)) // Exclude already solved
+                .Where(q => !solvedQuestionIds.Contains(q.Id)) 
                 .Select(q =>
                 {
                     var tagOverlap = (q.Tags ?? Array.Empty<string>()).Intersect(allActivityTags).Count();
@@ -67,7 +67,7 @@ namespace backend.Application.Services
                         .Any() ? 0.5 : 0.0;
 
                     // Score: overlap + solved weight + attempted weight + diversity
-                    double score = tagOverlap + (solvedOverlap * 0.5) + (attemptedOverlap * 0.3) + diversityBoost;
+                    double score = tagOverlap + (solvedOverlap * 0.3) + (attemptedOverlap * 0.7) + diversityBoost;
 
                     return new { Question = q, Score = score };
                 })
