@@ -563,7 +563,162 @@ public class QuestionsController : ControllerBase
                 Tags = new[] { "vitamins", "nutrition" },
                 Explanation = "Vitamin K is needed for synthesis of clotting factors."
             }
+            
+        }
+        );
+                questions.AddRange(new[]
+        {
+            // PHYSICS
+            new CreateQuestionCommand {
+                QuestionText = "What is the unit of force?",
+                Description = "Units in physics",
+                Options = new[] { "Joule", "Newton", "Pascal", "Watt" },
+                CorrectOption = "Newton",
+                CourseName = "Physics",
+                Point = 5,
+                Grade = 9,
+                Difficulty = DifficultyLevel.Easy,
+                QuestionType = QuestionTypeEnum.MultipleChoice,
+                CreatedBy = teacherIds[0],
+                Stream = StreamEnum.NaturalScience,
+                Hint = "Named after a famous scientist.",
+                Tags = new[] { "units", "force" },
+                Explanation = "The SI unit of force is Newton (N)."
+            },
+            new CreateQuestionCommand {
+                QuestionText = "What does Newton's First Law state?",
+                Description = "Laws of motion",
+                Options = new[] { "F = ma", "Objects in motion stay in motion", "Energy is conserved", "Action = reaction" },
+                CorrectOption = "Objects in motion stay in motion",
+                CourseName = "Physics",
+                Point = 5,
+                Grade = 10,
+                Difficulty = DifficultyLevel.Medium,
+                QuestionType = QuestionTypeEnum.MultipleChoice,
+                CreatedBy = teacherIds[1],
+                Stream = StreamEnum.NaturalScience,
+                Hint = "Also called the law of inertia.",
+                Tags = new[] { "laws of motion" },
+                Explanation = "It describes inertia — objects resist change in motion."
+            },
+            new CreateQuestionCommand {
+                QuestionText = "Which form of energy is stored in a stretched rubber band?",
+                Description = "Types of energy",
+                Options = new[] { "Kinetic", "Potential", "Thermal", "Chemical" },
+                CorrectOption = "Potential",
+                CourseName = "Physics",
+                Point = 5,
+                Grade = 9,
+                Difficulty = DifficultyLevel.Easy,
+                QuestionType = QuestionTypeEnum.MultipleChoice,
+                CreatedBy = teacherIds[0],
+                Stream = StreamEnum.NaturalScience,
+                Hint = "Stored energy.",
+                Tags = new[] { "energy", "potential energy" },
+                Explanation = "Potential energy is stored in stretched or compressed objects."
+            },
+
+            // CHEMISTRY
+            new CreateQuestionCommand {
+                QuestionText = "What is the center of an atom called?",
+                Description = "Atomic structure",
+                Options = new[] { "Electron", "Nucleus", "Proton", "Neutron" },
+                CorrectOption = "Nucleus",
+                CourseName = "Chemistry",
+                Point = 5,
+                Grade = 9,
+                Difficulty = DifficultyLevel.Easy,
+                QuestionType = QuestionTypeEnum.MultipleChoice,
+                CreatedBy = teacherIds[1],
+                Stream = StreamEnum.NaturalScience,
+                Hint = "It contains protons and neutrons.",
+                Tags = new[] { "atom", "nucleus" },
+                Explanation = "The nucleus is the dense core of an atom."
+            },
+            new CreateQuestionCommand {
+                QuestionText = "What type of reaction is: HCl + NaOH → NaCl + H₂O?",
+                Description = "Chemical reaction types",
+                Options = new[] { "Decomposition", "Displacement", "Neutralization", "Combustion" },
+                CorrectOption = "Neutralization",
+                CourseName = "Chemistry",
+                Point = 5,
+                Grade = 10,
+                Difficulty = DifficultyLevel.Medium,
+                QuestionType = QuestionTypeEnum.MultipleChoice,
+                CreatedBy = teacherIds[0],
+                Stream = StreamEnum.NaturalScience,
+                Hint = "Acid + Base → Salt + Water",
+                Tags = new[] { "reactions", "neutralization" },
+                Explanation = "This is a neutralization reaction between an acid and a base."
+            },
+            new CreateQuestionCommand {
+                QuestionText = "Which of the following is a base?",
+                Description = "Acids and bases",
+                Options = new[] { "HCl", "NaOH", "CH₃COOH", "H₂SO₄" },
+                CorrectOption = "NaOH",
+                CourseName = "Chemistry",
+                Point = 5,
+                Grade = 11,
+                Difficulty = DifficultyLevel.Medium,
+                QuestionType = QuestionTypeEnum.MultipleChoice,
+                CreatedBy = teacherIds[1],
+                Stream = StreamEnum.NaturalScience,
+                Hint = "Sodium hydroxide.",
+                Tags = new[] { "bases", "alkaline" },
+                Explanation = "NaOH is a strong base."
+            },
+
+            // MATH
+            new CreateQuestionCommand {
+                QuestionText = "What is the value of x in: 2x + 5 = 11?",
+                Description = "Basic algebra",
+                Options = new[] { "2", "3", "4", "5" },
+                CorrectOption = "3",
+                CourseName = "Math",
+                Point = 5,
+                Grade = 9,
+                Difficulty = DifficultyLevel.Easy,
+                QuestionType = QuestionTypeEnum.MultipleChoice,
+                CreatedBy = teacherIds[0],
+                Stream = StreamEnum.NaturalScience,
+                Hint = "Isolate x.",
+                Tags = new[] { "algebra", "equation solving" },
+                Explanation = "2x = 6 → x = 3"
+            },
+            new CreateQuestionCommand {
+                QuestionText = "Find the area of a triangle with base 8cm and height 5cm.",
+                Description = "Geometry formula",
+                Options = new[] { "40", "20", "13", "30" },
+                CorrectOption = "20",
+                CourseName = "Math",
+                Point = 5,
+                Grade = 9,
+                Difficulty = DifficultyLevel.Easy,
+                QuestionType = QuestionTypeEnum.MultipleChoice,
+                CreatedBy = teacherIds[1],
+                Stream = StreamEnum.NaturalScience,
+                Hint = "Area = 1/2 × base × height",
+                Tags = new[] { "geometry", "area" },
+                Explanation = "Area = 1/2 × 8 × 5 = 20"
+            },
+            new CreateQuestionCommand {
+                QuestionText = "What is the probability of getting a 3 when a dice is rolled?",
+                Description = "Probability basics",
+                Options = new[] { "1/2", "1/3", "1/6", "1/4" },
+                CorrectOption = "1/6",
+                CourseName = "Math",
+                Point = 5,
+                Grade = 10,
+                Difficulty = DifficultyLevel.Easy,
+                QuestionType = QuestionTypeEnum.MultipleChoice,
+                CreatedBy = teacherIds[0],
+                Stream = StreamEnum.NaturalScience,
+                Hint = "Die has 6 faces.",
+                Tags = new[] { "probability", "dice" },
+                Explanation = "One favorable outcome out of six → 1/6."
+            }
         });
+
         foreach (var question in questions)
         {
             if (question.CourseName == "English")
