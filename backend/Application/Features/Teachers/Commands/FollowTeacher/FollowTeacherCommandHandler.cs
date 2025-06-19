@@ -1,4 +1,5 @@
 using backend.Application.Contracts.Persistence;
+using backend.Application.Contracts.Services;
 using MediatR;
 
 public class FollowTeacherCommandHandler : IRequestHandler<FollowTeacherCommand, bool>
@@ -6,6 +7,7 @@ public class FollowTeacherCommandHandler : IRequestHandler<FollowTeacherCommand,
     private readonly IFollowRepository _followRepository;
     private readonly ITeacherRepository _teacherRepository;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IFollowNotifierService _followNotifierService;
 
     public FollowTeacherCommandHandler(IFollowRepository followRepository, ITeacherRepository teacherRepository)
     {
@@ -33,7 +35,7 @@ public class FollowTeacherCommandHandler : IRequestHandler<FollowTeacherCommand,
         
 
         await _followRepository.CreateAsync(newFollow);
-
+        await _followNotifierService.NotifyFollowAsync(request.TeacherId, currentUserId);
         return true;
     }
 }

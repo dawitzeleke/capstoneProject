@@ -125,7 +125,7 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
         return (int)count + 1; // +1 to convert count to rank
     }
 
-    
+
     public async Task<Dictionary<DivisionEnums, List<Student>>> GetLeaderStudentsAsync(int topCount)
     {
         var topStudentsByDivision = new Dictionary<DivisionEnums, List<Student>>();
@@ -145,5 +145,16 @@ public class StudentRepository : GenericRepository<Student>, IStudentRepository
         }
 
         return topStudentsByDivision;
+    }
+
+    public async Task<List<Student>> GetStudentByIdListAsync(List<string> ids)
+    {
+        if (ids == null || !ids.Any())
+        {
+            return new List<Student>();
+        }
+
+        var filter = Builders<Student>.Filter.In(s => s.Id, ids);
+        return await _students.Find(filter).ToListAsync();
     }
 }
