@@ -58,7 +58,6 @@ public class LikeBlogCommandHandler : IRequestHandler<LikeBlogCommand, LikeBlogR
             {
                 UserId = userId,
                 ContentId = request.BlogId,
-                ContentType = ContentTypeEnum.Blog,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };

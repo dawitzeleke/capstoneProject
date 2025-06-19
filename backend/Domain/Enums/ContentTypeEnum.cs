@@ -5,7 +5,7 @@ namespace backend.Domain.Enums
         Question,
         Image,
         Video,
-        Blog
+        Blog,
     }
 }
 

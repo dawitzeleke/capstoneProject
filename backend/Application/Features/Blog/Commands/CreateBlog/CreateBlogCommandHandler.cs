@@ -23,22 +23,31 @@ public class CreateBlogCommandHandler : IRequestHandler<CreateBlogCommand, BlogD
         if (string.IsNullOrWhiteSpace(userId))
             throw new UnauthorizedAccessException("User ID is missing from token.");
 
-        string uploadedContentUrl = null;
+        string imageUrl = null;
+        string videoUrl = null;
 
-        if (request.ContentFile != null)
+        // Handle image upload
+        if (request.ImageFile != null)
         {
-            var uploadResult = await _cloudinaryService.UploadFileAsync(request.ContentFile, "blog");
-
+            var uploadResult = await _cloudinaryService.UploadFileAsync(request.ImageFile, "blog/images");
             if (uploadResult == null || string.IsNullOrEmpty(uploadResult.Url))
-                throw new Exception("File upload to Cloudinary failed.");
-
-            uploadedContentUrl = uploadResult.Url;
+                throw new Exception("Image upload to Cloudinary failed.");
+            imageUrl = uploadResult.Url;
         }
 
+        // Handle video upload
+        if (request.VideoFile != null)
+        {
+            var uploadResult = await _cloudinaryService.UploadFileAsync(request.VideoFile, "blog/videos");
+            if (uploadResult == null || string.IsNullOrEmpty(uploadResult.Url))
+                throw new Exception("Video upload to Cloudinary failed.");
+            videoUrl = uploadResult.Url;
+        }
+        
+        
         var blog = new Blog
         {
             Title = request.Title,
-            ContentFilePath = uploadedContentUrl,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             LikedBy = new List<string>(),
@@ -46,6 +55,8 @@ public class CreateBlogCommandHandler : IRequestHandler<CreateBlogCommand, BlogD
             CreatedBy = userId,
             Description = request.Description,
             Tags = request.Tags,
+            ImageUrl = imageUrl,
+            VideoUrl = videoUrl
         };
 
         var createdBlog = await _blogRepository.CreateAsync(blog);
@@ -56,10 +67,10 @@ public class CreateBlogCommandHandler : IRequestHandler<CreateBlogCommand, BlogD
             CreatedBy = userId,
             Description = createdBlog.Description,
             Title = createdBlog.Title,
-            ContentFilePath = createdBlog.ContentFilePath,
             Tags = createdBlog.Tags,
             CreatedAt = createdBlog.CreatedAt,
+            ImageUrl = createdBlog.ImageUrl,
+            VideoUrl = createdBlog.VideoUrl
         };
     }
-
 }

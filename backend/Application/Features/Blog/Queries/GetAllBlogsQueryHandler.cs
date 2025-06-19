@@ -19,7 +19,8 @@ public class GetAllBlogsQueryHandler : IRequestHandler<GetAllBlogsQuery, List<Bl
             CreatedBy = blog.CreatedBy,
             Description = blog.Description,
             Title = blog.Title,
-            ContentFilePath = blog.ContentFilePath,
+            ImageUrl = blog.ImageUrl,
+            VideoUrl = blog.VideoUrl,
             Tags = blog.Tags,
             CreatedAt = blog.CreatedAt,
         }).ToList();

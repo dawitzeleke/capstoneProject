@@ -29,27 +29,37 @@ public class UpdateBlogCommandHandler : IRequestHandler<UpdateBlogCommand, BlogD
         if (blog == null)
             throw new Exception($"Blog with ID {request.Id} not found.");
 
-        // Handle file upload
-        if (request.ContentFile != null)
+        // Handle image file upload
+        if (request.ImageFile != null)
         {
-            // Delete old file if it exists
-            if (!string.IsNullOrWhiteSpace(blog.ContentFilePublicId))
+            // Delete old image if public ID exists
+            if (!string.IsNullOrWhiteSpace(blog.ImagePublicId))
             {
-                var deleted = await _cloudinaryService.Delete(blog.ContentFilePublicId);
-                if (!deleted)
-                    throw new Exception("Failed to delete old content file from Cloudinary.");
+                await _cloudinaryService.Delete(blog.ImagePublicId);
             }
-
-            // Upload new file
-            var uploadResult = await _cloudinaryService.UploadFileAsync(request.ContentFile, "blog");
-
+            var uploadResult = await _cloudinaryService.UploadFileAsync(request.ImageFile, "blog/images");
             if (uploadResult == null || string.IsNullOrWhiteSpace(uploadResult.Url))
-                throw new Exception("File upload to Cloudinary failed.");
-
-            blog.ContentFilePath = uploadResult.Url;
-            blog.ContentFilePublicId = uploadResult.PublicId;
+                throw new Exception("Image upload to Cloudinary failed.");
+            blog.ImageUrl = uploadResult.Url;
+            blog.ImagePublicId = uploadResult.PublicId;
         }
 
+        // Handle video file upload
+        if (request.VideoFile != null)
+        {
+            // Delete old video if public ID exists
+            if (!string.IsNullOrWhiteSpace(blog.VideoPublicId))
+            {
+                await _cloudinaryService.Delete(blog.VideoPublicId);
+            }
+            var uploadResult = await _cloudinaryService.UploadFileAsync(request.VideoFile, "blog/videos");
+            if (uploadResult == null || string.IsNullOrWhiteSpace(uploadResult.Url))
+                throw new Exception("Video upload to Cloudinary failed.");
+            blog.VideoUrl = uploadResult.Url;
+            blog.VideoPublicId = uploadResult.PublicId;
+        }
+
+        
         // Update other fields
         blog.Title = request.Title;
         blog.Description = request.Description;
@@ -64,9 +74,10 @@ public class UpdateBlogCommandHandler : IRequestHandler<UpdateBlogCommand, BlogD
             CreatedBy = userId,
             Description = updatedBlog.Description,
             Title = updatedBlog.Title,
-            ContentFilePath = updatedBlog.ContentFilePath,
             Tags = updatedBlog.Tags,
             CreatedAt = updatedBlog.CreatedAt,
+            ImageUrl = updatedBlog.ImageUrl,
+            VideoUrl = updatedBlog.VideoUrl
         };
     }
 }
