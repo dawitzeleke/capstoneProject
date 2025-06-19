@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using backend.webApi.Extensions;
 using backend.WebApi.Hubs;
+using backend.webApi.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -118,6 +119,7 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 app.MapHub<LeaderBoardHub>("/hubs/leaderboard");
+app.MapHub<NotificationHub>("/hubs/notification");
 // register the exception handler
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 

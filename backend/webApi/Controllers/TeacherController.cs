@@ -1,3 +1,4 @@
+using backend.Application.Features.Teachers.Queries.GetFollower;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +34,16 @@ public class TeachersController : ControllerBase
         return Ok("Successfully unfollowed the teacher.");
     }
 
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("followers")]
+    public async Task<IActionResult> GetFollowers([FromQuery] GetFollowerQuery query)
+    {
+        var result = await _mediator.Send(query);
+        if (result == null || !result.Any())
+            return NotFound("No followers found for this teacher.");
+        return Ok(result);
+    }
+
     [Authorize]
     [HttpPost("verification-request")]
     public async Task<IActionResult> VerificationRequest([FromForm] VerificationRequestCommand request)
@@ -61,4 +72,6 @@ public class TeachersController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
+
+    
 }

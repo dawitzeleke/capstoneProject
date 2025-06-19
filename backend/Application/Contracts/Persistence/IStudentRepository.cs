@@ -18,4 +18,5 @@ public interface IStudentRepository : IGenericRepository<Student>
     Task<bool> UpdateStudentDivisionAsync(string studentId, DivisionEnums division);
     Task<int> GetStudentRankAsync(string studentId);
     Task<Dictionary<DivisionEnums, List<Student>>> GetLeaderStudentsAsync(int topN);
+    Task<List<Student>> GetStudentByIdListAsync(List<string> ids);
 }

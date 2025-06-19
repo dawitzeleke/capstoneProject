@@ -24,7 +24,7 @@ public class FollowRepository : GenericRepository<Follow>, IFollowRepository
         var count = await _follows.CountDocumentsAsync(filter);
         return count > 0;
     }
-    
+
     public async Task<bool> UnFollow(string followerId, string teacherId)
     {
         var filter = Builders<Follow>.Filter.And(
@@ -40,5 +40,12 @@ public class FollowRepository : GenericRepository<Follow>, IFollowRepository
     {
         var filter = Builders<Follow>.Filter.Eq(f => f.FollowerId, followerId);
         return await _follows.Find(filter).ToListAsync();
+    }
+    
+    public async Task<List<string>> GetFollowersAsync(string teacherId)
+    {
+        var filter = Builders<Follow>.Filter.Eq(f => f.TeacherId, teacherId);
+        var followers = await _follows.Find(filter).Project(f => f.FollowerId).ToListAsync();
+        return followers;
     }
 }
