@@ -25,4 +25,27 @@ public class BlogRepository : GenericRepository<Blog>, IBlogRepository
         return (int)await _blogs.CountDocumentsAsync(new BsonDocument());
     }
 
+    public async Task<bool> LikeBlogAsync(string blogId, string userId)
+    {
+        var blog = await _blogs.Find(x => x.Id == blogId).FirstOrDefaultAsync();
+        if (blog == null)
+        {
+            return false; // Blog not found
+        }
+
+        if (blog.LikedBy.Contains(userId))
+        {
+            blog.LikedBy.Remove(userId); // Unlike
+        }
+        else
+        {
+            blog.LikedBy.Add(userId); // Like
+            Console.WriteLine("Here", blog.LikedBy.Count);
+        }
+
+        var update = Builders<Blog>.Update.Set(b => b.LikedBy, blog.LikedBy);
+        await _blogs.UpdateOneAsync(b => b.Id == blogId, update);
+        return true;
+    }
+
 }      

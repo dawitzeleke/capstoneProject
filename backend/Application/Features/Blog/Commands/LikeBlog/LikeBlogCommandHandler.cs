@@ -58,10 +58,21 @@ public class LikeBlogCommandHandler : IRequestHandler<LikeBlogCommand, LikeBlogR
             {
                 UserId = userId,
                 ContentId = request.BlogId,
+                ContentType = ContentTypeEnum.Blog,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
             await _likeRepository.CreateAsync(newLike);
+            var response = await _blogRepository.LikeBlogAsync(request.BlogId, userId);
+            if (!response)
+            {
+                return new LikeBlogResponse
+                {
+                    Success = false,
+                    Error = "Failed to like the blog",
+                    BlogId = request.BlogId
+                };
+            }
             liked = true;
         }
 
