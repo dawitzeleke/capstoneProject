@@ -7,6 +7,7 @@ namespace backend.Application.Contracts.Persistence;
 public interface IStudentSolvedQuestionsRepository : IGenericRepository<StudentSolvedQuestions>
 {
     Task<List<string>> GetSolvedQuestionIds(QuestionFilterDto filter, int? amount = null);
+    Task<List<string>> GetSolvedQuestionIds(string studentId);
     Task<bool> UpdateSolvedQuestions(List<StudentSolvedQuestions> solvedQuestions, 
             string studentId, int value);
     Task<bool> InsertManyAsync(List<StudentSolvedQuestions> solvedQuestions);

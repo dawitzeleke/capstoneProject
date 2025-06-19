@@ -8,11 +8,11 @@ using backend.Application.Features.Students.Queries.GetSavedQuestions;
 
 namespace backend.Persistence.Repositories;
 
-public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQuestions>, IStudentSolvedQuestionsRepository
+public class StudentSolvedQuestionsRepository : GenericRepository<StudentSolvedQuestions>, IStudentSolvedQuestionsRepository
 {
     private readonly IMongoCollection<StudentSolvedQuestions> _studentSolvedQuestions;
 
-    public StudentSolvedQuestionsRepository(MongoDbContext context ): base(context)
+    public StudentSolvedQuestionsRepository(MongoDbContext context) : base(context)
     {
         _studentSolvedQuestions = context.GetCollection<StudentSolvedQuestions>(typeof(StudentSolvedQuestions).Name);
 
@@ -30,10 +30,10 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
         );
 
         // Create indexes (MongoDB skips if they already exist)
-        _studentSolvedQuestions.Indexes.CreateMany(new[] {compoundIndex});
+        _studentSolvedQuestions.Indexes.CreateMany(new[] { compoundIndex });
     }
 
-    public async Task<List<StudentSolvedQuestions>> GetSolvedQuestions(string studentId, PaginationDto pagination = null)     
+    public async Task<List<StudentSolvedQuestions>> GetSolvedQuestions(string studentId, PaginationDto pagination = null)
     {
         var query = _studentSolvedQuestions.AsQueryable();
         if (string.IsNullOrEmpty(studentId))
@@ -41,7 +41,7 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
             return null;
         }
         query = query.Where(q => q.StudentId == studentId);
-        if (pagination!=null && pagination.LastSolveCount.HasValue && !string.IsNullOrEmpty(pagination.LastId))
+        if (pagination != null && pagination.LastSolveCount.HasValue && !string.IsNullOrEmpty(pagination.LastId))
         {
             var lastObjectId = pagination.LastId;
             query = query.Where(q => q.SolveCount >= pagination.LastSolveCount ||
@@ -64,8 +64,9 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
     {
         var query = _studentSolvedQuestions.AsQueryable();
 
-        if (!string.IsNullOrEmpty(filter.StudentId)){
-            query = query.Where(q =>q.StudentId == filter.StudentId);
+        if (!string.IsNullOrEmpty(filter.StudentId))
+        {
+            query = query.Where(q => q.StudentId == filter.StudentId);
         }
         if (filter.Grade.HasValue)
             query = query.Where(q => q.Grade == filter.Grade);
@@ -75,16 +76,17 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
 
         if (!string.IsNullOrEmpty(filter.CourseName))
             query = query.Where(q => q.CourseName == filter.CourseName);
-        
-        if (!string.IsNullOrEmpty(filter.CreatorId)){
-             query = query.Where(q => q.UpdatedBy == filter.CreatorId);
+
+        if (!string.IsNullOrEmpty(filter.CreatorId))
+        {
+            query = query.Where(q => q.UpdatedBy == filter.CreatorId);
         }
 
         var orderedQuery = query.OrderBy(q => q.SolveCount)
             .Select(q => q.QuestionId);
 
         // Apply amount limit only if specified
-        var questionIds = amount.HasValue 
+        var questionIds = amount.HasValue
             ? orderedQuery.Take(amount.Value).ToList()
             : orderedQuery.ToList();
 
@@ -123,18 +125,30 @@ public class StudentSolvedQuestionsRepository: GenericRepository<StudentSolvedQu
         return true;
 
     }
-   
-   
+
+
 
     public async Task<bool> InsertManyAsync(List<StudentSolvedQuestions> solvedQuestions)
     {
         if (solvedQuestions == null || !solvedQuestions.Any())
             return false;
-        
-        
+
+
 
         await _studentSolvedQuestions.InsertManyAsync(solvedQuestions);
         return true;
+    }
+    public async Task<List<string>> GetSolvedQuestionIds(string studentId)
+    {
+        if (string.IsNullOrEmpty(studentId))
+            return new List<string>();
+
+        var result = await _studentSolvedQuestions
+            .Find(q => q.StudentId == studentId)
+            .Project(q => q.QuestionId)
+            .ToListAsync();
+
+        return result ?? new List<string>();
     }
     
 

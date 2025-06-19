@@ -11,7 +11,7 @@ public class StudentQuestionAttemptsRepository : GenericRepository<StudentQuesti
 {
     private readonly IMongoCollection<StudentQuestionAttempts> _studentQuestionAttempt;
 
-    public StudentQuestionAttemptsRepository(MongoDbContext context ): base(context)
+    public StudentQuestionAttemptsRepository(MongoDbContext context) : base(context)
     {
         _studentQuestionAttempt = context.GetCollection<StudentQuestionAttempts>(typeof(StudentQuestionAttempts).Name);
         CreateIndexes();
@@ -28,7 +28,7 @@ public class StudentQuestionAttemptsRepository : GenericRepository<StudentQuesti
         );
 
         // Create indexes (MongoDB skips if they already exist)
-        _studentQuestionAttempt.Indexes.CreateMany(new[] {compoundIndex});
+        _studentQuestionAttempt.Indexes.CreateMany(new[] { compoundIndex });
     }
 
     public async Task<List<StudentQuestionAttempts>> GetAttemptedQuestions(string studentId)
@@ -39,7 +39,7 @@ public class StudentQuestionAttemptsRepository : GenericRepository<StudentQuesti
         return attemptQuestions;
     }
 
-    public async Task<List<string>> GetAttemptedQuestionIds(QuestionFilterDto filter, int? amount=null)
+    public async Task<List<string>> GetAttemptedQuestionIds(QuestionFilterDto filter, int? amount = null)
     {
         var query = _studentQuestionAttempt.AsQueryable();
 
@@ -65,7 +65,7 @@ public class StudentQuestionAttemptsRepository : GenericRepository<StudentQuesti
             .Select(q => q.QuestionId);
 
         // Apply amount limit only if specified
-        var questionIds = amount.HasValue 
+        var questionIds = amount.HasValue
             ? orderedQuery.Take(amount.Value).ToList()
             : orderedQuery.ToList();
 
@@ -84,8 +84,8 @@ public class StudentQuestionAttemptsRepository : GenericRepository<StudentQuesti
     public async Task RemoveManyAsync(List<StudentQuestionAttempts> attemptedQuestions)
     {
         if (attemptedQuestions == null || !attemptedQuestions.Any())
-            return ;
-        var attemptIds=  attemptedQuestions.Select(a => a.Id).ToList();
+            return;
+        var attemptIds = attemptedQuestions.Select(a => a.Id).ToList();
         var filter = Builders<StudentQuestionAttempts>.Filter.In(a => a.Id, attemptIds);
 
         await _studentQuestionAttempt.DeleteManyAsync(filter);
@@ -95,7 +95,7 @@ public class StudentQuestionAttemptsRepository : GenericRepository<StudentQuesti
     {
         if (attemptedQuestions == null || !attemptedQuestions.Any())
             return false;
-         var tasks = new List<Task>();
+        var tasks = new List<Task>();
 
         foreach (var attempt in attemptedQuestions)
         {
@@ -112,5 +112,13 @@ public class StudentQuestionAttemptsRepository : GenericRepository<StudentQuesti
         await Task.WhenAll(tasks);
         return true;
 
+    }
+    public async Task<List<string>> GetAttemptedQuestionIds(string studentId)
+    {
+        var result = await _studentQuestionAttempt
+            .Find(q => q.StudentId == studentId)
+            .Project(q => q.QuestionId)
+            .ToListAsync();
+        return result;
     }
 }

@@ -16,90 +16,24 @@ public class QuestionRecommendationController : ControllerBase
 {
     private readonly QuestionRecommendationService _recommendationService;
     private readonly IQuestionRecommendationRepository _recommendationRepository;
+    private readonly ICurrentUserService _currentUserService;
 
     public QuestionRecommendationController(
         QuestionRecommendationService recommendationService,
-        IQuestionRecommendationRepository recommendationRepository)
+        IQuestionRecommendationRepository recommendationRepository,
+        ICurrentUserService currentUserService)
     {
         _recommendationService = recommendationService;
         _recommendationRepository = recommendationRepository;
+        _currentUserService = currentUserService;
     }
 
-    [Authorize(Roles = "Student")]
-    [HttpGet("student/{studentId}")]
-    public async Task<ActionResult<List<Question>>> GetRecommendations(
-        string studentId,
-        [FromQuery] string courseName = null,
-        [FromQuery] int limit = 5)
+    [Authorize(Roles ="Student")]
+    [HttpGet("recommend")]
+    public async Task<IActionResult> Recommend(string courseName = null, int limit = 5)
     {
-        try
-        {
-            var recommendations = await _recommendationService.GetRecommendations(studentId, courseName, limit);
-            return Ok(recommendations);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error getting recommendations: {ex.Message}");
-        }
-    }
-
-    [HttpGet("student/{studentId}/history")]
-    public async Task<ActionResult<List<QuestionRecommendation>>> GetRecommendationHistory(
-        string studentId,
-        [FromQuery] int limit = 5)
-    {
-        try
-        {
-            var history = await _recommendationRepository.GetStudentRecommendations(studentId, limit);
-            return Ok(history);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error getting recommendation history: {ex.Message}");
-        }
-    }
-
-    [HttpPut("recommendation/{recommendationId}/status")]
-    public async Task<IActionResult> UpdateRecommendationStatus(
-        string recommendationId,
-        [FromBody] RecommendationStatusUpdateDto status)
-    {
-        try
-        {
-            await _recommendationRepository.UpdateRecommendationStatus(
-                recommendationId,
-                status.IsViewed,
-                status.IsAttempted,
-                status.IsSolved);
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error updating recommendation status: {ex.Message}");
-        }
-    }
-
-    [HttpDelete("student/{studentId}/old")]
-    public async Task<IActionResult> DeleteOldRecommendations(
-        string studentId,
-        [FromQuery] int daysToKeep = 7)
-    {
-        try
-        {
-            await _recommendationRepository.DeleteOldRecommendations(studentId, daysToKeep);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error deleting old recommendations: {ex.Message}");
-        }
+        var studentId = _currentUserService.UserId;
+        var questions = await _recommendationService.GetRecommendations(studentId, courseName, limit);
+        return Ok(questions);
     }
 }
-
-public class RecommendationStatusUpdateDto
-{
-    public bool IsViewed { get; set; }
-    public bool IsAttempted { get; set; }
-    public bool IsSolved { get; set; }
-} 
